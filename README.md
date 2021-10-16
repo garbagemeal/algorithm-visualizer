@@ -17,12 +17,10 @@ BFS, DFS, Connected components using DFS or a disjoint set, Prim's and Kruskal's
 
 - Clone the repository
 - Make sure to install Microsoft Visual Studio and include .NET Framework in the installer:
-![vs-installer-dot-net-framework-option](images/setup/vs-installer-dot-net-framework-option.PNG)
+![vs installer dot net framework option](images/setup/vs-installer-dot-net-framework-option.PNG)
 - Navigate to the root dir, run AlgorithmVisualizer.sln using Microsoft Visual Studio.
+- Optionally in order to make use of presets, import the MySQL DB export given in 'misc\SQL Files'.
 - Run
-
-In order to make use of the 'Presets' window you will need to have the MySQL DB with the preset details, I used PHPMyAdmin.
-An export of the DB is available in 'AlgorithmVisualizer\SQL Files'.
 
 # Screens
 
