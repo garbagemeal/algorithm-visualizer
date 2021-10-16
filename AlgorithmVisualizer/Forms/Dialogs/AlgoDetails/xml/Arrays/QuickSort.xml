@@ -1,0 +1,34 @@
+<?xml version = "1.0" standalone="yes"?>
+<!DOCTYPE algorithm SYSTEM "./../algorithm.dtd">
+<algorithm id="sorting3">
+    <name>Sample</name>
+    <paradigm>Divide and conquer</paradigm>
+    <description>
+        Quick sort is a commonly used, in-place sorting algorithm.
+        The algorithm works by selecting a pivot and partitioning the array around
+        this pivot. there are varius ways to partition an array, namely by using Lomuto's
+        or Hoare's partitioning scheme. This description will mainly foucs on Lomuto's
+        partitioning scheme, however will also mention Hoare's scheme and discuss some
+        augmentations. Lomuto's partitioning procedure selects an element as a pivot, i.e.,
+        last element, and partitions the array into 3 regions: [values &lt;= pivot, pivot, values &gt; pivot],
+        after partitioning the array or sub-array we recursively call Quick sort on each half of the
+        array excluding the pivot, and continue partitioning those sub-arrays until the base case is
+        reached where array size &lt; 2. Hoare's partitioning scheme is similar but not identical, this
+        scheme partitions the array into 2 regios: [values >= pivot, values &lt;= pivot], the pivot is
+        placed into one of the partitions, for this reason the pivot index is included in a recursive
+        call unlike Lmauto's scheme where the pivot is already in its sorted position. Hoare's scheme
+        scans the array for inversions and swaps such values and on average outperforms Lomuto's scheme.
+        Quick sort's runtime depends if the partitioning is balanced or unbalanced, which in turn depends
+        on which elements are used for partitioning. if the partitioning is balanced, the algorithm runs
+        asymptotically as fast as merge sortm otherwise the runtime may degrade to O(n^2). the worst case
+        is encountered when each the partition procedure divides the array into a chunk of 1 and a chunk
+        of n - 1. There exist some methods to more intelligently pick the pivot such as the median of 3 method,
+        as well as a randomized variation of quicksort where a random element from the array is pick as the pivot
+        and swapped with the last element, from there the variation is identical to ordinary implementations.
+        There exists another augmentation of Quick sort called Into sort or Introspective sort that combines
+        Quick sort, Heap sort and Insertion sort, and has a worst case runtime of O(nLog(n)).
+    </description>
+    <input>Array of comparable values</input>
+    <complexity>O(n^2) in the worst case, O(nLog(n)) in average, n - size of the array</complexity>
+    <sourceCode>Sample</sourceCode>
+</algorithm>

@@ -1,0 +1,52 @@
+<?xml version = "1.0" standalone="yes"?>
+<!DOCTYPE algorithm SYSTEM "./../algorithm.dtd">
+<algorithm id="sorting3">
+    <name>Merge sort</name>
+    <paradigm>Divide and conquer</paradigm>
+    <description>
+        A sorting algorithm that sorts the input array by spliting
+        it into 2 arrays, recuring on both sub arrays until base case
+        is reached. upon reaching the base case the algorithm begins
+        merging the sorted halves into 1 sorted array. can sort an
+        array of any compareable items. merge sort can also be applied
+        on linked lists however the algorithm differs slightly due to
+        work with pointers. There exists an augmentation of this
+        algorithm called Timsort that combines Merge sort and insertion
+        sort and shares the same worst case rumtime of O(nLog(n)) with
+        Merge sort, however improves the best case runtime to O(n).
+        Both Merge and Tim sort use O(n) extra space.
+    </description>
+    <input>An array of comparable values</input>
+    <complexity>O(nLog(n)), n - size of the array</complexity>
+    <sourceCode>
+        public void MergeSort()
+		{
+			MergeSort(arr, 0, arr.Length - 1);
+		}
+		private void MergeSort(int[] arr, int left, int right)
+		{
+			if (left &lt; right)
+			{
+				int mid = (left + right) / 2;
+				MergeSort(arr, left, mid);
+				MergeSort(arr, mid + 1, right);
+				MergeSortedArrays(arr, left, mid, right);
+			}
+		}
+		private void MergeSortedArrays(int[] arr, int left, int mid, int right)
+		{
+			/* arr can be thought of as 2 arrays: arr[left : mid], arr[mid + 1 : right]
+			 * After merging the 2 sorted halves, copy them into arr(original array) to the correct indicies
+			 * beginning at left, ending at right both inclusive */
+			int leftIdx = left, rightIdx = mid + 1, i = 0;
+			int[] res = new int[right - left + 1];
+
+			while (leftIdx &lt;= mid &amp;&amp; rightIdx &lt;= right)
+				res[i++] = arr[leftIdx] &lt;= arr[rightIdx] ? arr[leftIdx++] : arr[rightIdx++];
+			while (leftIdx &lt;= mid) res[i++] = arr[leftIdx++];
+			while (rightIdx &lt;= right) res[i++] = arr[rightIdx++];
+
+			for (i = 0; i &lt; res.Length; i++) arr[i + left] = res[i];
+		}
+    </sourceCode>
+</algorithm>

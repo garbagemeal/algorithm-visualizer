@@ -1,0 +1,18 @@
+<?xml version = "1.0" standalone="yes"?>
+<!DOCTYPE algorithm SYSTEM "./../algorithm.dtd">
+<algorithm id="sorting3">
+    <name>Insertion sort</name>
+    <paradigm>Brute force</paradigm>
+    <description>
+        An in-place, stable sorting algorithm that sorts the array one item at a time.
+        The algorithm in quadratic in the worst case and therefore inefficient for large
+        data sets however, the algorithm is quite efficient for small data sets, much like
+        other quadratic sorting algorithms. Moreover the algorithm is efficient for sorted
+        or partially sorted data sets, for already sorted data sets the runtime is O(n) and
+        is also the best case, when each element in the array is no more than k places away
+        from its sorted position the runtime can be bounded by O(k*n).
+    </description>
+    <input>Array of comparable values</input>
+    <complexity>O(n^2), n - size of the array</complexity>
+    <sourceCode>Sample</sourceCode>
+</algorithm>

@@ -1,0 +1,18 @@
+<?xml version = "1.0" standalone="yes"?>
+<!DOCTYPE algorithm SYSTEM "./../algorithm.dtd">
+<algorithm id="sorting3">
+    <name>Sample</name>
+    <paradigm>Divide and conquer</paradigm>
+    <description>
+        Radix sort is a stable sorting algorithm that uses counting sort as a subroutine, the counting sort
+        uses a counter array of size 10 for each digit in the domain [0, 9]. Here LSB Radix sort is described
+        where the sorting begins with the least significant digit and moves to the MSB, by sorting in this order,
+        1 digit at a time the array will be sorted, for strings MSB radix sort should probably be used.
+        Because radix sort sorts the array 1 digit at a time the radix of the largest number in the array
+        affects the runtime of the algorithm. when the the radix of the largest number in the array is some known
+        constant then the runtime of Radix sort asymptotically is linear!
+    </description>
+    <input>Array of any values</input>
+    <complexity>O(n * d), n - size of the array, d - the length(radix) of the longest value</complexity>
+    <sourceCode>Sample</sourceCode>
+</algorithm>

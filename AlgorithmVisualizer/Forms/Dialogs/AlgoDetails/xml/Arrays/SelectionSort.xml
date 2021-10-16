@@ -1,0 +1,18 @@
+<?xml version = "1.0" standalone="yes"?>
+<!DOCTYPE algorithm SYSTEM "./../algorithm.dtd">
+<algorithm id="sorting3">
+    <name>Selection sort</name>
+    <paradigm>Brute force</paradigm>
+    <description>
+        An in-place sorting algorithm. Selection sort sorts the array by dividing
+        the array into 2 parts, 1 sorted and the other is not, initially the sorted
+        part is empty and the algorithm terminates when the sorted part is the entire array.
+        Selection sort selects the min/max in each pass and places it at the correct position,
+        causing the sorted part to increase by 1 and the unsorted part to decrease by 1.
+        Selection sort has quadratic runtime even in the best case, however it makes the minimum
+        possible number of swaps, n-1 swaps in the worst case.
+    </description>
+    <input>Array of comparable values</input>
+    <complexity>O(n^2), n - size of the array</complexity>
+    <sourceCode>Sample</sourceCode>
+</algorithm>

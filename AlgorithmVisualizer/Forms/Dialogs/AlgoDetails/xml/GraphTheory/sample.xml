@@ -1,0 +1,10 @@
+<?xml version = "1.0" standalone="yes"?>
+<!DOCTYPE algorithm SYSTEM "./../algorithm.dtd">
+<algorithm id="sorting3">
+    <name>Sample</name>
+    <paradigm>Sample</paradigm>
+    <description>Sample</description>
+    <input>Sample</input>
+    <complexity>Sample</complexity>
+    <sourceCode>Sample</sourceCode>
+</algorithm>

@@ -1,0 +1,17 @@
+<?xml version = "1.0" standalone="yes"?>
+<!DOCTYPE algorithm SYSTEM "./../algorithm.dtd">
+<algorithm id="sorting3">
+    <name>Binary search</name>
+    <paradigm>Branch and bound</paradigm>
+    <description>
+        A searching algorithm that finds the position of a traget value within a sorted array.
+        Binary serach compares target value with the middle element of the array. If they are equal
+        then the target value has been found and its index is returned, otherwise depending if the target
+        value is greater/less then the middle element, the left/right half of the array is elimininated and
+        the search continues for the other half. When left > right, that is the current sub-array size is 0,
+        -1 is returned, indicating the absence of the target value in the array.
+    </description>
+    <input>An array of comparable values</input>
+    <complexity>O(log(n)), n - size of the array</complexity>
+    <sourceCode>Sample</sourceCode>
+</algorithm>

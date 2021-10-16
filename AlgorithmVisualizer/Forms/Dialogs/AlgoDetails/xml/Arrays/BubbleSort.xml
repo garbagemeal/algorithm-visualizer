@@ -1,0 +1,19 @@
+<?xml version = "1.0" standalone="yes"?>
+<!DOCTYPE algorithm SYSTEM "./../algorithm.dtd">
+<algorithm id="sorting3">
+    <name>Bubble sort</name>
+    <paradigm>Brute force</paradigm>
+    <description>
+        A simple sorting algorithm where the array is being scanned and adjacent elements
+        are comapred and swapped if found out of order. The algorithm is named for the way
+        smaller/larger elements "bubble" to the start/end of the array. This simple algorithm
+        performs poorly for large data sets and real world data and is primarily used for
+        educational purposes. The best case runtime can be brought down to O(n) from O(n^2) by checking
+        after every array pass if there were swaps, if not then the array is sorted.
+        the best case runtime occours when the input array is already sorted. Bubble sort is an
+        in-place, stable sorting algorithm.
+    </description>
+    <input>Array of comparable values</input>
+    <complexity>O(n^2), n - size of the array</complexity>
+    <sourceCode>Sample</sourceCode>
+</algorithm>

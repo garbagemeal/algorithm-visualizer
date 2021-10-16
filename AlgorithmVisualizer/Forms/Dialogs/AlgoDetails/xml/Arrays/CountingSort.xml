@@ -1,0 +1,18 @@
+<?xml version = "1.0" standalone="yes"?>
+<!DOCTYPE algorithm SYSTEM "./../algorithm.dtd">
+<algorithm id="sorting3">
+    <name>Sample</name>
+    <paradigm>Divide and conquer</paradigm>
+    <description>
+        A stable, non comparison based sorting algorithm. Counting sort begins by finding the min/max
+        value in the array and creating a counter array named counts, of size N(N = max - min + 1), counts[i - min] counts
+        the number of times the value i appears. The algorithm will scan the input array and count each value
+        in the coutner array, counts. After counting each value the prefix sum is computed and stored in counts by
+        scanning the array counts starting from index 1 and adding to counts[i] counts[i - 1]. after computing create
+        an output named res array of the same size as the input array to store the sorted result and start scanning counts array:
+        for each value v in input array res[counts[v - minVal]-- - 1] = v;
+    </description>
+    <input>Array of any values</input>
+    <complexity>O(n + r), n - size of the array, r - the range of the values in the array</complexity>
+    <sourceCode>Sample</sourceCode>
+</algorithm>

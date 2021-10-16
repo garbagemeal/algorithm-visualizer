@@ -1,0 +1,45 @@
+<?xml version = "1.0" standalone="yes"?>
+<!DOCTYPE algorithm SYSTEM "./../algorithm.dtd">
+<algorithm id="sorting3">
+    <name>Heap sort</name>
+    <paradigm>Brute force</paradigm>
+    <description>
+        An algorithm to sort an array using a binary heap.
+        The following describes an implementation of the heap sort algorithm where
+        the selected heap is a max heap however, with adjustment a min heap could be used.
+
+        The main subroutine for the heap sort algorithm is the heapify down procedure:
+        The input for the procedure is a node idx, the procedure will ensure the heap invariant
+        is satisfied for the tree rooted at the node at the given index. The procedure comapres
+        the node at the given idx against its children and swaps the node with the largest child
+        and then the repeats on the bubbled down value until either there are no children or all
+        children are smaller then then parent, at this point the procedure finished and the heap
+        invariant is satisfied for the node starting at the initial given idx. Note that for the
+        procedure to successfully work, both subtrees of the given node must conform to the heap invariant!
+
+        
+        To treat the array as a binary tree we index the array as a tree:
+        get the parent of a node via idx: (idx - 1) / 2
+        get the Kth child of node via idx: idx * 2 + K
+        Note: 1 &lt;= K &lt;= 2
+
+        First the array is transformed into a binary max heap by invoking the heapify down procedure
+        for each node in the domain [N / 2 - 1, 0], the reason the other half of the array is ignored
+        is because those are all leaf nodes and every leaf node satisfies the heap invariant.
+        After transforming the array into a max heap, the max is repeatedly removed by swapping with
+        the last heap element and decreasing the heap size by 1 to make the removed value no longer
+        part of the heap and the removal results with the removed value in the correct sorted position.
+        after each dequeue from the heap heapify down is invoked for the new value at the root to ensure
+        the heap invariant is maintained.
+        The sorting of the array is done when the heap size is 1 and the 1 element in the heap is already
+        at its sorted position including the rest of the array that has been sorted.
+
+        A binary heap is a complete binary tree, in a complete binary tree every level,
+        except possibly the last, is completely filled, and all nodes in the last level
+        are as far left as possible. a heap must satisfy the heap invariant; in a max heap
+        every node's value must be greater then or equal to its children's values.
+    </description>
+    <input>Array of comparable values</input>
+    <complexity>O(nLog(n)), n - size of the array</complexity>
+    <sourceCode>Sample</sourceCode>
+</algorithm>

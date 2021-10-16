@@ -1,0 +1,13 @@
+<!DOCTYPE algorithm [
+    <!ELEMENT name (#PCDATA)>
+    <!ELEMENT paradigm (#PCDATA)>
+    <!ELEMENT description (#PCDATA)>
+    <!ELEMENT input (#PCDATA)>
+    <!ELEMENT complexity (#PCDATA)>
+    <!ELEMENT sourceCode (#PCDATA)>
+
+    <!ELEMENT algorithm (name, paradigm, description, input, complexity, sourceCode)>
+    <!ATTLIST algorithm
+        id ID #REQUIRED
+    >
+]>

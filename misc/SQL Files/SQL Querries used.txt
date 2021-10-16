@@ -1,0 +1,12 @@
+# Creating DB 'Graphs' and the table to store presets 'Presets'
+# For each preset store (id, name, serial, img_dir) where id is the primary key
+# Specifying and id when inserting rows is not required
+CREATE DATABASE Graphs;
+USE Graphs;
+CREATE TABLE Presets(
+	id int NOT NULL AUTO_INCREMENT,
+    name varchar(255) NOT NULL,
+    serial varchar(10000),
+    img_dir varchar(511),
+    PRIMARY KEY (id)
+);
