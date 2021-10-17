@@ -6,6 +6,7 @@ using System.Windows.Forms;
 
 using AlgorithmVisualizer.Forms.Dialogs;
 using AlgorithmVisualizer.Forms.Dialogs.AlgoDetails;
+using AlgorithmVisualizer.GraphTheory;
 using AlgorithmVisualizer.GraphTheory.Algorithms;
 using AlgorithmVisualizer.GraphTheory.FDGV;
 using AlgorithmVisualizer.GraphTheory.Utils;

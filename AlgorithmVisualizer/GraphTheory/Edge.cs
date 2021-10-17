@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace AlgorithmVisualizer.GraphTheory.FDGV
+namespace AlgorithmVisualizer.GraphTheory
 {
 	public class Edge : IComparable
 	{

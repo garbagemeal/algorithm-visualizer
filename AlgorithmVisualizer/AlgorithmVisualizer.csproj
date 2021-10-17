@@ -131,11 +131,11 @@
     <Compile Include="GraphTheory\Algorithms\LazyPrimsMST.cs" />
     <Compile Include="GraphTheory\Algorithms\TarjansSCCs.cs" />
     <Compile Include="GraphTheory\Algorithms\TopSortDFS.cs" />
-    <Compile Include="GraphTheory\FDGV\Edge.cs" />
+    <Compile Include="GraphTheory\Edge.cs" />
     <Compile Include="GraphTheory\FDGV\GraphVisualizer.cs" />
-    <Compile Include="GraphTheory\FDGV\GNode.cs" />
-    <Compile Include="GraphTheory\FDGV\Graph.cs" />
-    <Compile Include="GraphTheory\FDGV\GraphSerializer.cs" />
+    <Compile Include="GraphTheory\GNode.cs" />
+    <Compile Include="GraphTheory\Graph.cs" />
+    <Compile Include="GraphTheory\Utils\GraphSerializer.cs" />
     <Compile Include="GraphTheory\FDGV\Particle.cs" />
     <Compile Include="GraphTheory\FDGV\Spring.cs" />
     <Compile Include="GraphTheory\MazeGeneration\Cell.cs" />

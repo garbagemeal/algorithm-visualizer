@@ -4,9 +4,10 @@ using System.Drawing;
 using System.Linq;
 
 using AlgorithmVisualizer.Forms.Dialogs;
+using AlgorithmVisualizer.GraphTheory.FDGV;
 using AlgorithmVisualizer.MathUtils;
 
-namespace AlgorithmVisualizer.GraphTheory.FDGV
+namespace AlgorithmVisualizer.GraphTheory
 {
 	// Directed adjacency list representation of a graph.
 	public class Graph : GraphVisualizer
@@ -27,21 +28,6 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 		#region Graph manipulation
 		public bool IsEmpty() => NodeCount == 0;
 		public bool ContainsNode(int id) => nodeLookup.ContainsKey(id);
-		public void PrintAdjListAndNodeLookup()
-		{
-			Console.WriteLine("======================================================================================================");
-			Console.WriteLine("nodeLookup:");
-			foreach (int id in nodeLookup.Keys) Console.WriteLine(id + " ");
-			Console.WriteLine("======================================================================================================");
-			Console.WriteLine("AdjList:");
-			foreach (int id in AdjList.Keys)
-			{
-				Console.WriteLine(id + ": ");
-				foreach (var edge in AdjList[id]) Console.WriteLine(edge + " ");
-				Console.WriteLine();
-			}
-			Console.WriteLine("======================================================================================================");
-		}
 		// Returns a random key from nodeLookup; a random node id
 		public int GetRandomNodeId() => nodeLookup.ElementAt(rnd.Next(nodeLookup.Count)).Key;
 		public void ClearGraph()
@@ -348,5 +334,22 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 			return edgeList;
 		}
 		#endregion
+
+		public void PrintAdjListAndNodeLookup()
+		{
+			// Used for debugging
+
+			Console.WriteLine("========================================================");
+			Console.WriteLine("nodeLookup:");
+			foreach (int id in nodeLookup.Keys) Console.WriteLine(id + " ");
+			Console.WriteLine("AdjList:");
+			Console.WriteLine("========================================================");
+			foreach (int id in AdjList.Keys)
+			{
+				Console.WriteLine($"AdjList[{id}]:");
+				Console.WriteLine(AdjList[id].ToArray().ToString());
+			}
+			Console.WriteLine("========================================================");
+		}
 	}
 }

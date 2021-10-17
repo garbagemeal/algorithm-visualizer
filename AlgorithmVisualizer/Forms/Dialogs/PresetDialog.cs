@@ -3,7 +3,8 @@ using System.Drawing;
 using System.Windows.Forms;
 
 using AlgorithmVisualizer.DBHandler;
-using AlgorithmVisualizer.GraphTheory.FDGV;
+using AlgorithmVisualizer.GraphTheory;
+using AlgorithmVisualizer.GraphTheory.Utils;
 
 namespace AlgorithmVisualizer.Forms.Dialogs
 {
