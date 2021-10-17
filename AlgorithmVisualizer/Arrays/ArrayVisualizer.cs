@@ -1,14 +1,13 @@
 ﻿using System;
 using static System.Math;
 using System.Drawing;
-using System.Threading;
 
 using AlgorithmVisualizer.Threading;
 
 namespace AlgorithmVisualizer.Arrays
 {
 	
-	public class ArrayVisualizer : PauseResume
+	public class ArrayVisualizer : PauseResumeSleep
 	{
 		protected int[] arr;
 		protected Graphics g;
@@ -16,9 +15,6 @@ namespace AlgorithmVisualizer.Arrays
 		private readonly int minVal = 5;
 		protected int maxVal;
 		protected double entryWidth;
-		// The delay factor for the sleep method, can range from 0-2 (0 is faster)
-		protected double delayFactor = 1;
-		public double DelayFactor { get { return delayFactor; } set { delayFactor = value; } }
 		protected static Random rnd = new Random();
 
 		public ArrayVisualizer(int[] _arr, Graphics _g, int _maxVal, double _entryWidth, bool sortedFlag)
@@ -29,11 +25,11 @@ namespace AlgorithmVisualizer.Arrays
 			entryWidth = _entryWidth;
 			// Note that delayFactor is tomporairly adjusted to 0
 			// for the array the be randomized with no delays
-			double tmp = delayFactor;
-			delayFactor = 0;
+			double tmp = DelayFactor;
+			DelayFactor = 0;
 			if (sortedFlag) SortedFillArray();
 			else RndFillArray(); 
-			delayFactor = tmp;
+			DelayFactor = tmp;
 		}
 
 		private void RndFillArray()
@@ -105,25 +101,13 @@ namespace AlgorithmVisualizer.Arrays
 			// for the array the be randomized with no delays
 			if (from <= to)
 			{
-				double tmp = delayFactor;
-				delayFactor = 0;
+				double tmp = DelayFactor;
+				DelayFactor = 0;
 				for (int i = from; i <= to; i++)
 					DrawValueAt(i, brush);
-				delayFactor = tmp;
+				DelayFactor = tmp;
 				Sleep(500);
 			}
-		}
-
-		protected void Sleep(int millis)
-		{
-			// Helper method to use Thread.Sleep() for the given ammount of
-			// milliseconds multiplied by the delay factor (1 by default)
-
-			// If not during a pause event wait X millis
-			if (!Paused) Thread.Sleep((int)Math.Round(delayFactor * millis));
-
-			// Check for pause event
-			CheckForPause();
 		}
 	}
 }

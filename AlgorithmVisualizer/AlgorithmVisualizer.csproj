@@ -135,7 +135,6 @@
     <Compile Include="GraphTheory\FDGV\GraphVisualizer.cs" />
     <Compile Include="GraphTheory\FDGV\GNode.cs" />
     <Compile Include="GraphTheory\FDGV\Graph.cs" />
-    <Compile Include="GraphTheory\Algorithms\GraphAlgorithms.cs" />
     <Compile Include="GraphTheory\FDGV\GraphSerializer.cs" />
     <Compile Include="GraphTheory\FDGV\Particle.cs" />
     <Compile Include="GraphTheory\FDGV\Spring.cs" />
@@ -156,7 +155,7 @@
     <Compile Include="Forms\ArrayAlgoForm.Designer.cs">
       <DependentUpon>ArrayAlgoForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Threading\PauseResume.cs" />
+    <Compile Include="Threading\PauseResumeSleep.cs" />
     <Compile Include="GraphTheory\MazeGeneration\RecursiveBacktracker.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

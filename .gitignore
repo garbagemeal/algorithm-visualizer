@@ -1,1 +1,16 @@
 .vs/
+
+# Reference for self: https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
+
+# Visual Studio cache files
+# files ending in .cache can be ignored
+*.[Cc]ache
+# but keep track of directories ending in .cache
+!?*.[Cc]ache/
+
+# Files built by Visual Studio
+*.pdb
+
+# bin and obj folders
+AlgorithmVisualizer/bin/
+AlgorithmVisualizer/obj/

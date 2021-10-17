@@ -149,11 +149,10 @@ namespace AlgorithmVisualizer.Forms
 			// 
 			this.speedBar.LargeChange = 1;
 			this.speedBar.Location = new System.Drawing.Point(532, 15);
-			this.speedBar.Maximum = 500;
 			this.speedBar.Name = "speedBar";
 			this.speedBar.Size = new System.Drawing.Size(151, 23);
 			this.speedBar.TabIndex = 11;
-			this.speedBar.Value = 50;
+			this.speedBar.Value = 95;
 			this.speedBar.Scroll += new System.Windows.Forms.ScrollEventHandler(this.speedBar_Scroll);
 			// 
 			// panelControls

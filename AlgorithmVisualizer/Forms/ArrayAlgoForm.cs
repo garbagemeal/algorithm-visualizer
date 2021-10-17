@@ -99,15 +99,7 @@ namespace AlgorithmVisualizer.Forms
 		private void speedBar_Scroll(object sender, ScrollEventArgs e)
 		{
 			if (arrayVisualizer != null)
-			{
-				// Note that the sppedbar is reversed
-				delayTime = Math.Abs(speedBar.Value - MAX_SPEED);
-				// update its delayFactor attr for arrayVisualizer
-				const double MIN_FACTOR = 0, MAX_FACTOR = 2;
-				double delayFactor = delayTime * ((MAX_FACTOR - MIN_FACTOR) / (speedBar.Maximum - speedBar.Minimum));
-				arrayVisualizer.DelayFactor = delayFactor;
-				Console.WriteLine("delayTime: " + delayTime);
-			}
+				arrayVisualizer.SetDelayFactor(speedBar.Value, speedBar.Minimum, speedBar.Maximum);
 		}
 		private void arrSizeBar_Scroll(object sender, ScrollEventArgs e)
 		{

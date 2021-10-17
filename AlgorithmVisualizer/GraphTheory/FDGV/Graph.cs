@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 
+using AlgorithmVisualizer.Forms.Dialogs;
 using AlgorithmVisualizer.MathUtils;
 
 namespace AlgorithmVisualizer.GraphTheory.FDGV
@@ -26,6 +27,21 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 		#region Graph manipulation
 		public bool IsEmpty() => NodeCount == 0;
 		public bool ContainsNode(int id) => nodeLookup.ContainsKey(id);
+		public void PrintAdjListAndNodeLookup()
+		{
+			Console.WriteLine("======================================================================================================");
+			Console.WriteLine("nodeLookup:");
+			foreach (int id in nodeLookup.Keys) Console.WriteLine(id + " ");
+			Console.WriteLine("======================================================================================================");
+			Console.WriteLine("AdjList:");
+			foreach (int id in AdjList.Keys)
+			{
+				Console.WriteLine(id + ": ");
+				foreach (var edge in AdjList[id]) Console.WriteLine(edge + " ");
+				Console.WriteLine();
+			}
+			Console.WriteLine("======================================================================================================");
+		}
 		// Returns a random key from nodeLookup; a random node id
 		public int GetRandomNodeId() => nodeLookup.ElementAt(rnd.Next(nodeLookup.Count)).Key;
 		public void ClearGraph()
@@ -47,7 +63,7 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 			AddParticle(particle);
 			return true;
 		}
-		public bool RemNode(int id)
+		public bool RemoveNode(int id)
 		{
 			// Remove all edges coming from or going to 'id' (if exists) and update node/edge counts
 			if (!ContainsNode(id)) return false;
@@ -220,7 +236,6 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 			return false;
 		}
 
-
 		// Some data structures require node id's to be in the range 0 - V non inclusive
 		public void FixNodeIdNumbering()
 		{
@@ -237,6 +252,9 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 			// Array values are not sequntial starting from 0
 			if(nodeIdArray[0] > 0 || nodeIdArray[N - 1] - nodeIdArray[0] > N - 1)
 			{
+				// Tell the user changes to the vertex id's are about to happen.
+				SimpleDialog.ShowMessage("Notice", $"Shifting vertex ids to the domain [0, {NodeCount - 1}]");
+
 				// Note that each index denotes the new node id,
 				// and the value denotes the old node id.
 

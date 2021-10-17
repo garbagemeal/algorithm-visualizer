@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Threading;
 
 using AlgorithmVisualizer.GraphTheory.Utils;
 using AlgorithmVisualizer.MathUtils;
@@ -9,7 +8,7 @@ using AlgorithmVisualizer.Threading;
 
 namespace AlgorithmVisualizer.GraphTheory.FDGV
 {
-	public class GraphVisualizer : PauseResume
+	public class GraphVisualizer : PauseResumeSleep
 	{
 		/* Implementation of a force directed graph visualizing algorithm.
 
@@ -54,14 +53,6 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 
 		protected static Random rnd = new Random();
 		
-		// The delay factor for the sleep method, can range from 0-2 (0 is faster)
-		private double delayFactor = 1;
-		public double DelayFactor
-		{
-			get { return delayFactor; }
-			set { delayFactor = value; }
-		}
-
 		public GraphVisualizer(Graphics gMain, Graphics gLog, int _panelHeight, int _panelWidth)
 		{
 			GMain = gMain;
@@ -182,8 +173,7 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 				Particle.MAX_VEL_MAG_PER_ITR = 0;
 				DrawGraph();
 				i++;
-				// Check if pause event has been raised
-				CheckForPause();
+				Sleep(0); // Check for pause event
 			} while (i < MAX_NUM_ITR && Particle.MAX_VEL_MAG_PER_ITR > EPSILON);
 
 			// Reset max_vel/itr for next invocation of this method
@@ -282,18 +272,5 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 			foreach (Particle particle in particles) particle.Pinned = false;
 		}
 		#endregion
-		
-		// Threading
-		public void Sleep(int millis)
-		{
-			// Helper method to use Thread.Sleep() for the given ammount of
-			// milliseconds multiplied by the delay factor (1 by default)
-
-			// If not during a pause event wait X millis
-			if (!Paused) Thread.Sleep((int)Math.Round(delayFactor * millis));
-
-			// Check for pause event
-			CheckForPause();
-		}
 	}
 }

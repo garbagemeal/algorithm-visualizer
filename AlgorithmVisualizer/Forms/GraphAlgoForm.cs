@@ -2,7 +2,6 @@
 using System.ComponentModel;
 using System.Drawing;
 using System.IO;
-using System.Threading;
 using System.Windows.Forms;
 
 using AlgorithmVisualizer.Forms.Dialogs;
@@ -70,6 +69,7 @@ namespace AlgorithmVisualizer.Forms
 			{
 				// Making sure the node ids are sequential
 				graph.FixNodeIdNumbering();
+				graph.PrintAdjListAndNodeLookup();
 				int from = -1, to = -1;
 				// Not all algo's need a starting/edging node specified
 				if (selectedAlgoNameIdx == 8 || selectedAlgoNameIdx == 11)
@@ -77,17 +77,15 @@ namespace AlgorithmVisualizer.Forms
 					using (var startEndNodeDialog = new StartEndNodeDialog(includeTo: false))
 					{
 						if (startEndNodeDialog.ShowDialog() == DialogResult.OK)
-						{
 							from = startEndNodeDialog.From;
-						}
-						else
-						{
-							SimpleDialog.ShowMessage("Error", "Invalid start node id");
-							return;
-						}
+					}
+					if (!graph.ContainsNode(from))
+					{
+						SimpleDialog.ShowMessage("Error", "Invalid start node id");
+						return;
 					}
 					graph.DrawParticle(from, Colors.Green); // start node in green
-					Thread.Sleep(2000);
+					graph.Sleep(2000);
 					// restore node color
 					graph.ResetParticleColor(from);
 				}
@@ -100,25 +98,26 @@ namespace AlgorithmVisualizer.Forms
 							from = startEndNodeDialog.From;
 							to = startEndNodeDialog.To;
 						}
-						else
-						{
-							SimpleDialog.ShowMessage("Error", "Invalid start/end node id(s)");
-							return;
-						}
+					}
+					if (!graph.ContainsNode(from) || !graph.ContainsNode(to))
+					{
+						SimpleDialog.ShowMessage("Error", "Invalid start/end node id(s)");
+						return;
 					}
 					graph.DrawParticle(from, Colors.Green); // start node in green
 					// In case the starting node is also the ending node
-					if (from == to) Thread.Sleep(500);
+					if (from == to) graph.Sleep(500);
 					graph.DrawParticle(to, Colors.Red); // end node in red
-					Thread.Sleep(2000);
+					graph.Sleep(2000);
 					// restore node colors
 					graph.ResetParticleColor(from);
 					graph.ResetParticleColor(to);
 				}
-				Thread.Sleep(500);
+				graph.Sleep(500);
 				RunAlgo(from, to);
 			}
-			else Console.WriteLine("Graph is empty!, algorithm did not run");
+			else SimpleDialog.ShowMessage("Error, graph is empty!",
+				"Algorithm did not run \nHint: Click \"Presets\" to load a preset or rightclick in panel create a vertex");
 		}
 		private void RunAlgo(int from, int to)
 		{
@@ -317,16 +316,7 @@ namespace AlgorithmVisualizer.Forms
 		private void speedBar_Scroll(object sender, ScrollEventArgs e)
 		{
 			if (graph != null)
-			{
-				// Note that the sppedbar is reversed
-				int delayTime = Math.Abs(speedBar.Value - speedBar.Maximum);
-				// Scaling delayTime in the domain [0 - 2] and storing in delayFactor
-				const double MIN_FACTOR = 0, MAX_FACTOR = 2;
-				double delayFactor = delayTime * ( (MAX_FACTOR - MIN_FACTOR) / (speedBar.Maximum - speedBar.Minimum));
-				// Update dealyFactor for the graph ruuning the visualizations
-				graph.DelayFactor = delayFactor;
-				Console.WriteLine("delayFactor updated, new value: " + delayFactor);
-			}
+				graph.SetDelayFactor(speedBar.Value, speedBar.Minimum, speedBar.Maximum);
 		}
 		private void algoComboBox_SelectedIndexChanged(object sender, EventArgs e)
 		{
@@ -380,7 +370,7 @@ namespace AlgorithmVisualizer.Forms
 		{
 			if (activeParticleId != -1)
 			{
-				bool remStatus = graph.RemNode(activeParticleId);
+				bool remStatus = graph.RemoveNode(activeParticleId);
 				Console.WriteLine("Removing particle with id {0}, status: {1}",
 					activeParticleId, remStatus ? "Success" : "Failure");
 				if (remStatus) DrawGraph();
