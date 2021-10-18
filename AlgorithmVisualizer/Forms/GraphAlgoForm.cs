@@ -29,7 +29,16 @@ namespace AlgorithmVisualizer.Forms
 		private Panel panelLog;
 		private Graphics panelLogG;
 		private BackgroundWorker bgw;
+		// controls when "DrawGraph()" uses forces to draw
 		private bool forceDirectedDrawMode = true;
+
+		// Keeping track of active particles (mouse events)
+		private Vector activeRClickPos;
+		private Particle activeParticle;
+		private int activeParticleId = -1;
+
+		// Logging and debugging for self, can be ignored.
+		int logId = 0;
 
 		public GraphAlgoForm(Form _parentForm)
 		{
@@ -46,7 +55,21 @@ namespace AlgorithmVisualizer.Forms
 			graph = new Graph(canvas, panelLogG);
 		}
 
+		// A single drawing with or without using forces
 		private void DrawGraph() => graph.DrawGraph(forceDirectedDrawMode ? DrawingMode.Default : DrawingMode.Forceless);
+		// define type of work the bgw does, i.e VizMode.GraphLayout for drawing the graph
+		// and VizMode.GraphAlgo for standard graph theory algos
+		private enum VizMode { GraphLayout = 0, GraphAlgo = 1 };
+		private void Visualize(VizMode mode)
+		{
+			// TODO: bgw.WorkerSupportsCancellation = true;
+
+			// Create new backgroundworker
+			bgw = new BackgroundWorker();
+			// Assign work to bgw (a function) and run async
+			bgw.DoWork += new DoWorkEventHandler(bgw_Visualize);
+			bgw.RunWorkerAsync(argument: mode);
+		}
 		public void RunAlgo()
 		{
 			int nodeCount = graph.NodeCount, from = -1, to = -1;
@@ -162,39 +185,25 @@ namespace AlgorithmVisualizer.Forms
 		private bool inVizMode = false;
 		private void bgw_Visualize(object sender, DoWorkEventArgs e)
 		{
-			// The code to be executed by the background worker,
-			// namely the selected graph algortihm
-
+			VizMode viMode = (VizMode)e.Argument;
+			// Sync parent to prevent log panel resize 
 			((MainUIForm)parentForm).InVizMode = inVizMode = true;
 			// Enable Pause/Resume and disable rest of the controls while visualizing
 			Control[] controls = new Control[] { btnPauseResume, btnStart, btnReset, btnClearState, btnPresets, algoComboBox };
 			foreach (Control control in controls) SetControlEnabled(control, control == btnPauseResume);
 			((MainUIForm)parentForm).ToggleWindowResizeAndMainMenuBtns();
 
-			// Running the visualization of the graph layout or the visualization for the graph algorithm
-			// depending on the given arguemnt (true for algo viz, false for graph viz)
-			if ((bool)e.Argument) RunAlgo();
-			else graph.Visualize();
+			if (viMode == VizMode.GraphLayout) graph.Visualize();
+			else RunAlgo(); // Visualize graph algo
 
 			// Disable Pause/Resume and enable rest of the controls after visualizing
 			foreach (Control control in controls) SetControlEnabled(control, control != btnPauseResume);
 			((MainUIForm)parentForm).ToggleWindowResizeAndMainMenuBtns();
 			((MainUIForm)parentForm).InVizMode = inVizMode = false;
-		}
 
-		// Helper method & callback to update the Enabled prop of a given control
-		private delegate void SetControlEnabledCallback(Control control, bool enabled);
-		private void SetControlEnabled(Control control, bool enabled)
-		{
-			// InvokeRequired required compares the thread ID of the
-			// calling thread to the thread ID of the creating thread.
-			// If these threads are different, it returns true.
-			if (control.InvokeRequired)
-			{
-				SetControlEnabledCallback d = new SetControlEnabledCallback(SetControlEnabled);
-				Invoke(d, new object[] { control, enabled });
-			}
-			else control.Enabled = enabled;
+			// Logging, can be ignored.
+			var msg = viMode == VizMode.GraphLayout ? "layout of graph" : "visualizing " + settings.AlgoNames[selectedAlgoIdx];
+			Console.WriteLine($"log[{logId++}]:\tbgw finished " + msg);
 		}
 
 		#region Event handlers
@@ -215,11 +224,7 @@ namespace AlgorithmVisualizer.Forms
 		private void btnStart_Click(object sender, EventArgs e)
 		{
 			Console.WriteLine("Selected algo name: " + algoComboBox.Text);
-			// Creating a new backgroundworker and running the graph algo on it in asynchronous mode
-			bgw = new BackgroundWorker();
-			//bgw.WorkerSupportsCancellation = true;
-			bgw.DoWork += new DoWorkEventHandler(bgw_Visualize);
-			bgw.RunWorkerAsync(argument: true);
+			Visualize(VizMode.GraphAlgo);
 		}
 		private void btnReset_Click(object sender, EventArgs e)
 		{
@@ -249,11 +254,7 @@ namespace AlgorithmVisualizer.Forms
 					{
 						graph.ClearGraph();
 						GraphSerializer.Deserialize(graph, serialization);
-
-						// Creating a new backgroundworker and running the graph viz on it in asynchronous mode
-						bgw = new BackgroundWorker();
-						bgw.DoWork += new DoWorkEventHandler(bgw_Visualize);
-						bgw.RunWorkerAsync(argument: false);
+						Visualize(VizMode.GraphLayout);
 					}
 				}
 			}
@@ -296,12 +297,12 @@ namespace AlgorithmVisualizer.Forms
 		{
 			selectedAlgoIdx = algoComboBox.SelectedIndex;
 		}
-		private Vector activeRClickPos;
 		private void togglePhysicsToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			// Flag used when drawing draw to know if forces should be avoided
-			// Does not include the method "graph.Visualize()" in the backgound worker
+			// Toggle physics - does not apply to preset loading where graph.Visualize() is invoked
 			forceDirectedDrawMode = !forceDirectedDrawMode;
+			// Logging message
+			Console.WriteLine($"Physics toggled " + (forceDirectedDrawMode ? "on" : "off"));
 		}
 		private void toggleVertexPinToolStripMenuItem_Click(object sender, EventArgs e)
 		{
@@ -321,6 +322,7 @@ namespace AlgorithmVisualizer.Forms
 		}
 		private void addVertexToolStripMenuItem_Click(object sender, EventArgs e)
 		{
+			if (inVizMode) return; // do nothing if currently visualizing somthing
 			using (var vertexDialog = new VertexDialog())
 			{
 				vertexDialog.StartPosition = FormStartPosition.CenterParent;
@@ -328,32 +330,33 @@ namespace AlgorithmVisualizer.Forms
 				{
 					int id = vertexDialog.Id, data = vertexDialog.Data;
 					bool opStatus = false;
-					// if id is negative then input is invalid or 
+					// if id is negative then input is invalid
 					if (id >= 0)
 					{
-
 						opStatus = graph.AddNode(id, data, activeRClickPos);
 						activeRClickPos = null;
 						Console.WriteLine("Adding new node (id: {0}, data: {1}), status: {2}", id, data, opStatus ? "Success" : "Failure");
+						if (opStatus) Visualize(VizMode.GraphLayout);
 					}
 					else Console.WriteLine("Failed to add! negative node ids not prohibited!");
-					if (opStatus) graph.Visualize();
 				}
 			}
 		}
 		private void removeVertexToolStripMenuItem_Click(object sender, EventArgs e)
 		{
+			if (inVizMode) return; // do nothing if currently visualizing somthing
 			if (activeParticleId != -1)
 			{
 				bool remStatus = graph.RemoveNode(activeParticleId);
 				Console.WriteLine("Removing particle with id {0}, status: {1}",
 					activeParticleId, remStatus ? "Success" : "Failure");
-				if (remStatus) DrawGraph();
+				if (remStatus) Visualize(VizMode.GraphLayout);
 				activeParticleId = -1;
 			}
 		}
 		private void addEdgeToolStripMenuItem_Click(object sender, EventArgs e)
 		{
+			if (inVizMode) return; // do nothing if currently visualizing somthing
 			using (var edgeDialog = new EdgeDialog(addingMode: true))
 			{
 				edgeDialog.StartPosition = FormStartPosition.CenterParent;
@@ -371,12 +374,13 @@ namespace AlgorithmVisualizer.Forms
 							  (opStatus ? "Success" : "Failed");
 					Console.WriteLine(msg);
 					activeParticleId = -1;
-					if (opStatus) DrawGraph();
+					if (opStatus) Visualize(VizMode.GraphLayout);
 				}
 			}
 		}
 		private void removeEdgeToolStripMenuItem_Click(object sender, EventArgs e)
 		{
+			if (inVizMode) return; // do nothing if currently visualizing somthing
 			using (var edgeDialog = new EdgeDialog(addingMode: false))
 			{
 				edgeDialog.StartPosition = FormStartPosition.CenterParent;
@@ -394,39 +398,39 @@ namespace AlgorithmVisualizer.Forms
 							  (opStatus ? "Success" : "Failed");
 					Console.WriteLine(msg);
 					activeParticleId = -1;
-					if (opStatus) DrawGraph();
+					if (opStatus) Visualize(VizMode.GraphLayout);
 				}
 			}
 		}
-		private Particle activeParticle;
-		private int activeParticleId = -1;
 		private void canvas_MouseDown(object sender, MouseEventArgs e)
 		{
 			// leftclick
-			// Note that in case an algo is running then the click is ignored
-			// thus prohibiting moving vertices during a vizsualization
-			if (!inVizMode && e.Button == MouseButtons.Left)
+			// Removing this flag allows moving nodes when visualizing, may cause issues.
+			if (/*!inVizMode && */e.Button == MouseButtons.Left)
 			{
 				int x = e.X, y = e.Y;
 				Particle clickedParticle = graph.GetClickedParticle(x, y);
-				if (clickedParticle != null) activeParticle = clickedParticle;
+				if (clickedParticle != null)
+				{
+					activeParticle = clickedParticle;
+					activeParticle.Pinned = true;
+				}
 			}
 		}
 		private void canvas_MouseMove(object sender, MouseEventArgs e)
 		{
 			if (activeParticle != null)
 			{
-				float x = e.X, y = e.Y;
-				activeParticle.Pos = new Vector(x, y);
+				activeParticle.Pos = new Vector(e.X, e.Y);
 				DrawGraph();
 			}
 		}
 		private void canvas_MouseUp(object sender, MouseEventArgs e)
 		{
-			// rightclick
-			// Note that in case an algo is running then the click is ignored
-			// thus prohibiting openning toolbars of the canvas
-			if (!inVizMode && e.Button == MouseButtons.Right)
+			// Unpin particle for leftclick
+			if (e.Button == MouseButtons.Left) if (activeParticle != null) activeParticle.Pinned = false;
+			// Removing this flag allows opening context menus when visualizing, may cause issues.
+			if (/*!inVizMode && */e.Button == MouseButtons.Right)
 			{
 				// Checking if clicked within a particle and if so diplaying vertexContextStrip
 				float x = e.X, y = e.Y;
@@ -456,5 +460,21 @@ namespace AlgorithmVisualizer.Forms
 			foreach (Particle particle in graph.Particles) particle.Draw(e.Graphics);
 		}
 		#endregion
+
+		// Helper method & callback to update the Enabled prop of a given control
+		private delegate void SetControlEnabledCallback(Control control, bool enabled);
+		private void SetControlEnabled(Control control, bool enabled)
+		{
+			// InvokeRequired required compares the thread ID of the
+			// calling thread to the thread ID of the creating thread.
+			// If these threads are different, it returns true.
+			if (control.InvokeRequired)
+			{
+				SetControlEnabledCallback d = new SetControlEnabledCallback(SetControlEnabled);
+				Invoke(d, new object[] { control, enabled });
+			}
+			else control.Enabled = enabled;
+		}
+
 	}
 }

@@ -56,7 +56,6 @@ namespace AlgorithmVisualizer.GraphTheory.Utils
 		{
 			// Parse given serialization and recreate the graph (if non null)
 			if (serialization == null) throw new ArgumentException("Serial may not be null!");
-			graph.ClearGraph();
 			ParseVertices(graph, serialization);
 			ParseEdges(graph, serialization);
 		}
