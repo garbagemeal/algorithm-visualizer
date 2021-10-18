@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
+using AlgorithmVisualizer.Forms;
 using AlgorithmVisualizer.GraphTheory.Utils;
 using AlgorithmVisualizer.MathUtils;
 using AlgorithmVisualizer.Threading;
@@ -142,7 +143,7 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 			const int MAX_NUM_ITR = 2500;
 			const float EPSILON = 0.05f;
 			int i = 0;
-			// Run the FDGV as long i < MAX_NUM_ITR and
+			// Run the FDGV as long as forces are enables and i < MAX_NUM_ITR and
 			// the maximal velocity for all particles per iteration > EPSILON
 			do
 			{
@@ -150,7 +151,8 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 				DrawGraph(DrawingMode.Default);
 				i++;
 				Sleep(); // Check for pause event
-			} while (i < MAX_NUM_ITR && Particle.MAX_VEL_MAG_PER_ITR > EPSILON);
+			} while (GraphAlgoForm.ForcesEnabled && i < MAX_NUM_ITR &&
+					 Particle.MAX_VEL_MAG_PER_ITR > EPSILON);
 
 			// Reset max_vel/itr for next invocation of this method
 			Particle.MAX_VEL_MAG_PER_ITR = 0;

@@ -20,25 +20,20 @@ namespace AlgorithmVisualizer.Forms
 	public partial class GraphAlgoForm : Form
 	{
 		private Graph graph;
+
 		// Selected algo name index in settings.AlgoNames
 		private int selectedAlgoIdx;
-		// Stores the algo names and the waht node ids are required per algo
+		// Stores the algo names and the what node ids are required per algo
 		private GraphAlgoSettings settings;
 
 		private Form parentForm;
 		private Panel panelLog;
 		private Graphics panelLogG;
-		private BackgroundWorker bgw;
-		// controls when "DrawGraph()" uses forces to draw
-		private bool forceDirectedDrawMode = true;
 
 		// Keeping track of active particles (mouse events)
 		private Vector activeRClickPos;
 		private Particle activeParticle;
 		private int activeParticleId = -1;
-
-		// Logging and debugging for self, can be ignored.
-		int logId = 0;
 
 		public GraphAlgoForm(Form _parentForm)
 		{
@@ -53,23 +48,17 @@ namespace AlgorithmVisualizer.Forms
 			panelLog = ((MainUIForm)parentForm).PanelLog;
 			panelLogG = panelLog.CreateGraphics();
 			graph = new Graph(canvas, panelLogG);
+
+			StartGraphViz();
 		}
+
+		#region Visuals & threading
+		private BackgroundWorker bgwGraphAlgoViz;
+		private BackgroundWorker bgwGraphLayoutViz;
+		private bool inVizMode = false;
+		public static bool ForcesEnabled = true;
 
 		// A single drawing with or without using forces
-		private void DrawGraph() => graph.DrawGraph(forceDirectedDrawMode ? DrawingMode.Default : DrawingMode.Forceless);
-		// define type of work the bgw does, i.e VizMode.GraphLayout for drawing the graph
-		// and VizMode.GraphAlgo for standard graph theory algos
-		private enum VizMode { GraphLayout = 0, GraphAlgo = 1 };
-		private void Visualize(VizMode mode)
-		{
-			// TODO: bgw.WorkerSupportsCancellation = true;
-
-			// Create new backgroundworker
-			bgw = new BackgroundWorker();
-			// Assign work to bgw (a function) and run async
-			bgw.DoWork += new DoWorkEventHandler(bgw_Visualize);
-			bgw.RunWorkerAsync(argument: mode);
-		}
 		public void RunAlgo()
 		{
 			int nodeCount = graph.NodeCount, from = -1, to = -1;
@@ -181,30 +170,63 @@ namespace AlgorithmVisualizer.Forms
 					break;
 			}
 		}
-
-		private bool inVizMode = false;
-		private void bgw_Visualize(object sender, DoWorkEventArgs e)
+		private void VisualizeGraphAlgo()
 		{
-			VizMode viMode = (VizMode)e.Argument;
+			// TODO: bgw.WorkerSupportsCancellation = true;
+
+			if (bgwGraphAlgoViz != null) bgwGraphAlgoViz.Dispose();
+			// Create new backgroundworker
+			bgwGraphAlgoViz = new BackgroundWorker();
+			// Assign work to bgw (a function) and run async
+			bgwGraphAlgoViz.DoWork += new DoWorkEventHandler(bgw_VisualizeGraphAlgo);
+			bgwGraphAlgoViz.RunWorkerAsync();
+		}
+		private void bgw_VisualizeGraphAlgo(object sender, DoWorkEventArgs e)
+		{
+			// Controls to disable while visualizing (not including parent form)
+			Control[] controls = new Control[] { btnPauseResume, btnStart, btnReset, btnClearState, btnPresets, algoComboBox };
 			// Sync parent to prevent log panel resize 
 			((MainUIForm)parentForm).InVizMode = inVizMode = true;
-			// Enable Pause/Resume and disable rest of the controls while visualizing
-			Control[] controls = new Control[] { btnPauseResume, btnStart, btnReset, btnClearState, btnPresets, algoComboBox };
-			foreach (Control control in controls) SetControlEnabled(control, control == btnPauseResume);
 			((MainUIForm)parentForm).ToggleWindowResizeAndMainMenuBtns();
+			// Enable Pause/Resume and disable the rest of the controls before visualizing
+			foreach (Control control in controls) SetControlEnabled(control, control == btnPauseResume);
 
-			if (viMode == VizMode.GraphLayout) graph.Visualize();
-			else RunAlgo(); // Visualize graph algo
+			RunAlgo(); // Visualize graph algo
 
-			// Disable Pause/Resume and enable rest of the controls after visualizing
+			// Disable Pause/Resume and re-enable the rest of the controls after visualizing
 			foreach (Control control in controls) SetControlEnabled(control, control != btnPauseResume);
 			((MainUIForm)parentForm).ToggleWindowResizeAndMainMenuBtns();
 			((MainUIForm)parentForm).InVizMode = inVizMode = false;
-
-			// Logging, can be ignored.
-			var msg = viMode == VizMode.GraphLayout ? "layout of graph" : "visualizing " + settings.AlgoNames[selectedAlgoIdx];
-			Console.WriteLine($"log[{logId++}]:\tbgw finished " + msg);
 		}
+
+		void StartGraphViz()
+		{
+			if (bgwGraphLayoutViz != null) bgwGraphAlgoViz.Dispose();
+			bgwGraphLayoutViz = new BackgroundWorker();
+			// Assign work to bgw (a function) and run async
+			bgwGraphLayoutViz.DoWork += new DoWorkEventHandler(bgw_GraphViz);
+			bgwGraphLayoutViz.RunWorkerAsync();
+		}
+		private void bgw_GraphViz(object sender, DoWorkEventArgs e)
+		{
+			while (true) if (ForcesEnabled) graph.Visualize();
+		}
+		
+		// Method & callback to update the Enabled prop of a given control (cross thread)
+		private delegate void SetControlEnabledCallback(Control control, bool enabled);
+		private void SetControlEnabled(Control control, bool enabled)
+		{
+			// InvokeRequired required compares the thread ID of the
+			// calling thread to the thread ID of the creating thread.
+			// If these threads are different, it returns true.
+			if (control.InvokeRequired)
+			{
+				SetControlEnabledCallback d = new SetControlEnabledCallback(SetControlEnabled);
+				Invoke(d, new object[] { control, enabled });
+			}
+			else control.Enabled = enabled;
+		}
+		#endregion
 
 		#region Event handlers
 		private void FDGVForm_Resize(object sender, EventArgs e)
@@ -213,18 +235,16 @@ namespace AlgorithmVisualizer.Forms
 			// Check required, otherwise all nodes may be placed at the point(0, 0)
 			if (Width > 0)
 			{
-				// When resizing the canvas create new graphics object from it
-				// and also make sure to update the canvas width/height for the graph
-				// visualizer and to redraw the graph
+				// Update canvas height/width for stoed in graph
 				graph.CanvasHeight = canvas.Height;
 				graph.CanvasWidth = canvas.Width;
-				DrawGraph();
+				graph.DrawGraph(DrawingMode.Forceless);
 			}
 		}
 		private void btnStart_Click(object sender, EventArgs e)
 		{
 			Console.WriteLine("Selected algo name: " + algoComboBox.Text);
-			Visualize(VizMode.GraphAlgo);
+			VisualizeGraphAlgo();
 		}
 		private void btnReset_Click(object sender, EventArgs e)
 		{
@@ -236,11 +256,8 @@ namespace AlgorithmVisualizer.Forms
 		{
 			string title = "Reset colors and edge directions",
 				text = "You are about to redraw graph at its initial configuration \nPress OK to proceed.";
-			if (!graph.IsEmpty() && SimpleDialog.OKCancel(title, text))
-			{
-				// Clear graph state, i.e colors and edge directions and force redraw
-				graph.ClearGraphState();
-			}
+			// Clear graph state, i.e colors and edge directions and force redraw
+			if (!graph.IsEmpty() && SimpleDialog.OKCancel(title, text)) graph.ClearGraphState();
 		}
 		private void btnPresets_Click(object sender, EventArgs e)
 		{
@@ -254,7 +271,7 @@ namespace AlgorithmVisualizer.Forms
 					{
 						graph.ClearGraph();
 						GraphSerializer.Deserialize(graph, serialization);
-						Visualize(VizMode.GraphLayout);
+						graph.DrawGraph(DrawingMode.Forceless);
 					}
 				}
 			}
@@ -300,9 +317,8 @@ namespace AlgorithmVisualizer.Forms
 		private void togglePhysicsToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			// Toggle physics - does not apply to preset loading where graph.Visualize() is invoked
-			forceDirectedDrawMode = !forceDirectedDrawMode;
-			// Logging message
-			Console.WriteLine($"Physics toggled " + (forceDirectedDrawMode ? "on" : "off"));
+			ForcesEnabled = !ForcesEnabled;
+			Console.WriteLine($"Physics toggled " + (ForcesEnabled ? "on" : "off"));
 		}
 		private void toggleVertexPinToolStripMenuItem_Click(object sender, EventArgs e)
 		{
@@ -336,7 +352,7 @@ namespace AlgorithmVisualizer.Forms
 						opStatus = graph.AddNode(id, data, activeRClickPos);
 						activeRClickPos = null;
 						Console.WriteLine("Adding new node (id: {0}, data: {1}), status: {2}", id, data, opStatus ? "Success" : "Failure");
-						if (opStatus) Visualize(VizMode.GraphLayout);
+						graph.DrawGraph(DrawingMode.Forceless);
 					}
 					else Console.WriteLine("Failed to add! negative node ids not prohibited!");
 				}
@@ -350,8 +366,8 @@ namespace AlgorithmVisualizer.Forms
 				bool remStatus = graph.RemoveNode(activeParticleId);
 				Console.WriteLine("Removing particle with id {0}, status: {1}",
 					activeParticleId, remStatus ? "Success" : "Failure");
-				if (remStatus) Visualize(VizMode.GraphLayout);
 				activeParticleId = -1;
+				graph.DrawGraph(DrawingMode.Forceless);
 			}
 		}
 		private void addEdgeToolStripMenuItem_Click(object sender, EventArgs e)
@@ -374,7 +390,7 @@ namespace AlgorithmVisualizer.Forms
 							  (opStatus ? "Success" : "Failed");
 					Console.WriteLine(msg);
 					activeParticleId = -1;
-					if (opStatus) Visualize(VizMode.GraphLayout);
+					graph.DrawGraph(DrawingMode.Forceless);
 				}
 			}
 		}
@@ -398,7 +414,7 @@ namespace AlgorithmVisualizer.Forms
 							  (opStatus ? "Success" : "Failed");
 					Console.WriteLine(msg);
 					activeParticleId = -1;
-					if (opStatus) Visualize(VizMode.GraphLayout);
+					graph.DrawGraph(DrawingMode.Forceless);
 				}
 			}
 		}
@@ -422,7 +438,7 @@ namespace AlgorithmVisualizer.Forms
 			if (activeParticle != null)
 			{
 				activeParticle.Pos = new Vector(e.X, e.Y);
-				DrawGraph();
+				graph.DrawGraph(DrawingMode.Forceless);
 			}
 		}
 		private void canvas_MouseUp(object sender, MouseEventArgs e)
@@ -457,24 +473,8 @@ namespace AlgorithmVisualizer.Forms
 			e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
 			// Draw all particles and springs
 			foreach (Spring spring in graph.Springs) spring.Draw(e.Graphics);
-			foreach (Particle particle in graph.Particles) particle.Draw(e.Graphics);
+			foreach (Particle particle in graph.Particles) particle.Draw(e.Graphics, canvas.Height, canvas.Width);
 		}
 		#endregion
-
-		// Helper method & callback to update the Enabled prop of a given control
-		private delegate void SetControlEnabledCallback(Control control, bool enabled);
-		private void SetControlEnabled(Control control, bool enabled)
-		{
-			// InvokeRequired required compares the thread ID of the
-			// calling thread to the thread ID of the creating thread.
-			// If these threads are different, it returns true.
-			if (control.InvokeRequired)
-			{
-				SetControlEnabledCallback d = new SetControlEnabledCallback(SetControlEnabled);
-				Invoke(d, new object[] { control, enabled });
-			}
-			else control.Enabled = enabled;
-		}
-
 	}
 }

@@ -69,8 +69,11 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 			SetDefaultColors();
 		}
 
-		public void Draw(Graphics g)
+		public void Draw(Graphics g, int canvasHeight, int canvasWidth)
 		{
+			// Needed in case of window resize where forces are disabled and particle
+			// clips outside of canvas
+			BoundWithinCanvas(canvasHeight, canvasWidth);
 			using (var innerBrush = new SolidBrush(InnerColor)) Draw(g, innerBrush);
 		}
 		public void Undraw(Graphics g)
