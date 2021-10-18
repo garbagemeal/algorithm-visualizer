@@ -139,8 +139,8 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 		public void Visualize()
 		{
 			// Main method used to visualize the graph - Force directed graph drawing
-			const int MAX_NUM_ITR = 500;
-			const float EPSILON = 0.1f;
+			const int MAX_NUM_ITR = 2500;
+			const float EPSILON = 0.05f;
 			int i = 0;
 			// Run the FDGV as long i < MAX_NUM_ITR and
 			// the maximal velocity for all particles per iteration > EPSILON

@@ -458,7 +458,7 @@ namespace AlgorithmVisualizer.Forms
 		}
 		private void canvas_Paint(object sender, PaintEventArgs e)
 		{
-			e.Graphics.SmoothingMode = SmoothingMode.AntiAlias; // Somewhy causes visual bugs
+			e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
 			// Draw all particles and springs
 			foreach (Spring spring in graph.Springs) spring.Draw(e.Graphics);
 			foreach (Particle particle in graph.Particles) particle.Draw(e.Graphics);
