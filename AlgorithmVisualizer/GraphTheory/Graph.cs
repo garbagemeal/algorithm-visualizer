@@ -333,22 +333,5 @@ namespace AlgorithmVisualizer.GraphTheory
 			return edgeList;
 		}
 		#endregion
-
-		public void PrintAdjListAndNodeLookup()
-		{
-			// Used for debugging
-
-			Console.WriteLine("========================================================");
-			Console.WriteLine("nodeLookup:");
-			foreach (int id in nodeLookup.Keys) Console.WriteLine(id + " ");
-			Console.WriteLine("AdjList:");
-			Console.WriteLine("========================================================");
-			foreach (int id in AdjList.Keys)
-			{
-				Console.WriteLine($"AdjList[{id}]:");
-				Console.WriteLine(AdjList[id].ToArray().ToString());
-			}
-			Console.WriteLine("========================================================");
-		}
 	}
 }

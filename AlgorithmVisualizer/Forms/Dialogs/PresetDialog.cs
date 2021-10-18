@@ -90,6 +90,7 @@ namespace AlgorithmVisualizer.Forms.Dialogs
 				// Show dialog for new preset name
 				using (var newPresetDialog = new NewPresetDialog())
 				{
+					newPresetDialog.StartPosition = FormStartPosition.CenterParent;
 					if (newPresetDialog.ShowDialog() == DialogResult.OK)
 					{
 						// Save this graph's preset with given name (serialize it)

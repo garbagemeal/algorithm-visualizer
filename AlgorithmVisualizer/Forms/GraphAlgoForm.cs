@@ -12,20 +12,18 @@ using AlgorithmVisualizer.GraphTheory.Algorithms;
 using AlgorithmVisualizer.GraphTheory.FDGV;
 using AlgorithmVisualizer.GraphTheory.Utils;
 using AlgorithmVisualizer.MathUtils;
+using static AlgorithmVisualizer.Forms.GraphAlgoSettings;
 using static AlgorithmVisualizer.GraphTheory.FDGV.GraphVisualizer;
 
 namespace AlgorithmVisualizer.Forms
 {
 	public partial class GraphAlgoForm : Form
 	{
-		// Bug list: Flickering, Graph dissapears after loading preset and clicking start ...
 		private Graph graph;
-		// Stuff for algoComboBox
-		private int selectedAlgoNameIdx;
-		private string[] algorithmNames = { "BFS", "DFS", "Connected components - DFS",
-			"Connected components - disjoint set", "Lazy Prim's MST", "Kruskal's MST",
-			"Top sort DFS", "Kahn's top sort", "SSSP for DAGs", "Lazy Dijkstra's SSSP",
-			"Eager Dijkstra's SSSP", "Bellman Ford's", "Tarjan's SCCs", "Kosaraju's SCCs" };
+		// Selected algo name index in settings.AlgoNames
+		private int selectedAlgoIdx;
+		// Stores the algo names and the waht node ids are required per algo
+		private GraphAlgoSettings settings;
 
 		private Form parentForm;
 		private Panel panelLog;
@@ -36,10 +34,11 @@ namespace AlgorithmVisualizer.Forms
 		public GraphAlgoForm(Form _parentForm)
 		{
 			InitializeComponent();
+
+			settings = new GraphAlgoSettings();
 			// adding algo names to the combo box
-			foreach (string algoName in algorithmNames)
-				algoComboBox.Items.Add(algoName);
-			algoComboBox.SelectedIndex = selectedAlgoNameIdx = 0;
+			foreach (string algoName in settings.AlgoNames) algoComboBox.Items.Add(algoName);
+			algoComboBox.SelectedIndex = selectedAlgoIdx = 0;
 
 			parentForm = _parentForm;
 			panelLog = ((MainUIForm)parentForm).PanelLog;
@@ -47,68 +46,56 @@ namespace AlgorithmVisualizer.Forms
 			graph = new Graph(canvas, panelLogG);
 		}
 
-		private void DrawGraph()
-		{
-			// Note that the boolean field "forceDirectedDrawMode" is modified in the method:
-			// togglePhysicsToolStripMenuItem_Click()
-			graph.DrawGraph(forceDirectedDrawMode ? DrawingMode.Default : DrawingMode.Forceless);
-		}
+		private void DrawGraph() => graph.DrawGraph(forceDirectedDrawMode ? DrawingMode.Default : DrawingMode.Forceless);
 		public void RunAlgo()
 		{
-			// pick random starting/eding nodes
-			int nodeCount = graph.NodeCount;
+			int nodeCount = graph.NodeCount, from = -1, to = -1;
 			if (nodeCount > 0)
 			{
-				// Making sure the node ids are sequential
-				graph.FixNodeIdNumbering();
-				graph.PrintAdjListAndNodeLookup();
-				int from = -1, to = -1;
-				// Not all algo's need a starting/edging node specified
-				if (selectedAlgoNameIdx == 8 || selectedAlgoNameIdx == 11)
-				{
-					using (var startEndNodeDialog = new StartEndNodeDialog(includeTo: false))
-					{
-						if (startEndNodeDialog.ShowDialog() == DialogResult.OK)
-							from = startEndNodeDialog.From;
-					}
-					if (!graph.ContainsNode(from))
-					{
-						SimpleDialog.ShowMessage("Error", "Invalid start node id");
-						return;
-					}
-					graph.SetParticleColor(from, Colors.Green); // start node in green
-				}
-				else if (selectedAlgoNameIdx < 2 || selectedAlgoNameIdx == 9 || selectedAlgoNameIdx == 10)
-				{
-					using (var startEndNodeDialog = new StartEndNodeDialog())
-					{
-						if (startEndNodeDialog.ShowDialog() == DialogResult.OK)
-						{
-							from = startEndNodeDialog.From;
-							to = startEndNodeDialog.To;
-						}
-					}
-					if (!graph.ContainsNode(from) || !graph.ContainsNode(to))
-					{
-						SimpleDialog.ShowMessage("Error", "Invalid start/end node id(s)");
-						return;
-					}
-					graph.SetParticleColor(from, Colors.Green); // start node in green
-					// If start is end sleep
-					if (from == to) graph.Sleep(500);
-					graph.SetParticleColor(to, Colors.Red); // end node in red
-				}
-				// Unhighlight start/end node in case highlighted
-				graph.Sleep(2500);
-				graph.DrawGraph(DrawingMode.Forceless);
+				graph.FixNodeIdNumbering(); // Make sure the node ids are sequential
+				TryPickAndHighlightStartEndNodes();
+				graph.Sleep(500);
 				RunAlgo(from, to);
 			}
-			else SimpleDialog.ShowMessage("Error, graph is empty!",
-				"Algorithm did not run \nHint: Click \"Presets\" to load a preset or rightclick in canvas create a vertex");
+			else SimpleDialog.ShowMessage("Error, graph is empty!", "Algorithm did not run \n" +
+				"Hint: Click \"Presets\" to load a preset or rightclick in canvas create a vertex");
+
+
+
+			bool TryPickAndHighlightStartEndNodes()
+			{
+				RequiredNodes requiredNodes = settings.RequiredNodeIds[selectedAlgoIdx];
+				if (requiredNodes == RequiredNodes.None) return true;
+				// Determine if the destiantion node 'to' is required to customize the
+				// input dialog for start/end nodes
+				bool toIsRequired = requiredNodes == RequiredNodes.StartAndEnd;
+				using (var startEndNodeDialog = new StartEndNodeDialog(includeTo: toIsRequired))
+				{
+					startEndNodeDialog.StartPosition = FormStartPosition.CenterParent; // center dialog
+					if (startEndNodeDialog.ShowDialog() == DialogResult.OK)
+					{
+						// Get node ids from dialog & highlight
+						from = startEndNodeDialog.From;
+						graph.SetParticleColor(from, Colors.Green); // start node in green
+						if (toIsRequired)
+						{
+							to = startEndNodeDialog.To;
+							if (from == to) graph.Sleep(500);
+							graph.SetParticleColor(to, Colors.Red); // end node in red
+						}
+						// Unhighlight start/end node in case highlighted
+						graph.Sleep(1500);
+						foreach (int id in new int[] { from, to }) if (id != -1) graph.ResetParticleColors(id);
+						return true;
+					}
+				}
+				SimpleDialog.ShowMessage("Error", "Invalid start/end node id(s) given!");
+				return false;
+			}
 		}
 		private void RunAlgo(int from, int to)
 		{
-			switch (selectedAlgoNameIdx)
+			switch (selectedAlgoIdx)
 			{
 				case 0:
 					new BFS(graph, from, to);
@@ -167,7 +154,7 @@ namespace AlgorithmVisualizer.Forms
 					new KosarajusSCCs(graph);
 					break;
 				default:
-					Console.WriteLine($"{selectedAlgoNameIdx} is not a valid selection");
+					Console.WriteLine($"{selectedAlgoIdx} is not a valid selection");
 					break;
 			}
 		}
@@ -193,9 +180,6 @@ namespace AlgorithmVisualizer.Forms
 			foreach (Control control in controls) SetControlEnabled(control, control != btnPauseResume);
 			((MainUIForm)parentForm).ToggleWindowResizeAndMainMenuBtns();
 			((MainUIForm)parentForm).InVizMode = inVizMode = false;
-
-			// BUG - Redraw caused for some reason, suspecting: ToggleWindowResizeAndMainMenuBtns()
-			graph.DrawGraph(DrawingMode.Forceless);
 		}
 
 		// Helper method & callback to update the Enabled prop of a given control
@@ -240,7 +224,7 @@ namespace AlgorithmVisualizer.Forms
 		private void btnReset_Click(object sender, EventArgs e)
 		{
 			string title = "Remove all vertices and edges",
-				text = "You can save this graph as a new preset by clicking the button \"Presets\" and then \"New Preset\"\nPress OK to proceed.";
+				text = "Press OK to proceed. \nYou can save this graph as a new preset by clicking the button \"Presets\" and then \"New Preset\"";
 			if (!graph.IsEmpty() && SimpleDialog.OKCancel(title, text)) graph.ClearGraph();
 		}
 		private void btnClearState_Click(object sender, EventArgs e)
@@ -257,6 +241,7 @@ namespace AlgorithmVisualizer.Forms
 		{
 			using (var presetDialog = new PresetDialog(graph))
 			{
+				presetDialog.StartPosition = FormStartPosition.CenterParent;
 				if (presetDialog.ShowDialog() == DialogResult.OK)
 				{
 					string[] serialization = presetDialog.Serialization;
@@ -292,11 +277,15 @@ namespace AlgorithmVisualizer.Forms
 		}
 		private void btnDetails_Click(object sender, EventArgs e)
 		{
-			string fileName = algorithmNames[selectedAlgoNameIdx] + ".xml",
+			string fileName = settings.AlgoNames[selectedAlgoIdx] + ".xml",
 				fileDir = @"Forms\Dialogs\AlgoDetails\xml\GraphTheory\" + fileName,
 				filePath = Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory())
 				.Parent.FullName, fileDir);
-			new DetailsDialog(filePath).ShowDialog();
+			using(Form dialog = new DetailsDialog(filePath))
+			{
+				dialog.StartPosition = FormStartPosition.CenterParent;
+				dialog.ShowDialog();
+			}
 		}
 		private void speedBar_Scroll(object sender, ScrollEventArgs e)
 		{
@@ -305,7 +294,7 @@ namespace AlgorithmVisualizer.Forms
 		}
 		private void algoComboBox_SelectedIndexChanged(object sender, EventArgs e)
 		{
-			selectedAlgoNameIdx = algoComboBox.SelectedIndex;
+			selectedAlgoIdx = algoComboBox.SelectedIndex;
 		}
 		private Vector activeRClickPos;
 		private void togglePhysicsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -334,6 +323,7 @@ namespace AlgorithmVisualizer.Forms
 		{
 			using (var vertexDialog = new VertexDialog())
 			{
+				vertexDialog.StartPosition = FormStartPosition.CenterParent;
 				if (vertexDialog.ShowDialog() == DialogResult.OK)
 				{
 					int id = vertexDialog.Id, data = vertexDialog.Data;
@@ -366,6 +356,7 @@ namespace AlgorithmVisualizer.Forms
 		{
 			using (var edgeDialog = new EdgeDialog(addingMode: true))
 			{
+				edgeDialog.StartPosition = FormStartPosition.CenterParent;
 				if (edgeDialog.ShowDialog() == DialogResult.OK)
 				{
 					int from = activeParticleId, to = edgeDialog.To, cost = edgeDialog.Cost;
@@ -388,6 +379,7 @@ namespace AlgorithmVisualizer.Forms
 		{
 			using (var edgeDialog = new EdgeDialog(addingMode: false))
 			{
+				edgeDialog.StartPosition = FormStartPosition.CenterParent;
 				if (edgeDialog.ShowDialog() == DialogResult.OK)
 				{
 					int from = activeParticleId, to = edgeDialog.To, cost = edgeDialog.Cost;

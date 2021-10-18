@@ -171,6 +171,7 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 			particle.BorderColor = borderColor;
 			TriggerCanvasPaintEvent();
 		}
+		public void ResetParticleColors(int id) => GetParticle(id).SetDefaultColors();
 		public void SetSpringState(Edge edge, Color color, int dir = -1)
 		{
 			/* Update innerColor for given edge and force graph redraw event.

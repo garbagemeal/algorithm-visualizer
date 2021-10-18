@@ -136,7 +136,11 @@ namespace AlgorithmVisualizer.Forms
 				fileDir = @"Forms\Dialogs\AlgoDetails\xml\Arrays\" + fileName,
 				filePath = Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory())
 				.Parent.FullName, fileDir);
-			new DetailsDialog(filePath).ShowDialog();
+			using (var detailsDialog = new DetailsDialog(filePath))
+			{
+				detailsDialog.StartPosition = FormStartPosition.CenterParent;
+				detailsDialog.ShowDialog();
+			}
 		}
 
 		private void bgw_Visualize(object sender, DoWorkEventArgs e)

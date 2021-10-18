@@ -27,7 +27,7 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 		// Length where spring is in reest (exerts no forces) limited by MAX_FORCE
 		private float RestLen { get; set; }
 		// Max force spring can apply and spring proportionality constant (k)
-		private const float MAX_FORCE = 1f, k = 0.0005f;
+		private const float MAX_FORCE = 3f, k = 0.0005f;
 
 		// Revesed state for spring
 		public bool Reversed { get; set; } = false;
