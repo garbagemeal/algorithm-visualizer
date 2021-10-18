@@ -77,7 +77,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 					// This operation takes amortized time complexity(near constant)
 					disjointSet.Unify(edge.From, edge.To);
 					// Draw the edge
-					graph.RedrawSpring(edge, Colors.Green);
+					graph.SetSpringState(edge, Colors.Green);
 					Sleep(1000);
 				}
 			}

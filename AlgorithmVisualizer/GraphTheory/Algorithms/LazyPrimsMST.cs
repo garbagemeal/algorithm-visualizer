@@ -52,12 +52,12 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 			{
 				heapTracer.HighlightAt(0);
 				Edge edge = heap.Dequeue();
-				graph.RedrawSpring(edge, Colors.Red, 0);
+				graph.SetSpringState(edge, Colors.Red, 0);
 				Sleep(1500);
 				heapTracer.Trace();
 				// Avoid adding edges to already visited nodes
 				bool edgeVisited = visited.Contains(edge.To);
-				graph.RedrawSpring(edge, edgeVisited ? Colors.Visited : Colors.Green, edgeVisited ? -1 : 0);
+				graph.SetSpringState(edge, edgeVisited ? Colors.Visited : Colors.Green, edgeVisited ? -1 : 0);
 				if (!edgeVisited)
 				{
 					//mstEdges[edgeCount++] = edge;
@@ -75,7 +75,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 			// mark node as visited
 			visited.Add(nodeId);
 			Sleep(1000);
-			graph.DrawParticle(nodeId, Colors.Orange);
+			graph.SetParticleColor(nodeId, Colors.Orange);
 			// add all outgoing edges from nodeId while avoiding
 			// adding edges to already visited nodes
 			// also visualizes all edges to non visted nodes and the node itself
@@ -85,7 +85,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 				{
 					if (!visited.Contains(edge.To))
 					{
-						graph.RedrawSpring(edge, Colors.Orange, 0);
+						graph.SetSpringState(edge, Colors.Orange, 0);
 						heap.Enqueue(edge);
 						heapTracer.Trace();
 						Sleep(1000);
@@ -94,10 +94,10 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 				Sleep(1000);
 				// draw edges in dark grey (visited)
 				foreach (Edge edge in graph.AdjList[nodeId])
-					if (!visited.Contains(edge.To)) graph.RedrawSpring(edge, Colors.Visited);
+					if (!visited.Contains(edge.To)) graph.SetSpringState(edge, Colors.Visited);
 			}
 			// draw particle in darkGreyBrush (visited)
-			graph.DrawParticle(nodeId, Colors.Visited, Colors.VisitedBorder);
+			graph.SetParticleColor(nodeId, Colors.Visited, Colors.VisitedBorder);
 			Sleep(1000);
 		}
 	}

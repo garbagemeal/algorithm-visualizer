@@ -39,7 +39,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 				for (int i = 0; i < 3; i++) colors[i] = Colors.GetRandom();
 				for (int i = 0; i < graph.NodeCount; i++)
 				{
-					graph.DrawParticle(i, colors[components[i]]);
+					graph.SetParticleColor(i, colors[components[i]]);
 					Console.WriteLine($"Node id: {i}, comp id: {components[i]}");
 				}
 			}
@@ -49,7 +49,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 			// DFS to find the connected componenets
 			visited.Add(at);
 			components[at] = componentCount;
-			graph.DrawParticle(at, color);
+			graph.SetParticleColor(at, color);
 			Sleep(1500);
 			if (graph.AdjList[at] != null)
 			{
@@ -58,13 +58,13 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 					if (!visited.Contains(edge.To))
 					{
 						// draw edge in orange to mark as visiting
-						graph.RedrawSpring(edge, color, 0);
+						graph.SetSpringState(edge, color, 0);
 						Sleep(1000);
 
 						Solve(edge.To, visited, color);
 
 						// draw edge in dark gret to to mark as visited
-						graph.RedrawSpring(edge, Colors.Visited);
+						graph.SetSpringState(edge, Colors.Visited);
 						Sleep(1000);
 					}
 				}

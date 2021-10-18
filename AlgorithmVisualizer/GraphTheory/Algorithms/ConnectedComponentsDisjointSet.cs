@@ -56,7 +56,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 				for (int i = 0; i < graph.NodeCount; i++)
 					colors[i] = Colors.GetRandom();
 				for (int i = 0; i < graph.NodeCount; i++)
-					graph.DrawParticle(i, colors[disjointSet.Find(i)]);
+					graph.SetParticleColor(i, colors[disjointSet.Find(i)]);
 			}
 			// Update component count class attribute (can be accessed by user)
 			componentCount = numComponents;

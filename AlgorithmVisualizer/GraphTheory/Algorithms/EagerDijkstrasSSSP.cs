@@ -53,13 +53,13 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 				// Draw SP in green
 				for (int i = 0; i < path.Count; i++)
 				{
-					graph.DrawParticle(path[i], Colors.Green);
+					graph.SetParticleColor(path[i], Colors.Green);
 					// If not the starting node 
 					if (i != 0)
 					{
 						// Find and draw edge to it in SP
 						int at = path[i], prevAt = prev[at], delta = distMap[at] - distMap[prevAt];
-						graph.RedrawSpring(new Edge(prevAt, at, delta), Colors.Green, 0);
+						graph.SetSpringState(new Edge(prevAt, at, delta), Colors.Green, 0);
 					}
 					Sleep(700);
 				}
@@ -80,7 +80,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 				ipqTracer.HighlightAt(0);
 				int curNodeId = ipq.PeekMinKeyIndex(), curNodeMinDist = ipq.DequeueMinValue();
 				visited.Add(curNodeId);
-				graph.DrawParticle(curNodeId, Colors.Orange);
+				graph.SetParticleColor(curNodeId, Colors.Orange);
 				Sleep(1500);
 				ipqTracer.Trace();
 				Sleep(1000);
@@ -90,7 +90,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 					return true;
 				}
 				VisitOutgoingEdges(curNodeId, visited, distMap, prev, ipq);
-				graph.DrawParticle(curNodeId, Colors.Visited, Colors.VisitedBorder);
+				graph.SetParticleColor(curNodeId, Colors.Visited, Colors.VisitedBorder);
 				Sleep(1000);
 			}
 			return false;
@@ -103,7 +103,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 			{
 				foreach (Edge edge in graph.AdjList[curNodeId])
 				{
-					graph.RedrawSpring(edge, Colors.Orange);
+					graph.SetSpringState(edge, Colors.Orange);
 					Sleep(1000);
 					// Edge relaxation
 					int toId = edge.To;
@@ -111,7 +111,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 					// Can't imporove distance by revisiting a node
 					if (!visited.Contains(toId) && newDist < distMap[toId])
 					{
-						graph.RedrawSpring(edge, Colors.Red);
+						graph.SetSpringState(edge, Colors.Red);
 						prevTracer.HighlightAt(toId);
 						distMapTracer.HighlightAt(toId);
 						prev[toId] = curNodeId;
@@ -127,9 +127,9 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 						Sleep(1000);
 					}
 					// stale edge (to already visited or no imporvement in cost)
-					else graph.RedrawSpring(edge, Colors.Blue);
+					else graph.SetSpringState(edge, Colors.Blue);
 					Sleep(1000);
-					graph.RedrawSpring(edge, Colors.Visited);
+					graph.SetSpringState(edge, Colors.Visited);
 					Sleep(1000);
 				}
 			}

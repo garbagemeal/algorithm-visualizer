@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.IO;
 using System.Windows.Forms;
 
@@ -40,8 +41,6 @@ namespace AlgorithmVisualizer.Forms
 				algoComboBox.Items.Add(algoName);
 			algoComboBox.SelectedIndex = selectedAlgoNameIdx = 0;
 
-			// consider adding this to canvas: SmoothingMode.AntiAlias
-
 			parentForm = _parentForm;
 			panelLog = ((MainUIForm)parentForm).PanelLog;
 			panelLogG = panelLog.CreateGraphics();
@@ -77,7 +76,7 @@ namespace AlgorithmVisualizer.Forms
 						SimpleDialog.ShowMessage("Error", "Invalid start node id");
 						return;
 					}
-					graph.DrawParticle(from, Colors.Green); // start node in green
+					graph.SetParticleColor(from, Colors.Green); // start node in green
 				}
 				else if (selectedAlgoNameIdx < 2 || selectedAlgoNameIdx == 9 || selectedAlgoNameIdx == 10)
 				{
@@ -94,10 +93,10 @@ namespace AlgorithmVisualizer.Forms
 						SimpleDialog.ShowMessage("Error", "Invalid start/end node id(s)");
 						return;
 					}
-					graph.DrawParticle(from, Colors.Green); // start node in green
+					graph.SetParticleColor(from, Colors.Green); // start node in green
 					// If start is end sleep
 					if (from == to) graph.Sleep(500);
-					graph.DrawParticle(to, Colors.Red); // end node in red
+					graph.SetParticleColor(to, Colors.Red); // end node in red
 				}
 				// Unhighlight start/end node in case highlighted
 				graph.Sleep(2500);
@@ -250,9 +249,8 @@ namespace AlgorithmVisualizer.Forms
 				text = "You are about to redraw graph at its initial configuration \nPress OK to proceed.";
 			if (!graph.IsEmpty() && SimpleDialog.OKCancel(title, text))
 			{
-				// Reset graph color scheme and directions of edges to defaults
+				// Clear graph state, i.e colors and edge directions and force redraw
 				graph.ClearGraphState();
-				graph.DrawGraph(DrawingMode.Forceless);
 			}
 		}
 		private void btnPresets_Click(object sender, EventArgs e)
@@ -458,7 +456,13 @@ namespace AlgorithmVisualizer.Forms
 			}
 			activeParticle = null;
 		}
+		private void canvas_Paint(object sender, PaintEventArgs e)
+		{
+			e.Graphics.SmoothingMode = SmoothingMode.AntiAlias; // Somewhy causes visual bugs
+			// Draw all particles and springs
+			foreach (Spring spring in graph.Springs) spring.Draw(e.Graphics);
+			foreach (Particle particle in graph.Particles) particle.Draw(e.Graphics);
+		}
 		#endregion
-
 	}
 }

@@ -53,7 +53,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 			{
 				// Note: i is the index of curNodeId in topSort
 				int curNodeId = topSort[i];
-				graph.DrawParticle(curNodeId, Colors.Orange);
+				graph.SetParticleColor(curNodeId, Colors.Orange);
 				Sleep(1500);
 				// If the current node has alrady been reached and has incident edges
 				if (distMap[curNodeId] != int.MaxValue && graph.AdjList[curNodeId] != null)
@@ -62,19 +62,19 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 					foreach (Edge edge in graph.AdjList[curNodeId])
 					{
 						// Edge relaxation
-						graph.RedrawSpring(edge, Colors.Orange);
+						graph.SetSpringState(edge, Colors.Orange);
 						Sleep(1000);
 						// Compute new distance to reach edge.To
 						int newDist = distMap[curNodeId] + edge.Cost;
-						graph.RedrawSpring(edge, newDist < distMap[edge.To] ? Colors.Red : Colors.Blue);
+						graph.SetSpringState(edge, newDist < distMap[edge.To] ? Colors.Red : Colors.Blue);
 						// Comapre both new and old distances and set to the smaller one
 						distMap[edge.To] = Math.Min(distMap[edge.To], newDist);
 						Sleep(1000);
-						graph.RedrawSpring(edge, Colors.Visited);
+						graph.SetSpringState(edge, Colors.Visited);
 						Sleep(1000);
 					}
 				}
-				graph.DrawParticle(curNodeId, Colors.Visited, Colors.VisitedBorder);
+				graph.SetParticleColor(curNodeId, Colors.Visited, Colors.VisitedBorder);
 				Sleep(1000);
 			}
 		}

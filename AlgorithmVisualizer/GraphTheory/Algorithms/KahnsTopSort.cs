@@ -58,7 +58,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 				topOrder[idx++] = curNode;
 				if (vizMode)
 				{
-					graph.DrawParticle(curNode, Colors.Orange);
+					graph.SetParticleColor(curNode, Colors.Orange);
 					topOrderTracer.HighlightAt(idx - 1);
 					Sleep(2000);
 					qTracer.Trace(); topOrderTracer.Trace();
@@ -67,7 +67,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 				VisitOutgoingEdges(curNode, q, inDeg);
 				if (vizMode)
 				{
-					graph.DrawParticle(curNode, Colors.Visited);
+					graph.SetParticleColor(curNode, Colors.Visited);
 					Sleep(1000);
 				}
 			}
@@ -85,7 +85,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 					int to = edge.To;
 					if (vizMode)
 					{
-						graph.RedrawSpring(edge, Colors.Orange);
+						graph.SetSpringState(edge, Colors.Orange);
 						inDegTracer.HighlightAt(to);
 						Sleep(1000);
 					}
@@ -111,7 +111,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 					if (vizMode)
 					{
 						inDegTracer.Trace();
-						graph.RedrawSpring(edge, Colors.Visited);
+						graph.SetSpringState(edge, Colors.Visited);
 						Sleep(1000);
 					}
 				}

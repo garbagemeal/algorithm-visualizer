@@ -82,7 +82,7 @@ namespace AlgorithmVisualizer.Forms
 		private delegate void ToggleWindowResizeAndMainMenuBtnsCallback(Control control);
 		private void ToggleWindowResizeAndMainMenuBtns(Control control)
 		{
-			if (InvokeRequired)
+			if (control.InvokeRequired)
 			{
 				Invoke(new ToggleWindowResizeAndMainMenuBtnsCallback(
 					ToggleWindowResizeAndMainMenuBtns), new object[] { control });
