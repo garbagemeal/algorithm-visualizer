@@ -11,11 +11,13 @@ using AlgorithmVisualizer.GraphTheory.Algorithms;
 using AlgorithmVisualizer.GraphTheory.FDGV;
 using AlgorithmVisualizer.GraphTheory.Utils;
 using AlgorithmVisualizer.MathUtils;
+using static AlgorithmVisualizer.GraphTheory.FDGV.GraphVisualizer;
 
 namespace AlgorithmVisualizer.Forms
 {
 	public partial class GraphAlgoForm : Form
 	{
+		// Bug list: Flickering, Graph dissapears after loading preset and clicking start ...
 		private Graph graph;
 		// Stuff for algoComboBox
 		private int selectedAlgoNameIdx;
@@ -23,8 +25,7 @@ namespace AlgorithmVisualizer.Forms
 			"Connected components - disjoint set", "Lazy Prim's MST", "Kruskal's MST",
 			"Top sort DFS", "Kahn's top sort", "SSSP for DAGs", "Lazy Dijkstra's SSSP",
 			"Eager Dijkstra's SSSP", "Bellman Ford's", "Tarjan's SCCs", "Kosaraju's SCCs" };
-		// Panels and thier graphics objects
-		private Graphics gMain;
+
 		private Form parentForm;
 		private Panel panelLog;
 		private Graphics panelLogG;
@@ -39,34 +40,25 @@ namespace AlgorithmVisualizer.Forms
 				algoComboBox.Items.Add(algoName);
 			algoComboBox.SelectedIndex = selectedAlgoNameIdx = 0;
 
-			gMain = panelMain.CreateGraphics();
-			//g.SmoothingMode = SmoothingMode.AntiAlias;
+			// consider adding this to canvas: SmoothingMode.AntiAlias
 
 			parentForm = _parentForm;
 			panelLog = ((MainUIForm)parentForm).PanelLog;
 			panelLogG = panelLog.CreateGraphics();
-			graph = new Graph(gMain, panelLogG, panelMain.Height, panelMain.Width);
+			graph = new Graph(canvas, panelLogG);
 		}
 
 		private void DrawGraph()
 		{
 			// Note that the boolean field "forceDirectedDrawMode" is modified in the method:
 			// togglePhysicsToolStripMenuItem_Click()
-
-			if (forceDirectedDrawMode) graph.DrawGraph();
-			else graph.DrawGraphForceless();
-		}
-		private void ClearGraphAndPanel()
-		{
-			graph.GMain = gMain = panelMain.CreateGraphics();
-			//g.SmoothingMode = SmoothingMode.AntiAlias;
-			graph.ClearGraph();
+			graph.DrawGraph(forceDirectedDrawMode ? DrawingMode.Default : DrawingMode.Forceless);
 		}
 		public void RunAlgo()
 		{
 			// pick random starting/eding nodes
 			int nodeCount = graph.NodeCount;
-			if(nodeCount > 0)
+			if (nodeCount > 0)
 			{
 				// Making sure the node ids are sequential
 				graph.FixNodeIdNumbering();
@@ -86,9 +78,6 @@ namespace AlgorithmVisualizer.Forms
 						return;
 					}
 					graph.DrawParticle(from, Colors.Green); // start node in green
-					graph.Sleep(2000);
-					// restore node color
-					graph.ResetParticleColor(from);
 				}
 				else if (selectedAlgoNameIdx < 2 || selectedAlgoNameIdx == 9 || selectedAlgoNameIdx == 10)
 				{
@@ -106,19 +95,17 @@ namespace AlgorithmVisualizer.Forms
 						return;
 					}
 					graph.DrawParticle(from, Colors.Green); // start node in green
-					// In case the starting node is also the ending node
+					// If start is end sleep
 					if (from == to) graph.Sleep(500);
 					graph.DrawParticle(to, Colors.Red); // end node in red
-					graph.Sleep(2000);
-					// restore node colors
-					graph.ResetParticleColor(from);
-					graph.ResetParticleColor(to);
 				}
-				graph.Sleep(500);
+				// Unhighlight start/end node in case highlighted
+				graph.Sleep(2500);
+				graph.DrawGraph(DrawingMode.Forceless);
 				RunAlgo(from, to);
 			}
 			else SimpleDialog.ShowMessage("Error, graph is empty!",
-				"Algorithm did not run \nHint: Click \"Presets\" to load a preset or rightclick in panel create a vertex");
+				"Algorithm did not run \nHint: Click \"Presets\" to load a preset or rightclick in canvas create a vertex");
 		}
 		private void RunAlgo(int from, int to)
 		{
@@ -208,8 +195,8 @@ namespace AlgorithmVisualizer.Forms
 			((MainUIForm)parentForm).ToggleWindowResizeAndMainMenuBtns();
 			((MainUIForm)parentForm).InVizMode = inVizMode = false;
 
-			// BUG - Redraw caused for some reason, suspecting:
-			// ToggleWindowResizeAndMainMenuBtns()
+			// BUG - Redraw caused for some reason, suspecting: ToggleWindowResizeAndMainMenuBtns()
+			graph.DrawGraph(DrawingMode.Forceless);
 		}
 
 		// Helper method & callback to update the Enabled prop of a given control
@@ -232,14 +219,13 @@ namespace AlgorithmVisualizer.Forms
 		{
 			// Check if width is > 0 in case window was minimized
 			// Check required, otherwise all nodes may be placed at the point(0, 0)
-			if(Width > 0)
+			if (Width > 0)
 			{
-				// When resizing the panel create new graphics object from it
-				// and also make sure to update the panel widht/height for the graph
+				// When resizing the canvas create new graphics object from it
+				// and also make sure to update the canvas width/height for the graph
 				// visualizer and to redraw the graph
-				graph.GMain = gMain = panelMain.CreateGraphics();
-				graph.PanelHeight = panelMain.Height;
-				graph.PanelWidth = panelMain.Width;
+				graph.CanvasHeight = canvas.Height;
+				graph.CanvasWidth = canvas.Width;
 				DrawGraph();
 			}
 		}
@@ -256,7 +242,7 @@ namespace AlgorithmVisualizer.Forms
 		{
 			string title = "Remove all vertices and edges",
 				text = "You can save this graph as a new preset by clicking the button \"Presets\" and then \"New Preset\"\nPress OK to proceed.";
-			if (!graph.IsEmpty() && SimpleDialog.OKCancel(title, text)) ClearGraphAndPanel();
+			if (!graph.IsEmpty() && SimpleDialog.OKCancel(title, text)) graph.ClearGraph();
 		}
 		private void btnClearState_Click(object sender, EventArgs e)
 		{
@@ -265,8 +251,8 @@ namespace AlgorithmVisualizer.Forms
 			if (!graph.IsEmpty() && SimpleDialog.OKCancel(title, text))
 			{
 				// Reset graph color scheme and directions of edges to defaults
-				graph.ResetGraphColors();
-				graph.ClearSpringReversedState();
+				graph.ClearGraphState();
+				graph.DrawGraph(DrawingMode.Forceless);
 			}
 		}
 		private void btnPresets_Click(object sender, EventArgs e)
@@ -278,9 +264,9 @@ namespace AlgorithmVisualizer.Forms
 					string[] serialization = presetDialog.Serialization;
 					if (serialization != null)
 					{
-						ClearGraphAndPanel();
+						graph.ClearGraph();
 						GraphSerializer.Deserialize(graph, serialization);
-					
+
 						// Creating a new backgroundworker and running the graph viz on it in asynchronous mode
 						bgw = new BackgroundWorker();
 						bgw.DoWork += new DoWorkEventHandler(bgw_Visualize);
@@ -389,7 +375,7 @@ namespace AlgorithmVisualizer.Forms
 					// Add directed or undirected edge and get op status
 					bool opStatus = directedMode ?
 						graph.AddDirectedEdge(from, to, cost) :
-						graph.AddUndirectedEdge(from, to, cost) ;
+						graph.AddUndirectedEdge(from, to, cost);
 					// Custumize and print msg
 					string msg = (directedMode ? "AddDirectedEdge" : "AddUndirectedEdge") +
 							  $": ({from}, {to}, {cost}). " +
@@ -402,7 +388,7 @@ namespace AlgorithmVisualizer.Forms
 		}
 		private void removeEdgeToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			using(var edgeDialog = new EdgeDialog(addingMode: false))
+			using (var edgeDialog = new EdgeDialog(addingMode: false))
 			{
 				if (edgeDialog.ShowDialog() == DialogResult.OK)
 				{
@@ -411,7 +397,7 @@ namespace AlgorithmVisualizer.Forms
 					// Remove directed or undirected edge and get op status
 					bool opStatus = directedMode ?
 						graph.RemoveDirectedEdge(from, to, cost) :
-						graph.RemoveUndirectedEdge(from, to, cost) ;
+						graph.RemoveUndirectedEdge(from, to, cost);
 					// Custumize and print msg
 					string msg = (directedMode ? "RemoveDirectedEdge" : "RemoveUndirectedEdge") +
 							  $": ({from}, {to}, {cost}). " +
@@ -424,7 +410,7 @@ namespace AlgorithmVisualizer.Forms
 		}
 		private Particle activeParticle;
 		private int activeParticleId = -1;
-		private void panelMain_MouseDown(object sender, MouseEventArgs e)
+		private void canvas_MouseDown(object sender, MouseEventArgs e)
 		{
 			// leftclick
 			// Note that in case an algo is running then the click is ignored
@@ -436,7 +422,7 @@ namespace AlgorithmVisualizer.Forms
 				if (clickedParticle != null) activeParticle = clickedParticle;
 			}
 		}
-		private void panelMain_MouseMove(object sender, MouseEventArgs e)
+		private void canvas_MouseMove(object sender, MouseEventArgs e)
 		{
 			if (activeParticle != null)
 			{
@@ -445,11 +431,11 @@ namespace AlgorithmVisualizer.Forms
 				DrawGraph();
 			}
 		}
-		private void panelMain_MouseUp(object sender, MouseEventArgs e)
+		private void canvas_MouseUp(object sender, MouseEventArgs e)
 		{
 			// rightclick
 			// Note that in case an algo is running then the click is ignored
-			// thus prohibiting openning toolbars of the panel
+			// thus prohibiting openning toolbars of the canvas
 			if (!inVizMode && e.Button == MouseButtons.Right)
 			{
 				// Checking if clicked within a particle and if so diplaying vertexContextStrip
@@ -465,8 +451,8 @@ namespace AlgorithmVisualizer.Forms
 				// otherwise if not within a particle
 				else
 				{
-					// show panelMainContextStrip (add vertex)
-					panelMainContextStrip.Show(Cursor.Position);
+					// show canvasMainContextStrip (add vertex)
+					canvasContextStrip.Show(Cursor.Position);
 					activeRClickPos = new Vector(x, y);
 				}
 			}

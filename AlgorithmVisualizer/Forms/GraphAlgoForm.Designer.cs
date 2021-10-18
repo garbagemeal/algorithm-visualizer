@@ -30,7 +30,6 @@ namespace AlgorithmVisualizer.Forms
 		private void InitializeComponent()
 		{
 			this.components = new System.ComponentModel.Container();
-			this.panelMain = new System.Windows.Forms.Panel();
 			this.vertexContextStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.toggleVertexPinToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.removeVertexToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -47,27 +46,17 @@ namespace AlgorithmVisualizer.Forms
 			this.btnStart = new System.Windows.Forms.Button();
 			this.speedBar = new System.Windows.Forms.HScrollBar();
 			this.btnPauseResume = new System.Windows.Forms.Button();
-			this.panelMainContextStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
+			this.canvasContextStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.addVertexToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.pinAllVerticesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.unpinAllVerticesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.togglePhysicsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.canvas = new System.Windows.Forms.PictureBox();
 			this.vertexContextStrip.SuspendLayout();
 			this.panelControls.SuspendLayout();
-			this.panelMainContextStrip.SuspendLayout();
+			this.canvasContextStrip.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.canvas)).BeginInit();
 			this.SuspendLayout();
-			// 
-			// panelMain
-			// 
-			this.panelMain.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(34)))), ((int)(((byte)(34)))), ((int)(((byte)(34)))));
-			this.panelMain.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.panelMain.Location = new System.Drawing.Point(0, 57);
-			this.panelMain.Name = "panelMain";
-			this.panelMain.Size = new System.Drawing.Size(1008, 504);
-			this.panelMain.TabIndex = 18;
-			this.panelMain.MouseDown += new System.Windows.Forms.MouseEventHandler(this.panelMain_MouseDown);
-			this.panelMain.MouseMove += new System.Windows.Forms.MouseEventHandler(this.panelMain_MouseMove);
-			this.panelMain.MouseUp += new System.Windows.Forms.MouseEventHandler(this.panelMain_MouseUp);
 			// 
 			// vertexContextStrip
 			// 
@@ -261,50 +250,63 @@ namespace AlgorithmVisualizer.Forms
 			this.btnPauseResume.UseVisualStyleBackColor = false;
 			this.btnPauseResume.Click += new System.EventHandler(this.btnPauseResume_Click);
 			// 
-			// panelMainContextStrip
+			// canvasContextStrip
 			// 
-			this.panelMainContextStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+			this.canvasContextStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.addVertexToolStripMenuItem,
             this.pinAllVerticesToolStripMenuItem,
             this.unpinAllVerticesToolStripMenuItem,
             this.togglePhysicsToolStripMenuItem});
-			this.panelMainContextStrip.Name = "panelMainE";
-			this.panelMainContextStrip.Size = new System.Drawing.Size(181, 114);
+			this.canvasContextStrip.Name = "panelMainE";
+			this.canvasContextStrip.Size = new System.Drawing.Size(165, 92);
 			// 
 			// addVertexToolStripMenuItem
 			// 
 			this.addVertexToolStripMenuItem.Name = "addVertexToolStripMenuItem";
-			this.addVertexToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.addVertexToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
 			this.addVertexToolStripMenuItem.Text = "Add vertex";
 			this.addVertexToolStripMenuItem.Click += new System.EventHandler(this.addVertexToolStripMenuItem_Click);
 			// 
 			// pinAllVerticesToolStripMenuItem
 			// 
 			this.pinAllVerticesToolStripMenuItem.Name = "pinAllVerticesToolStripMenuItem";
-			this.pinAllVerticesToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.pinAllVerticesToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
 			this.pinAllVerticesToolStripMenuItem.Text = "Pin all vertices";
 			this.pinAllVerticesToolStripMenuItem.Click += new System.EventHandler(this.pinAllVerticesToolStripMenuItem_Click);
 			// 
 			// unpinAllVerticesToolStripMenuItem
 			// 
 			this.unpinAllVerticesToolStripMenuItem.Name = "unpinAllVerticesToolStripMenuItem";
-			this.unpinAllVerticesToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.unpinAllVerticesToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
 			this.unpinAllVerticesToolStripMenuItem.Text = "Unpin all vertices";
 			this.unpinAllVerticesToolStripMenuItem.Click += new System.EventHandler(this.unpinAllVerticesToolStripMenuItem_Click);
 			// 
 			// togglePhysicsToolStripMenuItem
 			// 
 			this.togglePhysicsToolStripMenuItem.Name = "togglePhysicsToolStripMenuItem";
-			this.togglePhysicsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.togglePhysicsToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
 			this.togglePhysicsToolStripMenuItem.Text = "Toggle Physics";
 			this.togglePhysicsToolStripMenuItem.Click += new System.EventHandler(this.togglePhysicsToolStripMenuItem_Click);
+			// 
+			// canvas
+			// 
+			this.canvas.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(34)))), ((int)(((byte)(34)))), ((int)(((byte)(34)))));
+			this.canvas.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.canvas.Location = new System.Drawing.Point(0, 57);
+			this.canvas.Name = "canvas";
+			this.canvas.Size = new System.Drawing.Size(1008, 504);
+			this.canvas.TabIndex = 0;
+			this.canvas.TabStop = false;
+			this.canvas.MouseDown += new System.Windows.Forms.MouseEventHandler(this.canvas_MouseDown);
+			this.canvas.MouseMove += new System.Windows.Forms.MouseEventHandler(this.canvas_MouseMove);
+			this.canvas.MouseUp += new System.Windows.Forms.MouseEventHandler(this.canvas_MouseUp);
 			// 
 			// GraphAlgoForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(1008, 561);
-			this.Controls.Add(this.panelMain);
+			this.Controls.Add(this.canvas);
 			this.Controls.Add(this.panelControls);
 			this.Name = "GraphAlgoForm";
 			this.Text = "Graph algorithms";
@@ -312,14 +314,13 @@ namespace AlgorithmVisualizer.Forms
 			this.vertexContextStrip.ResumeLayout(false);
 			this.panelControls.ResumeLayout(false);
 			this.panelControls.PerformLayout();
-			this.panelMainContextStrip.ResumeLayout(false);
+			this.canvasContextStrip.ResumeLayout(false);
+			((System.ComponentModel.ISupportInitialize)(this.canvas)).EndInit();
 			this.ResumeLayout(false);
 
 		}
 
 		#endregion
-
-		private System.Windows.Forms.Panel panelMain;
 		private System.Windows.Forms.Panel panelControls;
 		private System.Windows.Forms.ComboBox algoComboBox;
 		private System.Windows.Forms.Label lblAlgoComboBox;
@@ -331,7 +332,7 @@ namespace AlgorithmVisualizer.Forms
 		private System.Windows.Forms.ContextMenuStrip vertexContextStrip;
 		private System.Windows.Forms.ToolStripMenuItem removeVertexToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem addEdgeToolStripMenuItem;
-		private System.Windows.Forms.ContextMenuStrip panelMainContextStrip;
+		private System.Windows.Forms.ContextMenuStrip canvasContextStrip;
 		private System.Windows.Forms.ToolStripMenuItem addVertexToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem removeEdgeToolStripMenuItem;
 		private System.Windows.Forms.Button btnPresets;
@@ -341,5 +342,6 @@ namespace AlgorithmVisualizer.Forms
 		private System.Windows.Forms.Button btnDetails;
 		private System.Windows.Forms.Button btnClearState;
 		private System.Windows.Forms.ToolStripMenuItem togglePhysicsToolStripMenuItem;
+		private System.Windows.Forms.PictureBox canvas;
 	}
 }

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-
+using System.Windows.Forms;
 using AlgorithmVisualizer.GraphTheory.Utils;
 using AlgorithmVisualizer.MathUtils;
 using AlgorithmVisualizer.Threading;
@@ -25,54 +25,48 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 		* The pair of edges (u, v, x), (v, u, x) may be considered as a single undirected
 		* edge in some of the algorithms implementations. */
 		
-		// Mapping node ids to the GNode objects
+		// Mapping node ids to the GNode objects of instance Particle
 		protected Dictionary<int, GNode> nodeLookup = new Dictionary<int, GNode>();
 
 		private List<Particle> particles;
 		private List<Spring> springs;
 
-		// G is the graphics object of panelMain, GLog is a graphics object of panelLog.
-		public Graphics GMain { get; set; }
+		// Contains the drawing of the graph
+		private PictureBox canvas;
+
+		// Mode to use in DrawGraph(), by default forces are used.
+		// Note: this should not be confused with the enum "DrawMode" already defined in C#.
+		public enum DrawingMode { Default = 0, Forceless = 1 };
+
+		// GLog is a graphics object of panelLog.
 		public Graphics GLog { get; set; }
 
-		// Center of point of panelMain; used to pull particles to the center
+		// Center of point of canvas; used to pull particles to the center
 		private Vector centerPos;
-		// Find center pos of the panel
-		private Vector findCenterPos() => new Vector(panelWidth / 2, panelHeight / 2);
+		// Find center pos of the canvas
+		private Vector findCenterPos() => new Vector(canvas.Width / 2, canvas.Height / 2);
 
-		// Height/width of the main panel (related to GMain)
-		private int panelHeight, panelWidth;
-		// When updating height/width of the panel the center pos is also updated!
-		public int PanelHeight { set { panelHeight = value; centerPos = findCenterPos(); } }
-		public int PanelWidth { set { panelWidth = value; centerPos = findCenterPos(); } }
+		// When updating height/width of the canvas the center pos is also updated!
+		public int CanvasHeight { set { canvas.Height = value; centerPos = findCenterPos(); } }
+		public int CanvasWidth { set { canvas.Width = value; centerPos = findCenterPos(); } }
 
 		// Note that the condition: PARTICLE_SIZE <= PARTICLE_SPAWN_OFFSET must hold
-		// for the prticles not to spawn outside of the panel (not clip ourside of it)
+		// for the prticles not to spawn outside of the canvas (not clip ourside of it)
 		protected const int DEFAULT_PARTICLE_SIZE = 30, DEFAULT_SPRING_REST_LEN = 125;
 		private const int PARTICLE_SPAWN_OFFSET = 50;
 
 		protected static Random rnd = new Random();
 		
-		public GraphVisualizer(Graphics gMain, Graphics gLog, int _panelHeight, int _panelWidth)
+		public GraphVisualizer(PictureBox _canvas, Graphics gLog)
 		{
-			GMain = gMain;
-			GLog = gLog;
-			panelHeight = _panelHeight;
-			panelWidth = _panelWidth;
+			canvas = _canvas;
 			centerPos = findCenterPos();
+			GLog = gLog;
 			particles = new List<Particle>();
 			springs = new List<Spring>();
 		}
 
 		#region particle/spring list manipulation
-		protected Vector GetRndPosWithinPanel()
-		{
-			// Note: the position vector returned will be within the panel and also offset
-			// from borders by PARTICLE_SPAWN_OFFSET
-			int x = rnd.Next(PARTICLE_SPAWN_OFFSET, panelWidth - PARTICLE_SPAWN_OFFSET);
-			int y = rnd.Next(PARTICLE_SPAWN_OFFSET, panelHeight - PARTICLE_SPAWN_OFFSET);
-			return new Vector(x, y);
-		}
 		protected Particle GetParticle(int id) =>  nodeLookup[id] as Particle;
 		protected void AddParticle(Particle particle) => particles.Add(particle);
 		protected void RemoveParticle(int id)
@@ -99,71 +93,44 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 		#endregion
 
 		#region Visuals
-		private void ClearPanel() => GMain.Clear(Colors.Undraw);
+		private void ClearCanvas() => canvas.CreateGraphics().Clear(Colors.Undraw);
 		protected void ClearVisualization()
 		{
-			// Clears visuals and spring/particle lists
+			// Clear canvas and spring/particle lists
 			springs.Clear();
 			particles.Clear();
-			ClearPanel();
+			ClearCanvas();
 		}
-		public void DrawGraph()
+		public void DrawGraph(DrawingMode mode)
 		{
-			// Draw the graph by first applying forces
-			ClearPanel();
-			ApplyForces();
-			DrawSprings();
-			DrawParticles();
-
-			void ApplyForces()
+			ClearCanvas();
+			// Apply forces if needed
+			if (mode == DrawingMode.Default)
 			{
 				foreach (Particle particle in particles)
 				{
-					// Pull this particle to the center
+					// Pull particle to the center
 					particle.PullToCenter(centerPos);
-					// Repel all other particles via this particle
+					// Repel all other particles
 					particle.ApplyRepulsiveForces(particles);
 				}
-				// Apply forces on the particles via the springs
+				// Apply forces on the particles using springs
 				foreach (Spring spring in springs) spring.ExertForcesOnParticles();
-				// Update all particle positions
+				// Update particle positions
 				foreach (Particle particle in particles)
-					particle.UpdatePos(panelHeight, panelWidth);
+					particle.UpdatePos(canvas.Height, canvas.Width);
 			}
-		}
-		public void DrawGraphForceless()
-		{
-			// Draw the graph without applying forces
-			ClearPanel();
-			DrawSprings();
-			DrawParticles();
-		}
-		public void ResetGraphColors()
-		{
-			ResetParticleColors();
-			ResetSpringColors();
-
-			void ResetParticleColors()
+			// Draw springs and particles
+			using (Graphics g = canvas.CreateGraphics())
 			{
-				foreach (var particle in particles)
-				{
-					particle.SetDefaultColors();
-					particle.Draw(GMain);
-				}
-			}
-			void ResetSpringColors()
-			{
-				foreach (var spring in springs)
-				{
-					spring.SetDefaultColors();
-					spring.Draw(GMain);
-				}
+				foreach (Spring spring in springs) spring.Draw(g);
+				foreach (Particle particle in particles) particle.Draw(g);
 			}
 		}
 		public void Visualize()
 		{
 			// Main method used to visualize the graph - Force directed graph drawing
-			const int MAX_NUM_ITR = 750;
+			const int MAX_NUM_ITR = 500;
 			const float EPSILON = 0.1f;
 			int i = 0;
 			// Run the FDGV as long i < MAX_NUM_ITR and
@@ -171,9 +138,9 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 			do
 			{
 				Particle.MAX_VEL_MAG_PER_ITR = 0;
-				DrawGraph();
+				DrawGraph(DrawingMode.Default);
 				i++;
-				Sleep(0); // Check for pause event
+				Sleep(); // Check for pause event
 			} while (i < MAX_NUM_ITR && Particle.MAX_VEL_MAG_PER_ITR > EPSILON);
 
 			// Reset max_vel/itr for next invocation of this method
@@ -181,7 +148,10 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 		}
 
 		// The following methods assume that the given particle id exists
-		private void DrawParticle(int id) => GetParticle(id).Draw(GMain);
+		private void DrawParticle(int id)
+		{
+			using (Graphics g = canvas.CreateGraphics()) GetParticle(id).Draw(g);
+		}
 		public void DrawParticle(int id, Color innerColor)
 		{
 			// Set given particle's innerColor and draw it
@@ -195,18 +165,6 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 			GetParticle(id).BorderColor = borderColor;
 			DrawParticle(id);
 		}
-		private void DrawParticles()
-		{
-			// Draw each particle
-			foreach (Particle particle in particles) particle.Draw(GMain);
-		}
-		public void ResetParticleColor(int id)
-		{
-			GetParticle(id).SetDefaultColors();
-			DrawParticle(id);
-		}
-		
-		// The following methods assume the given edge is in the graph (can be a colone)
 		public void RedrawSpring(Edge edge, Color color, int dir = -1)
 		{
 			/*
@@ -222,35 +180,37 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 
 			// Find given spring and revSpring
 			Spring spring = GetSpring(edge), revSpring = GetSpring(Edge.ReversedCopy(edge));
-			// Undraw both springs
-			spring.Undraw(GMain);
-			if (revSpring != null) revSpring.Undraw(GMain);
-			// Update color for both springs
-			spring.InnerColor = color;
-			if (revSpring != null) revSpring.InnerColor = color;
+			using (Graphics g = canvas.CreateGraphics())
+			{
+				// Undraw both springs
+				spring.Undraw(g);
+				if (revSpring != null) revSpring.Undraw(g);
+				// Update color for both springs
+				spring.InnerColor = color;
+				if (revSpring != null) revSpring.InnerColor = color;
 
-			// Draw according to spec
-			if (dir == -1 || dir == 0 || dir == 2) spring.Draw(GMain);
-			if ((dir == -1 || dir == 1 || dir == 2) && revSpring != null) revSpring.Draw(GMain);
+				// Draw according to spec
+				if (dir == -1 || dir == 0 || dir == 2) spring.Draw(g);
+				if ((dir == -1 || dir == 1 || dir == 2) && revSpring != null) revSpring.Draw(g);
+			}
 
-		}
-		private void DrawSprings()
-		{
-			// Draw all springs
-			foreach (Spring spring in springs) spring.Draw(GMain);
 		}
 		public void ReverseSprings()
 		{
 			foreach (Spring spring in springs) spring.Reversed = true;
-			DrawGraphForceless();
+			DrawGraph(DrawingMode.Forceless);
 		}
-		public void ClearSpringReversedState()
+		public void ClearGraphState()
 		{
+			// Clear "Reversed" state for all springs
 			foreach (var spring in springs) spring.Reversed = false;
+			// Reset particle/spring colors to defaults
+			foreach (var particle in particles) particle.SetDefaultColors();
+			foreach (var spring in springs) spring.SetDefaultColors();
 		}
 		#endregion
 
-		#region Helper methods for panel click events
+		#region Helper methods for canvas click events
 		public Particle GetClickedParticle(float x, float y)
 		{
 			// If the given coordinates are within a particle will return
@@ -272,5 +232,14 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 			foreach (Particle particle in particles) particle.Pinned = false;
 		}
 		#endregion
+
+		protected Vector RndPosWithinCanvas()
+		{
+			// Note: the position vector returned will be within the canvas and also offset
+			// from borders by PARTICLE_SPAWN_OFFSET
+			int x = rnd.Next(PARTICLE_SPAWN_OFFSET, canvas.Width - PARTICLE_SPAWN_OFFSET);
+			int y = rnd.Next(PARTICLE_SPAWN_OFFSET, canvas.Height - PARTICLE_SPAWN_OFFSET);
+			return new Vector(x, y);
+		}
 	}
 }

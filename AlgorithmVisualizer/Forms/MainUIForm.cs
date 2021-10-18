@@ -93,9 +93,8 @@ namespace AlgorithmVisualizer.Forms
 				MaximizeBox = !MaximizeBox;
 				// Toggle Window resize via mouse drag, note that using FixedSingle causes
 				// visuals to disappear for some reason, thats why Fixed3D is used.
-				FormBorderStyle sizeable = FormBorderStyle.Sizable;
-				FormBorderStyle fixed3D = FormBorderStyle.Fixed3D;
-				FormBorderStyle = FormBorderStyle == sizeable ? fixed3D : sizeable;
+				FormBorderStyle sizeable = FormBorderStyle.Sizable, fixedSingle = FormBorderStyle.FixedSingle;
+				FormBorderStyle = FormBorderStyle == sizeable ? fixedSingle : sizeable;
 
 				// Get current 'Enabled' status of main menu buttons (assumed the state is
 				// the same for all buttons in the main menu)

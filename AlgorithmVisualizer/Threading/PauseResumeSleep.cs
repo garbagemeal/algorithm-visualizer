@@ -32,9 +32,9 @@ namespace AlgorithmVisualizer.Threading
 
 		// DelayFactor can range from 0-2 (0 is faster), and is given by user at runtime.
 		public double DelayFactor { get; protected set; } = 1;
-		public void Sleep(int millis)
+		public void Sleep(int millis = 0)
 		{
-			// If not paused and computed sleep time > 0
+			// Sleep some time if millies > 0
 			if (!Paused && DelayFactor * millis > 0)
 				Thread.Sleep((int)Math.Round(DelayFactor * millis));
 			// Check for pause event

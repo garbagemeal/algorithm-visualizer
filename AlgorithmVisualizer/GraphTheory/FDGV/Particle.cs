@@ -107,7 +107,7 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 
 		// Add given force to acc. Note: F = ma --> a = F/m --> F = a (because m = 1) 
 		public void Accelerate(Vector F) => acc += F;
-		public void UpdatePos(int panelHeight, int panelWidth)
+		public void UpdatePos(int canvasHeight, int canvasWidth)
 		{
 			// Ignore pinned particles
 			if (!Pinned)
@@ -119,7 +119,7 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 				if (vel.Magnitude() > MAX_PARTICLE_SPEED) vel.SetMagnitude(MAX_PARTICLE_SPEED);
 				// Update the position by adding the velocity to the current position
 				pos += vel;
-				BoundWithinPanel(panelHeight, panelWidth);
+				BoundWithinCanvas(canvasHeight, canvasWidth);
 				// Keep track of maximal verlocity per iteration of the FDGV; needs to be
 				// manually reset from within the FDGV algo after each iteration.
 				if (vel.Magnitude() > MAX_VEL_MAG_PER_ITR) MAX_VEL_MAG_PER_ITR = vel.Magnitude();
@@ -128,17 +128,17 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 			// will accelerate with each iteration and eventually "fly" of the screen.
 			acc.Set(0, 0);
 		}
-		public void BoundWithinPanel(int panelHeight, int panelWidth)
+		public void BoundWithinCanvas(int canvasHeight, int canvasWidth)
 		{
-			// Bounds the position vector of this particle within the panel.
+			// Bounds the position vector of this particle within the canvas.
 			// The bounding is with respect to the middle point where x, y are
 			// always offset by radius from all 4 directions
 
 			int radius = Size / 2;
-			// Bound X within panelWidth
-			pos.X = Math.Max(radius, Math.Min(panelWidth - radius, pos.X));
-			// Bound Y within panelHeight
-			pos.Y = Math.Max(radius, Math.Min(panelHeight - radius, pos.Y));
+			// Bound X within canvasWidth
+			pos.X = Math.Max(radius, Math.Min(canvasWidth - radius, pos.X));
+			// Bound Y within canvasHeight
+			pos.Y = Math.Max(radius, Math.Min(canvasHeight - radius, pos.Y));
 		}
 		public void PullToCenter(Vector centerPos)
 		{

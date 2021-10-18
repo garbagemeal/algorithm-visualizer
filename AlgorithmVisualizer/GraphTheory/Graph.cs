@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 
+using System.Windows.Forms;
 using AlgorithmVisualizer.Forms.Dialogs;
 using AlgorithmVisualizer.GraphTheory.FDGV;
 using AlgorithmVisualizer.MathUtils;
@@ -21,8 +22,7 @@ namespace AlgorithmVisualizer.GraphTheory
 		public int NodeCount { get { return nodeLookup.Count; } }
 		public int EdgeCount { get; private set; } = 0;
 
-		public Graph(Graphics gMain, Graphics gLog, int panelHeight, int panelWidth)
-			: base(gMain, gLog, panelHeight, panelWidth) =>
+		public Graph(PictureBox canvas, Graphics gLog) : base(canvas, gLog) =>
 			AdjList = new Dictionary<int, List<Edge>>();
 
 		#region Graph manipulation
@@ -38,7 +38,7 @@ namespace AlgorithmVisualizer.GraphTheory
 			AdjList.Clear();
 			EdgeCount = 0;
 		}
-		public bool AddNode(int id, int data) => AddNode(id, data, GetRndPosWithinPanel());
+		public bool AddNode(int id, int data) => AddNode(id, data, RndPosWithinCanvas());
 		public bool AddNode(int id, int data, Vector posVector)
 		{
 			if (ContainsNode(id)) return false;
@@ -225,14 +225,13 @@ namespace AlgorithmVisualizer.GraphTheory
 		// Some data structures require node id's to be in the range 0 - V non inclusive
 		public void FixNodeIdNumbering()
 		{
-			// Method to fix the node id numbering in case
-			// it is not sequential starting from 0.
+			// Fix the node id numbering in case it is not sequential starting from 0.
 			// Total runtime: O(Vlog(V) + E) = O(Vlog(V) + V^2) = O(V^2)
 
 			// Create a sorted array containing all node ids
 			// O(V)
 			int[] nodeIdArray = nodeLookup.Keys.ToArray();
-			// Assumed to take O(VLog(V)) time.
+			// Assumed to take O(VLog(V)) time (uses introsort?).
 			Array.Sort(nodeIdArray);
 			int N = nodeIdArray.Length;
 			// Array values are not sequntial starting from 0
@@ -253,7 +252,7 @@ namespace AlgorithmVisualizer.GraphTheory
 				UpdateNodeIds(nodeIdArray, N, inverseNodeIdDict);
 
 				// redraw graph
-				DrawGraphForceless();
+				DrawGraph(DrawingMode.Forceless);
 			}
 		}
 		private void UpdateNodeIds(int[] nodeIdArray, int N, Dictionary<int, int> inverseNodeIdDict)
