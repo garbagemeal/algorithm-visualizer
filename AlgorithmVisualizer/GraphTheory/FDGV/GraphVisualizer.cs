@@ -51,7 +51,6 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 
 		// Note that the condition: PARTICLE_SIZE <= PARTICLE_SPAWN_OFFSET must hold
 		// for the prticles not to spawn outside of the canvas (not clip ourside of it)
-		protected const int DEFAULT_PARTICLE_SIZE = 30, DEFAULT_SPRING_REST_LEN = 125;
 		private const int PARTICLE_SPAWN_OFFSET = 50;
 
 		protected static Random rnd = new Random();
@@ -196,6 +195,42 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 			// Reset particle/spring colors to defaults
 			foreach (var particle in particles) particle.SetDefaultColors();
 			foreach (var spring in springs) spring.SetDefaultColors();
+		}
+		#endregion
+
+		#region Physics
+		public void SetDefaultPhysicsParams()
+		{
+			foreach (var p in particles) p.SetDefaultPhysicsParams();
+			foreach (var s in springs) s.SetDefaultPhysicsParams();
+		}
+		public void SetG(float newG)
+		{
+			foreach (var p in particles) p.G = newG;
+		}
+		public void SetMaxParticleSpeed(float newMaxParticleSpeed)
+		{
+			foreach (var p in particles) p.MaxSpeed = newMaxParticleSpeed;
+		}
+		public void SetMaxCenterPullMag(float newMaxCenterPullMag)
+		{
+			foreach (var p in particles) p.MaxCenterPullMag = newMaxCenterPullMag;
+		}
+		public void SetVelDecay(float newVelDecay)
+		{
+			foreach (var p in particles) p.VelDecay = newVelDecay;
+		}
+		public void SetParticleSize(float newSize)
+		{
+			foreach (var p in particles) p.Size = newSize;
+		}
+		public void SetK(float newK)
+		{
+			foreach (var p in springs) p.K = newK;
+		}
+		public void SetRestLen(float newRestLen)
+		{
+			foreach (var p in springs) p.RestLen = newRestLen;
 		}
 		#endregion
 

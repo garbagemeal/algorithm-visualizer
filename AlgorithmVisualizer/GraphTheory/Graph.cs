@@ -42,7 +42,7 @@ namespace AlgorithmVisualizer.GraphTheory
 		public bool AddNode(int id, Vector posVector)
 		{
 			if (ContainsNode(id)) return false;
-			Particle particle = new Particle(id, 0, posVector, DEFAULT_PARTICLE_SIZE);
+			Particle particle = new Particle(id, 0, posVector);
 			nodeLookup[id] = particle;
 			AdjList[id] = new List<Edge>();
 			// For visualization
@@ -85,7 +85,7 @@ namespace AlgorithmVisualizer.GraphTheory
 			{
 				// Creating the edge for addition (as a spring)
 				Particle p1 = (Particle)nodeLookup[from], p2 = (Particle)nodeLookup[to];
-				Spring spring = new Spring(p1, p2, cost, DEFAULT_SPRING_REST_LEN);
+				Spring spring = new Spring(p1, p2, cost);
 				// If the adjList does not already contain the same edge (even of different cost)
 				if (!(ResultsInParallelEdge(spring) || ResultsInInverseEdgesOfDiffCost(spring)))
 				{
@@ -107,8 +107,8 @@ namespace AlgorithmVisualizer.GraphTheory
 				// Creating both edges for addition: (u, v, x), (v, u, x)
 				// The first edge is created as a Spring extending the edge for the visualization
 				Particle p1 = GetParticle(from), p2 = GetParticle(to);
-				Spring spring = new Spring(p1, p2, cost, DEFAULT_SPRING_REST_LEN),
-					revSpring = new Spring(p2, p1, cost, DEFAULT_SPRING_REST_LEN);
+				Spring spring = new Spring(p1, p2, cost),
+					revSpring = new Spring(p2, p1, cost);
 				// Prohibit More then 1 edge from A to B and vise versa
 				if (!(ResultsInParallelEdge(spring) || ResultsInParallelEdge(revSpring)))
 				{
@@ -132,7 +132,7 @@ namespace AlgorithmVisualizer.GraphTheory
 			{
 				// Creating a clone spring(edge) for removal
 				Particle p1 = GetParticle(from), p2 = GetParticle(to);
-				Spring edgeToRem = new Spring(p1, p2, cost, DEFAULT_SPRING_REST_LEN);
+				Spring edgeToRem = new Spring(p1, p2, cost);
 				List<Edge> fromEdgeList = AdjList[from];
 				// for each edge in fromEdgeList
 				for (int i = 0; i < fromEdgeList.Count; i++)
@@ -160,8 +160,8 @@ namespace AlgorithmVisualizer.GraphTheory
 			{
 				// Creating a clone springs(edges) for removals
 				Particle p1 = GetParticle(from), p2 = GetParticle(to);
-				Spring remSpring1 = new Spring(p1, p2, cost, DEFAULT_SPRING_REST_LEN),
-					remSpring2 = new Spring(p2, p1, cost, DEFAULT_SPRING_REST_LEN);
+				Spring remSpring1 = new Spring(p1, p2, cost),
+					remSpring2 = new Spring(p2, p1, cost);
 				List<Edge> fromEdgeList = AdjList[from], toEdgeList = AdjList[to];
 				// Find the edge (from, to, cost)
 				for (int i = 0; i < fromEdgeList.Count; i++)

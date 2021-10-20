@@ -27,7 +27,6 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 
 		private int textSize = 10;
 		private float borderWidth = 1.7f;
-		public int Size { get; set; }
 		public bool Pinned { get; set; } = false;
 		public void TogglePin() => Pinned = !Pinned;
 
@@ -37,21 +36,33 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 		public Vector Pos { get { return new Vector(pos.X, pos.Y); } set { pos = new Vector(value.X, value.Y); } }
 		public Vector Vel { get { return new Vector(vel.X, vel.Y); } set { vel = new Vector(value.X, value.Y); } }
 		public Vector Acc { get { return new Vector(acc.X, acc.Y); } set { acc = new Vector(value.X, value.Y); } }
-		// Physics related & particle stabilization
-		private const float G = 1000f, MAX_PARTICLE_SPEED = 10f, MAX_CENTER_PULL_MAG = 0.1f, VEL_DECAY = 0.99f;
-		// Captures maxival velocity when updating position
-		public static float MAX_VEL_MAG_PER_ITR { get; set; } = 0;
 
+		// Default/instance physics related params
+		public const float defaultSize = 30;
+		public const float defaultG = 1000f, defaultMaxSpeed = 10f,
+			defaultMaxCenterPullMag = 0.1f, defaultVelDecay = 0.99f;
+		public float G { get; set; }
+		public float MaxSpeed { get; set; }
+		public float MaxCenterPullMag { get; set; }
+		public float VelDecay { get; set; }
+		public float Size { get; set; }
+		public void SetDefaultPhysicsParams()
+		{
+			G = defaultG;
+			MaxSpeed = defaultMaxSpeed;
+			MaxCenterPullMag = defaultMaxCenterPullMag;
+			VelDecay = defaultVelDecay;
+			Size = defaultSize;
+		}
 
-
-		public Particle(int id, int data, Vector _pos, int size) : base(id, data)
+		public Particle(int id, int data, Vector _pos) : base(id, data)
 		{
 			pos = _pos;
 			vel = new Vector(0, 0);
 			acc = new Vector(0, 0);
-			Size = size;
-			// Use default color scheme
+			// Use default color/physics schemes
 			SetDefaultColors();
+			SetDefaultPhysicsParams();
 		}
 
 		public void Draw(Graphics g, int canvasHeight, int canvasWidth)
@@ -67,7 +78,7 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 		}
 		private void Draw(Graphics g, SolidBrush brush)
 		{
-			int radius = Size / 2;
+			float radius = Size / 2;
 			// Create rectagle centered around x, y
 			RectangleF rect = new RectangleF(pos.X - radius, pos.Y - radius, Size, Size);
 			// Draw/Undraw particle
@@ -79,16 +90,14 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 				using (var pen = new Pen(BorderColor, borderWidth)) g.DrawEllipse(pen, rect);
 				// Draw node id centered within particle
 				using (var textBrush = new SolidBrush(TextColor))
+				using (var sf = new StringFormat())
 				{
-					using (StringFormat sf = new StringFormat())
-					{
-						// Used to center string with sf
-						sf.LineAlignment = StringAlignment.Center;
-						sf.Alignment = StringAlignment.Center;
+					// Used to center string with sf
+					sf.LineAlignment = StringAlignment.Center;
+					sf.Alignment = StringAlignment.Center;
 						
-						using (Font font = new Font("Arial", textSize))
-							g.DrawString(Id.ToString(), font, textBrush, rect, sf);
-					}
+					using (Font font = new Font("Arial", textSize))
+						g.DrawString(Id.ToString(), font, textBrush, rect, sf);
 				}
 			}
 		}
@@ -102,13 +111,11 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 			{
 				// Update velocity using current acceleration and apply force decay
 				vel += acc;
-				vel *= VEL_DECAY;
-				if (vel.Magnitude() > MAX_PARTICLE_SPEED) vel.SetMagnitude(MAX_PARTICLE_SPEED);
+				vel *= VelDecay;
+				if (vel.Magnitude() > MaxSpeed) vel.SetMagnitude(MaxSpeed);
 				// Update the position by adding the velocity to the current position
 				pos += vel;
 				BoundWithinCanvas(canvasHeight, canvasWidth);
-				// Keep track of maximal particle verlocity
-				if (vel.Magnitude() > MAX_VEL_MAG_PER_ITR) MAX_VEL_MAG_PER_ITR = vel.Magnitude();
 			}
 			// Avoid propagation of acceleration between invocations to this method
 			acc.Set(0, 0);
@@ -119,7 +126,7 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 			// The bounding is with respect to the middle point where x, y are
 			// always offset by radius from all 4 directions
 
-			int radius = Size / 2;
+			float radius = Size / 2;
 			// Bound X within canvasWidth
 			pos.X = Math.Max(radius, Math.Min(canvasWidth - radius, pos.X));
 			// Bound Y within canvasHeight
@@ -130,7 +137,7 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 			// Vector of full length from pos to centerPos
 			Vector F = centerPos - pos;
 			// Compute a magnitude and adjust F's mag accordingly
-			float mag = Math.Min(F.Magnitude() / G, MAX_CENTER_PULL_MAG);
+			float mag = Math.Min(F.Magnitude() / G, MaxCenterPullMag);
 			F.SetMagnitude(mag);
 			// Add force into acc
 			acc += F;

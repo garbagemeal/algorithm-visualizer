@@ -53,6 +53,7 @@ namespace AlgorithmVisualizer.Forms
 			this.togglePhysicsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.toggleCenterPullToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.canvas = new System.Windows.Forms.PictureBox();
+			this.btnPreferences = new System.Windows.Forms.Button();
 			this.vertexContextStrip.SuspendLayout();
 			this.panelControls.SuspendLayout();
 			this.canvasContextStrip.SuspendLayout();
@@ -100,6 +101,7 @@ namespace AlgorithmVisualizer.Forms
 			// panelControls
 			// 
 			this.panelControls.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(57)))), ((int)(((byte)(57)))), ((int)(((byte)(57)))));
+			this.panelControls.Controls.Add(this.btnPreferences);
 			this.panelControls.Controls.Add(this.btnClearState);
 			this.panelControls.Controls.Add(this.btnDetails);
 			this.panelControls.Controls.Add(this.btnPresets);
@@ -123,7 +125,7 @@ namespace AlgorithmVisualizer.Forms
 			this.btnClearState.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.btnClearState.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.btnClearState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(232)))), ((int)(((byte)(232)))), ((int)(((byte)(232)))));
-			this.btnClearState.Location = new System.Drawing.Point(533, 15);
+			this.btnClearState.Location = new System.Drawing.Point(512, 16);
 			this.btnClearState.Name = "btnClearState";
 			this.btnClearState.Size = new System.Drawing.Size(85, 23);
 			this.btnClearState.TabIndex = 17;
@@ -139,7 +141,7 @@ namespace AlgorithmVisualizer.Forms
 			this.btnDetails.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.btnDetails.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.btnDetails.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(232)))), ((int)(((byte)(232)))), ((int)(((byte)(232)))));
-			this.btnDetails.Location = new System.Drawing.Point(935, 15);
+			this.btnDetails.Location = new System.Drawing.Point(935, 16);
 			this.btnDetails.Name = "btnDetails";
 			this.btnDetails.Size = new System.Drawing.Size(61, 23);
 			this.btnDetails.TabIndex = 15;
@@ -154,9 +156,9 @@ namespace AlgorithmVisualizer.Forms
 			this.btnPresets.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.btnPresets.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.btnPresets.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(232)))), ((int)(((byte)(232)))), ((int)(((byte)(232)))));
-			this.btnPresets.Location = new System.Drawing.Point(624, 15);
+			this.btnPresets.Location = new System.Drawing.Point(599, 16);
 			this.btnPresets.Name = "btnPresets";
-			this.btnPresets.Size = new System.Drawing.Size(85, 23);
+			this.btnPresets.Size = new System.Drawing.Size(64, 23);
 			this.btnPresets.TabIndex = 14;
 			this.btnPresets.Text = "Presets";
 			this.btnPresets.UseVisualStyleBackColor = false;
@@ -187,7 +189,7 @@ namespace AlgorithmVisualizer.Forms
 			// 
 			this.lblSpeedBar.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.lblSpeedBar.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(232)))), ((int)(((byte)(232)))), ((int)(((byte)(232)))));
-			this.lblSpeedBar.Location = new System.Drawing.Point(717, 16);
+			this.lblSpeedBar.Location = new System.Drawing.Point(765, 17);
 			this.lblSpeedBar.Name = "lblSpeedBar";
 			this.lblSpeedBar.Size = new System.Drawing.Size(50, 20);
 			this.lblSpeedBar.TabIndex = 13;
@@ -201,9 +203,9 @@ namespace AlgorithmVisualizer.Forms
 			this.btnReset.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.btnReset.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.btnReset.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(232)))), ((int)(((byte)(232)))), ((int)(((byte)(232)))));
-			this.btnReset.Location = new System.Drawing.Point(464, 15);
+			this.btnReset.Location = new System.Drawing.Point(450, 16);
 			this.btnReset.Name = "btnReset";
-			this.btnReset.Size = new System.Drawing.Size(65, 23);
+			this.btnReset.Size = new System.Drawing.Size(60, 23);
 			this.btnReset.TabIndex = 3;
 			this.btnReset.Text = "Reset";
 			this.btnReset.UseVisualStyleBackColor = false;
@@ -216,9 +218,9 @@ namespace AlgorithmVisualizer.Forms
 			this.btnStart.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.btnStart.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.btnStart.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(232)))), ((int)(((byte)(232)))), ((int)(((byte)(232)))));
-			this.btnStart.Location = new System.Drawing.Point(326, 15);
+			this.btnStart.Location = new System.Drawing.Point(322, 16);
 			this.btnStart.Name = "btnStart";
-			this.btnStart.Size = new System.Drawing.Size(65, 23);
+			this.btnStart.Size = new System.Drawing.Size(60, 23);
 			this.btnStart.TabIndex = 5;
 			this.btnStart.Text = "Start";
 			this.btnStart.UseVisualStyleBackColor = false;
@@ -228,9 +230,9 @@ namespace AlgorithmVisualizer.Forms
 			// 
 			this.speedBar.Anchor = System.Windows.Forms.AnchorStyles.Left;
 			this.speedBar.LargeChange = 1;
-			this.speedBar.Location = new System.Drawing.Point(773, 15);
+			this.speedBar.Location = new System.Drawing.Point(819, 16);
 			this.speedBar.Name = "speedBar";
-			this.speedBar.Size = new System.Drawing.Size(159, 23);
+			this.speedBar.Size = new System.Drawing.Size(113, 23);
 			this.speedBar.TabIndex = 11;
 			this.speedBar.Value = 50;
 			this.speedBar.Scroll += new System.Windows.Forms.ScrollEventHandler(this.speedBar_Scroll);
@@ -243,9 +245,9 @@ namespace AlgorithmVisualizer.Forms
 			this.btnPauseResume.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.btnPauseResume.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.btnPauseResume.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(232)))), ((int)(((byte)(232)))), ((int)(((byte)(232)))));
-			this.btnPauseResume.Location = new System.Drawing.Point(395, 15);
+			this.btnPauseResume.Location = new System.Drawing.Point(384, 16);
 			this.btnPauseResume.Name = "btnPauseResume";
-			this.btnPauseResume.Size = new System.Drawing.Size(65, 23);
+			this.btnPauseResume.Size = new System.Drawing.Size(64, 23);
 			this.btnPauseResume.TabIndex = 6;
 			this.btnPauseResume.Text = "Pause";
 			this.btnPauseResume.UseVisualStyleBackColor = false;
@@ -265,35 +267,35 @@ namespace AlgorithmVisualizer.Forms
 			// addVertexToolStripMenuItem
 			// 
 			this.addVertexToolStripMenuItem.Name = "addVertexToolStripMenuItem";
-			this.addVertexToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.addVertexToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
 			this.addVertexToolStripMenuItem.Text = "Add vertex";
 			this.addVertexToolStripMenuItem.Click += new System.EventHandler(this.addVertexToolStripMenuItem_Click);
 			// 
 			// pinAllVerticesToolStripMenuItem
 			// 
 			this.pinAllVerticesToolStripMenuItem.Name = "pinAllVerticesToolStripMenuItem";
-			this.pinAllVerticesToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.pinAllVerticesToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
 			this.pinAllVerticesToolStripMenuItem.Text = "Pin all vertices";
 			this.pinAllVerticesToolStripMenuItem.Click += new System.EventHandler(this.pinAllVerticesToolStripMenuItem_Click);
 			// 
 			// unpinAllVerticesToolStripMenuItem
 			// 
 			this.unpinAllVerticesToolStripMenuItem.Name = "unpinAllVerticesToolStripMenuItem";
-			this.unpinAllVerticesToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.unpinAllVerticesToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
 			this.unpinAllVerticesToolStripMenuItem.Text = "Unpin all vertices";
 			this.unpinAllVerticesToolStripMenuItem.Click += new System.EventHandler(this.unpinAllVerticesToolStripMenuItem_Click);
 			// 
 			// togglePhysicsToolStripMenuItem
 			// 
 			this.togglePhysicsToolStripMenuItem.Name = "togglePhysicsToolStripMenuItem";
-			this.togglePhysicsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.togglePhysicsToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
 			this.togglePhysicsToolStripMenuItem.Text = "Toggle Physics";
 			this.togglePhysicsToolStripMenuItem.Click += new System.EventHandler(this.togglePhysicsToolStripMenuItem_Click);
 			// 
 			// toggleCenterPullToolStripMenuItem
 			// 
 			this.toggleCenterPullToolStripMenuItem.Name = "toggleCenterPullToolStripMenuItem";
-			this.toggleCenterPullToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.toggleCenterPullToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
 			this.toggleCenterPullToolStripMenuItem.Text = "Toggle center pull";
 			this.toggleCenterPullToolStripMenuItem.Click += new System.EventHandler(this.toggleCenterPullToolStripMenuItem_Click);
 			// 
@@ -310,6 +312,21 @@ namespace AlgorithmVisualizer.Forms
 			this.canvas.MouseDown += new System.Windows.Forms.MouseEventHandler(this.canvas_MouseDown);
 			this.canvas.MouseMove += new System.Windows.Forms.MouseEventHandler(this.canvas_MouseMove);
 			this.canvas.MouseUp += new System.Windows.Forms.MouseEventHandler(this.canvas_MouseUp);
+			// 
+			// btnPreferences
+			// 
+			this.btnPreferences.BackColor = System.Drawing.Color.Gray;
+			this.btnPreferences.FlatAppearance.BorderSize = 0;
+			this.btnPreferences.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.btnPreferences.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.btnPreferences.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(232)))), ((int)(((byte)(232)))), ((int)(((byte)(232)))));
+			this.btnPreferences.Location = new System.Drawing.Point(665, 16);
+			this.btnPreferences.Name = "btnPreferences";
+			this.btnPreferences.Size = new System.Drawing.Size(95, 23);
+			this.btnPreferences.TabIndex = 18;
+			this.btnPreferences.Text = "Preferences";
+			this.btnPreferences.UseVisualStyleBackColor = false;
+			this.btnPreferences.Click += new System.EventHandler(this.btnPreferences_Click);
 			// 
 			// GraphAlgoForm
 			// 
@@ -356,5 +373,6 @@ namespace AlgorithmVisualizer.Forms
 		private System.Windows.Forms.ToolStripMenuItem togglePhysicsToolStripMenuItem;
 		private System.Windows.Forms.PictureBox canvas;
 		private System.Windows.Forms.ToolStripMenuItem toggleCenterPullToolStripMenuItem;
+		private System.Windows.Forms.Button btnPreferences;
 	}
 }

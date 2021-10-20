@@ -34,6 +34,9 @@ namespace AlgorithmVisualizer.Forms
 		private Particle activeParticle;
 		private int activeParticleId = -1;
 
+		private bool inVizMode = false;
+		private bool forcesEnabled = true;
+
 		public GraphAlgoForm(Form _parentForm)
 		{
 			InitializeComponent();
@@ -51,11 +54,8 @@ namespace AlgorithmVisualizer.Forms
 			StartGraphViz();
 		}
 
-		#region Visuals & threading
-		private BackgroundWorker bgwGraphAlgoViz;
+		#region Visualizing a graph (force directed graph drawing)
 		private BackgroundWorker bgwGraphLayoutViz;
-		private bool inVizMode = false;
-		private bool forcesEnabled = true;
 
 		void StartGraphViz()
 		{
@@ -78,6 +78,25 @@ namespace AlgorithmVisualizer.Forms
 			}
 		}
 
+		// Safely invoke "canvas.Refresh()"
+		private delegate void TriggerCanvasPaintEventCallback();
+		private void TriggerCanvasPaintEvent()
+		{
+			// InvokeRequired required compares the thread ID of the
+			// calling thread to the thread ID of the creating thread.
+			// If these threads are different, it returns true.
+			if (canvas.InvokeRequired)
+			{
+				var d = new TriggerCanvasPaintEventCallback(TriggerCanvasPaintEvent);
+				canvas.Invoke(d, new object[] { });
+			}
+			else canvas.Refresh();
+		}
+		#endregion
+
+		#region Visualizing a graph algorithm
+		private BackgroundWorker bgwGraphAlgoViz;
+
 		private void VisualizeGraphAlgo()
 		{
 			// TODO: bgw.WorkerSupportsCancellation = true;
@@ -85,27 +104,22 @@ namespace AlgorithmVisualizer.Forms
 			int nodeCount = graph.NodeCount;
 			if (nodeCount > 0)
 			{
-				(int From, int To)? fromTo = GetStartAndEndNodes();
-				Console.WriteLine("IS FROMTO NULL? {0}", fromTo == null);
-				if (fromTo != null)
-				{
-					if (bgwGraphAlgoViz != null) bgwGraphAlgoViz.Dispose();
-					// Create new backgroundworker
-					bgwGraphAlgoViz = new BackgroundWorker();
-					// Assign work to bgw (a function) and run async
-					bgwGraphAlgoViz.DoWork += new DoWorkEventHandler(bgw_VisualizeGraphAlgo);
-					bgwGraphAlgoViz.RunWorkerAsync(argument: fromTo);
-				}
+				if (bgwGraphAlgoViz != null) bgwGraphAlgoViz.Dispose();
+				// Create new backgroundworker
+				bgwGraphAlgoViz = new BackgroundWorker();
+				// Assign work to bgw (a function) and run async
+				bgwGraphAlgoViz.DoWork += new DoWorkEventHandler(bgw_VisualizeGraphAlgo);
+				bgwGraphAlgoViz.RunWorkerAsync();
 			}
 			else SimpleDialog.ShowMessage("Graph is empty!", "Algorithm did not run \n" +
 				"Hint: Click \"Presets\" to load a preset or rightclick in canvas create a vertex");
 		}
-		public (int From, int To)? GetStartAndEndNodes()
+		public bool GetStartAndEndNodes(ref int from, ref int to)
 		{
 			// Ensure node ids are sequential
 			graph.FixNodeIdNumbering();
 			RequiredNodes reqNodes = settings.RequiredNodeIds[selectedAlgoIdx];
-			if (reqNodes == RequiredNodes.None) return (-1, -1); // input not needed (valid)
+			if (reqNodes == RequiredNodes.None) return true; // input unneeded
 			// Get start/end nodes
 			bool includeTo = reqNodes == RequiredNodes.StartAndEnd;
 			using (var startEndNodeDialog = new StartEndNodeDialog(graph, includeTo))
@@ -114,53 +128,35 @@ namespace AlgorithmVisualizer.Forms
 				// if 'startEndNodeDialog' is closed and user input is valid
 				if (startEndNodeDialog.ShowDialog() == DialogResult.OK && startEndNodeDialog.InputIsValid)
 				{
-					var fromTo = (startEndNodeDialog.From, startEndNodeDialog.To);
-					MarkNodes();
-					UnmarkNodes();
-					return fromTo; // return user input as a tuple (valid)
-
-
-					void MarkNodes()
-					{
-						graph.MarkParticle(fromTo.From, Colors.Green); // start node
-						if (includeTo)
-						{
-							if (fromTo.From == fromTo.To) graph.Sleep(500);
-							graph.MarkParticle(fromTo.To, Colors.Red); // end node
-						}
-						// BUG: unsure why canvas paint trigger is required, doesn't
-						// 'bgwGraphLayoutViz' already trigger the same event?
-						TriggerCanvasPaintEvent();
-					}
-					void UnmarkNodes()
-					{
-						graph.Sleep(1500);
-						foreach (int id in new int[] { fromTo.From, fromTo.To })
-							if (id != -1) graph.ResetParticleColors(id);
-						// Again unsure why triggering is needed if bgwGraphLayoutViz should already do so?
-						TriggerCanvasPaintEvent();
-					}
+					// set user input to given int refs (pointers)
+					from = startEndNodeDialog.From;
+					to = startEndNodeDialog.To;
+					MarkNodes(from, to, includeTo);
+					UnmarkNodes(from, to);
+					return true; // valid input given
 				}
 			}
-			return null; // invalid user input
+			return false; // invalid input given
 		}
-		private void bgw_VisualizeGraphAlgo(object sender, DoWorkEventArgs e)
+		void MarkNodes(int from, int to, bool includeTo)
 		{
-			// Controls to disable while visualizing (not including parent form)
-			Control[] controls = new Control[] { btnPauseResume, btnStart, btnReset, btnClearState, btnPresets, algoComboBox };
-			// Sync parent to prevent log panel resize 
-			((MainUIForm)parentForm).InVizMode = inVizMode = true;
-			((MainUIForm)parentForm).ToggleWindowResizeAndMainMenuBtns();
-			// Enable Pause/Resume and disable the rest of the controls before visualizing
-			foreach (Control control in controls) SetControlEnabled(control, control == btnPauseResume);
-
-			(int From, int To) fromTo = ((int From, int To))e.Argument;
-			RunAlgo(fromTo.From, fromTo.To); // Visualize graph algo
-
-			// Disable Pause/Resume and re-enable the rest of the controls after visualizing
-			foreach (Control control in controls) SetControlEnabled(control, control != btnPauseResume);
-			((MainUIForm)parentForm).ToggleWindowResizeAndMainMenuBtns();
-			((MainUIForm)parentForm).InVizMode = inVizMode = false;
+			graph.MarkParticle(from, Colors.Green); // start node
+			if (includeTo)
+			{
+				if (from == to) graph.Sleep(500);
+				graph.MarkParticle(to, Colors.Red); // end node
+			}
+			// BUG: unsure why canvas paint trigger is required, doesn't
+			// 'bgwGraphLayoutViz' already trigger the same event?
+			TriggerCanvasPaintEvent();
+		}
+		void UnmarkNodes(int from, int to)
+		{
+			graph.Sleep(1500);
+			foreach (int id in new int[] { from, to })
+				if (id != -1) graph.ResetParticleColors(id);
+			// Again unsure why triggering is needed if bgwGraphLayoutViz should already do so?
+			TriggerCanvasPaintEvent();
 		}
 		private void RunAlgo(int from, int to)
 		{
@@ -227,22 +223,24 @@ namespace AlgorithmVisualizer.Forms
 					break;
 			}
 		}
-		
-
-
-		// Safely invoke "canvas.Refresh()"
-		private delegate void TriggerCanvasPaintEventCallback();
-		private void TriggerCanvasPaintEvent()
+		private void bgw_VisualizeGraphAlgo(object sender, DoWorkEventArgs e)
 		{
-			// InvokeRequired required compares the thread ID of the
-			// calling thread to the thread ID of the creating thread.
-			// If these threads are different, it returns true.
-			if (canvas.InvokeRequired)
-			{
-				var d = new TriggerCanvasPaintEventCallback(TriggerCanvasPaintEvent);
-				canvas.Invoke(d, new object[] { });
-			}
-			else canvas.Refresh();
+			// Controls to disable while visualizing (not including parent form)
+			Control[] controls = new Control[] { btnPauseResume, btnStart, btnReset, btnClearState, btnPresets, algoComboBox };
+			// Sync parent to prevent log panel resize 
+			((MainUIForm)parentForm).InVizMode = inVizMode = true;
+			((MainUIForm)parentForm).ToggleWindowResizeAndMainMenuBtns();
+			// Enable Pause/Resume and disable the rest of the controls before visualizing
+			foreach (Control control in controls) SetControlEnabled(control, control == btnPauseResume);
+
+			int from = -1, to = -1;
+			// Visualize graph algo on valid input (input may not be required)
+			if (GetStartAndEndNodes(ref from, ref to)) RunAlgo(from, to);
+
+			// Disable Pause/Resume and re-enable the rest of the controls after visualizing
+			foreach (Control control in controls) SetControlEnabled(control, control != btnPauseResume);
+			((MainUIForm)parentForm).ToggleWindowResizeAndMainMenuBtns();
+			((MainUIForm)parentForm).InVizMode = inVizMode = false;
 		}
 		// Safely access control.Enabled, i.e: btnStart.Enabled
 		private delegate void SetControlEnabledCallback(Control control, bool enabled);
@@ -315,6 +313,19 @@ namespace AlgorithmVisualizer.Forms
 				dialog.ShowDialog();
 			}
 		}
+		private FDGVConfigForm configForm = null;
+		private void btnPreferences_Click(object sender, EventArgs e)
+		{
+			// If form was already opened make sure to close 
+			if (configForm != null)
+			{
+				configForm.Close();
+				configForm.Dispose(); // not sure if I should dispose the form
+			}
+			configForm = new FDGVConfigForm(graph);
+			configForm.Show();
+		}
+
 		private void speedBar_Scroll(object sender, ScrollEventArgs e)
 		{
 			if (graph != null)

@@ -26,28 +26,33 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 
 		// Composing particles
 		private Particle p1, p2;
+		// Default/instance physics related params
+		public const float defaultK = 0.0005f, defaultRestLen = 125;
 		// Length where spring is in reest
-		private float RestLen { get; set; }
+		public float RestLen { get; set; }
 		// Proportionality constant
-		private const float k = 0.0005f;
+		public float K { get; set; }
 		public bool Reversed { get; set; } = false;
-
-
-		public Spring(Particle _p1, Particle _p2, int cost, float restLen) : base(_p1.Id, _p2.Id, cost)
+		public void SetDefaultPhysicsParams()
 		{
-			// Set spring's attr
-			RestLen = restLen;
+			RestLen = defaultRestLen;
+			K = defaultK;
+		}
+
+		public Spring(Particle _p1, Particle _p2, int cost) : base(_p1.Id, _p2.Id, cost)
+		{
 			p1 = _p1;
 			p2 = _p2;
-			// Use default color scheme
+			// Use default color/physics schemes
 			SetDefaultColors();
+			SetDefaultPhysicsParams();
 		}
 
 		public void ExertForcesOnParticles()
 		{
 			// Apply forces on the spring's composing particles
 			Vector F = p2.Pos - p1.Pos;
-			F.SetMagnitude(k * (F.Magnitude() - RestLen));
+			F.SetMagnitude(K * (F.Magnitude() - RestLen));
 			p1.Accelerate(F);
 			p2.Accelerate(F * -1);
 		}
@@ -65,7 +70,7 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 			// Draw this spring using the given brush
 
 			// center points of the particles
-			int p1Rad = p1.Size / 2, p2Rad = p2.Size / 2;
+			float p1Rad = p1.Size / 2, p2Rad = p2.Size / 2;
 			var pt1 = new PointF(p1.Pos.X, p1.Pos.Y);
 			var pt2 = new PointF(p2.Pos.X, p2.Pos.Y);
 
