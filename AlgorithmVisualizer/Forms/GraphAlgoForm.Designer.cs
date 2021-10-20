@@ -51,6 +51,7 @@ namespace AlgorithmVisualizer.Forms
 			this.pinAllVerticesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.unpinAllVerticesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.togglePhysicsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.toggleCenterPullToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.canvas = new System.Windows.Forms.PictureBox();
 			this.vertexContextStrip.SuspendLayout();
 			this.panelControls.SuspendLayout();
@@ -256,37 +257,45 @@ namespace AlgorithmVisualizer.Forms
             this.addVertexToolStripMenuItem,
             this.pinAllVerticesToolStripMenuItem,
             this.unpinAllVerticesToolStripMenuItem,
-            this.togglePhysicsToolStripMenuItem});
+            this.togglePhysicsToolStripMenuItem,
+            this.toggleCenterPullToolStripMenuItem});
 			this.canvasContextStrip.Name = "panelMainE";
-			this.canvasContextStrip.Size = new System.Drawing.Size(165, 92);
+			this.canvasContextStrip.Size = new System.Drawing.Size(169, 114);
 			// 
 			// addVertexToolStripMenuItem
 			// 
 			this.addVertexToolStripMenuItem.Name = "addVertexToolStripMenuItem";
-			this.addVertexToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
+			this.addVertexToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
 			this.addVertexToolStripMenuItem.Text = "Add vertex";
 			this.addVertexToolStripMenuItem.Click += new System.EventHandler(this.addVertexToolStripMenuItem_Click);
 			// 
 			// pinAllVerticesToolStripMenuItem
 			// 
 			this.pinAllVerticesToolStripMenuItem.Name = "pinAllVerticesToolStripMenuItem";
-			this.pinAllVerticesToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
+			this.pinAllVerticesToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
 			this.pinAllVerticesToolStripMenuItem.Text = "Pin all vertices";
 			this.pinAllVerticesToolStripMenuItem.Click += new System.EventHandler(this.pinAllVerticesToolStripMenuItem_Click);
 			// 
 			// unpinAllVerticesToolStripMenuItem
 			// 
 			this.unpinAllVerticesToolStripMenuItem.Name = "unpinAllVerticesToolStripMenuItem";
-			this.unpinAllVerticesToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
+			this.unpinAllVerticesToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
 			this.unpinAllVerticesToolStripMenuItem.Text = "Unpin all vertices";
 			this.unpinAllVerticesToolStripMenuItem.Click += new System.EventHandler(this.unpinAllVerticesToolStripMenuItem_Click);
 			// 
 			// togglePhysicsToolStripMenuItem
 			// 
 			this.togglePhysicsToolStripMenuItem.Name = "togglePhysicsToolStripMenuItem";
-			this.togglePhysicsToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
+			this.togglePhysicsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
 			this.togglePhysicsToolStripMenuItem.Text = "Toggle Physics";
 			this.togglePhysicsToolStripMenuItem.Click += new System.EventHandler(this.togglePhysicsToolStripMenuItem_Click);
+			// 
+			// toggleCenterPullToolStripMenuItem
+			// 
+			this.toggleCenterPullToolStripMenuItem.Name = "toggleCenterPullToolStripMenuItem";
+			this.toggleCenterPullToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.toggleCenterPullToolStripMenuItem.Text = "Toggle center pull";
+			this.toggleCenterPullToolStripMenuItem.Click += new System.EventHandler(this.toggleCenterPullToolStripMenuItem_Click);
 			// 
 			// canvas
 			// 
@@ -306,9 +315,11 @@ namespace AlgorithmVisualizer.Forms
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.BackColor = System.Drawing.Color.Black;
 			this.ClientSize = new System.Drawing.Size(1008, 561);
 			this.Controls.Add(this.canvas);
 			this.Controls.Add(this.panelControls);
+			this.ForeColor = System.Drawing.Color.White;
 			this.Name = "GraphAlgoForm";
 			this.Text = "Graph algorithms";
 			this.Resize += new System.EventHandler(this.FDGVForm_Resize);
@@ -344,5 +355,6 @@ namespace AlgorithmVisualizer.Forms
 		private System.Windows.Forms.Button btnClearState;
 		private System.Windows.Forms.ToolStripMenuItem togglePhysicsToolStripMenuItem;
 		private System.Windows.Forms.PictureBox canvas;
+		private System.Windows.Forms.ToolStripMenuItem toggleCenterPullToolStripMenuItem;
 	}
 }

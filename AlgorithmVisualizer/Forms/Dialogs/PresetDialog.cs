@@ -20,8 +20,10 @@ namespace AlgorithmVisualizer.Forms.Dialogs
 		{
 			InitializeComponent();
 			graph = _graph;
+			SetupListView();
 		}
-		private void PresetDialog_Load(object sender, EventArgs e)
+
+		private void SetupListView()
 		{
 			listView.MultiSelect = false;
 			listView.View = View.Details;
@@ -29,12 +31,6 @@ namespace AlgorithmVisualizer.Forms.Dialogs
 			// auto resize col 0
 			listView.AutoResizeColumn(0, ColumnHeaderAutoResizeStyle.HeaderSize);
 			PopulateListView();
-		}
-		private void RepopulateListView(object sender, EventArgs e)
-		{
-			// Repopulate ListView
-			listView.Clear();
-			PresetDialog_Load(sender, e);
 		}
 		private void PopulateListView()
 		{
@@ -71,7 +67,13 @@ namespace AlgorithmVisualizer.Forms.Dialogs
 				}
 			}
 		}
-		
+		private void RepopulateListView()
+		{
+			// Repopulate ListView
+			listView.Clear();
+			SetupListView();
+		}
+
 		private void listView_MouseClick(object sender, MouseEventArgs e)
 		{
 			if (listView.SelectedItems.Count > 0)
@@ -84,48 +86,53 @@ namespace AlgorithmVisualizer.Forms.Dialogs
 		}
 		private void btnSaveNewPreset_Click(object sender, EventArgs e)
 		{
-			// Avoid saving empty presets
+			// Avoid saving empty graphs
 			if (!graph.IsEmpty())
 			{
-				// Show dialog for new preset name
-				using (var newPresetDialog = new NewPresetDialog())
+				// Get name for new preset and save it
+				using (var newPresetDialog = new NewPresetDialog(graph))
 				{
 					newPresetDialog.StartPosition = FormStartPosition.CenterParent;
 					if (newPresetDialog.ShowDialog() == DialogResult.OK)
 					{
-						// Save this graph's preset with given name (serialize it)
-						string presetName = newPresetDialog.PresetName;
-						if (presetName != "") GraphSerializer.Serialize(graph, presetName);
-						else Console.WriteLine("Preset name cannot be empty, aborting save...");
-						RepopulateListView(sender, e);
+						SimpleDialog.ShowMessage("Save sucessful!",
+							$"Created new preset named: \"{newPresetDialog.PresetName}\".");
+						RepopulateListView();
 					}
 				}
 			}
-			else Console.WriteLine("The graph is empty(0 nodes), aboring save...");
+			else SimpleDialog.ShowMessage("Graph is empty!", "Saving empty graphs is not supported.");
 		}
 		private void btnRemovePreset_Click(object sender, EventArgs e)
 		{
 			if (listView.SelectedItems.Count > 0)
 			{
-				string title = "Remove selected preset", text = "Press OK to proceed.";
-				if (SimpleDialog.OKCancel(title, text))
+				if (SimpleDialog.OKCancel("Remove selected preset", "Press OK to proceed."))
 				{
 					// Find id of preset for removal
-					int selectedItem = listView.SelectedItems[0].Index,
-						selectedPresetId = presets[selectedItem].Id;
-					// Remove preset via id from DB
+					int selectedPresetId = presets[listView.SelectedItems[0].Index].Id;
+					// Remove preset by id from DB
 					DBConnection db = DBConnection.GetInstance();
 					if (db.Connect())
 					{
-						// If removed, repopulate listView
-						if (db.RemovePreset(selectedPresetId)) RepopulateListView(sender, e);
-						// Otherwise show error msg
-						else Console.WriteLine($"Failed to remove preset with ID: {selectedPresetId}");
+						// If removed repopulate listView
+						if (db.RemovePreset(selectedPresetId)) RepopulateListView();
+						else SimpleDialog.ShowMessage("Removal failed!", "Failed to remove the preset");
 						db.Disconnect();
 					}
 				}
 			}
 		}
-		
+
+		private void btnLoadPreset_Click(object sender, EventArgs e)
+		{
+			if (Serialization != null)
+			{
+				graph.ClearGraph();
+				GraphSerializer.Deserialize(graph, Serialization);
+				Close();
+			}
+			else SimpleDialog.ShowMessage("Load failed!", "Serial was not set.");
+		}
 	}
 }

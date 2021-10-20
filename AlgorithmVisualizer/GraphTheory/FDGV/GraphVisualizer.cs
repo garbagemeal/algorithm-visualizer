@@ -29,21 +29,19 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 		// Mapping node ids to the GNode objects of instance Particle
 		protected Dictionary<int, GNode> nodeLookup = new Dictionary<int, GNode>();
 
-		public List<Particle> Particles { get; set; }
-		public List<Spring> Springs { get; set; }
+		public List<Particle> particles;
+		public List<Spring> springs;
 
 		// Contains the drawing of the graph
 		private PictureBox canvas;
-
-		// Mode to use in DrawGraph(), by default forces are used.
-		// Note: this should not be confused with the enum "DrawMode" already defined in C#.
-		public enum DrawingMode { Default = 0, Forceless = 1 };
 
 		// GLog is a graphics object of panelLog.
 		public Graphics GLog { get; set; }
 
 		// Center of point of canvas; used to pull particles to the center
 		private Vector centerPos;
+		// by default center pull is active, can be disabled.
+		public bool CenterPull { get; set; } = true;
 		// Find center pos of the canvas
 		private Vector findCenterPos() => new Vector(canvas.Width / 2, canvas.Height / 2);
 
@@ -63,190 +61,169 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 			canvas = _canvas;
 			centerPos = findCenterPos();
 			GLog = gLog;
-			Particles = new List<Particle>();
-			Springs = new List<Spring>();
+			particles = new List<Particle>();
+			springs = new List<Spring>();
 		}
 
 		#region particle/spring list manipulation
 		protected Particle GetParticle(int id) =>  nodeLookup[id] as Particle;
-		protected void AddParticle(Particle particle) => Particles.Add(particle);
+		protected void AddParticle(Particle particle) => particles.Add(particle);
 		protected void RemoveParticle(int id)
 		{
 			RemoveSpringsConnectedTo(id);
-			Particles.Remove(GetParticle(id));
+			particles.Remove(GetParticle(id));
 		}
 		private Spring GetSpring(Edge edge)
 		{
-			// Comaptions using u, v, x
-			for (int i = 0; i < Springs.Count; i++)
-				if (Springs[i].Equals(edge)) return Springs[i];
+			// Compare edges using only (from, to, cost)
+			for (int i = 0; i < springs.Count; i++)
+				if (springs[i].Equals(edge)) return springs[i];
 			return null;
 		}
-		public void AddSpring(Spring spring) => Springs.Add(spring);
-		public void RemoveSpring(Spring spring) => Springs.Remove(GetSpring(spring));
+		public void AddSpring(Spring spring) => springs.Add(spring);
+		public void RemoveSpring(Spring spring) => springs.Remove(GetSpring(spring));
 		private void RemoveSpringsConnectedTo(int id)
 		{
 			// Remove any spring containing a particle with the given id
-			for (int i = 0; i < Springs.Count;)
-				if (Springs[i].ContainsNodeId(id)) Springs.RemoveAt(i);
+			for (int i = 0; i < springs.Count;)
+				if (springs[i].ContainsNodeId(id)) springs.RemoveAt(i);
 				else i++;
+		}
+		protected void ClearParticlesAndSprings()
+		{
+			springs.Clear();
+			particles.Clear();
 		}
 		#endregion
 
 		#region Visuals
-		// Helper method & callback to update the Enabled prop of a given control
-		private delegate void TriggerCanvasPaintEventCallback();
-		private void TriggerCanvasPaintEvent()
+		public void DrawGraph(Graphics g)
 		{
-			// InvokeRequired required compares the thread ID of the
-			// calling thread to the thread ID of the creating thread.
-			// If these threads are different, it returns true.
-			if (canvas.InvokeRequired)
-			{
-				TriggerCanvasPaintEventCallback d = new TriggerCanvasPaintEventCallback(TriggerCanvasPaintEvent);
-				canvas.Invoke(d, new object[] { });
-			}
-			else canvas.Refresh();
-		}
+			// Note to self:
+			// 'particles' and 'springs' "copied" to avoid the exception that occurred for
+			// 'springs' when drawing the graph: System.InvalidOperationException: 'Collection was modified; enumeration operation may not execute.'
+			// Suspecting a race condition as a result of mutating the spring list
+			// 'springs', i.e the method "MoveSpringsToEnd(...)".
+			// TODO: find & fix more places where concurrent access may occour if exist
 
-		protected void ClearVisualization()
-		{
-			// Clear canvas and spring/particle lists
-			Springs.Clear();
-			Particles.Clear();
-			canvas.CreateGraphics().Clear(Colors.Undraw);
+			foreach (var particle in particles.ToArray()) particle.Draw(g, canvas.Height, canvas.Width);
+			foreach (var spring in springs.ToArray()) spring.Draw(g);
 		}
-		public void DrawGraph(DrawingMode mode)
+		public void ApplyForcesAndUpdatePositions()
 		{
-			// Apply forces if needed
-			if (mode == DrawingMode.Default)
+			foreach (Particle particle in particles)
 			{
-				foreach (Particle particle in Particles)
-				{
-					// Pull particle to the center
-					particle.PullToCenter(centerPos);
-					// Repel all other particles
-					particle.ApplyRepulsiveForces(Particles);
-				}
-				// Apply forces on the particles using springs
-				foreach (Spring spring in Springs) spring.ExertForcesOnParticles();
-				// Update particle positions
-				foreach (Particle particle in Particles)
-					particle.UpdatePos(canvas.Height, canvas.Width);
+				if (CenterPull) particle.PullToCenter(centerPos);
+				particle.ApplyRepulsiveForces(particles);
 			}
-			// force graph redraw event 
-			TriggerCanvasPaintEvent();
-		}
-		public void Visualize()
-		{
-			// Main method used to visualize the graph - Force directed graph drawing
-			const int MAX_NUM_ITR = 2500;
-			const float EPSILON = 0.05f;
-			int i = 0;
-			// Run the FDGV as long as forces are enables and i < MAX_NUM_ITR and
-			// the maximal velocity for all particles per iteration > EPSILON
-			do
-			{
-				Particle.MAX_VEL_MAG_PER_ITR = 0;
-				DrawGraph(DrawingMode.Default);
-				i++;
-				Sleep(); // Check for pause event
-			} while (GraphAlgoForm.ForcesEnabled && i < MAX_NUM_ITR &&
-					 Particle.MAX_VEL_MAG_PER_ITR > EPSILON);
-
-			// Reset max_vel/itr for next invocation of this method
-			Particle.MAX_VEL_MAG_PER_ITR = 0;
+			foreach (Spring spring in springs) spring.ExertForcesOnParticles();
+			// Update particle positions using computed forces
+			foreach (Particle particle in particles) particle.UpdatePos(canvas.Height, canvas.Width);
 		}
 
 		// The following methods assume that the given particle id exists
-		public void SetParticleColor(int id, Color innerColor)
+		public void MarkParticle(int id, Color innerColor)
 		{
-			// Set given particle's innerColor and force graph redraw event
 			GetParticle(id).InnerColor = innerColor;
-			TriggerCanvasPaintEvent();
 		}
-		public void SetParticleColor(int id, Color innerColor, Color borderColor)
+		public void MarkParticle(int id, Color innerColor, Color borderColor)
 		{
-			// Set given particle's innerColor and borderColor and force graph redraw event
 			Particle particle = GetParticle(id);
 			particle.InnerColor = innerColor;
 			particle.BorderColor = borderColor;
-			TriggerCanvasPaintEvent();
 		}
 		public void ResetParticleColors(int id) => GetParticle(id).SetDefaultColors();
-		public void SetSpringState(Edge edge, Color color, int dir = -1)
+		public enum Dir { None = -1, Directed = 0, Reversed = 1, Undirected = 2 }
+		public void MarkSpring(Edge edge, Color color, Dir dir = Dir.None)
 		{
-			/* Update innerColor for given edge and force graph redraw event.
+			/* Update innerColor for a spring matching the given/reversed edge or both
 			 * 
-			 * 
-			 * cases for dir (type of update):
-			 * -1 - undefined - highlight both if exist
-			 *  0 - from ---> to
-			 *  1 - from <--- to
-			 *  2 - from <--> to
-			 */
+			 * Types of updates:
+			 * Dir.None - undefined, highlight both if exist
+			 * Dir.Directed -   from ---> to
+			 * Dir.Reversed -   from <--- to
+			 * Dir.Undirected - from <--> to    */
 
 			// Find given spring and revSpring
 			Spring spring = GetSpring(edge), revSpring = GetSpring(Edge.ReversedCopy(edge));
-			if ((dir == -1 || dir == 0 || dir == 2) && spring != null) spring.InnerColor = color;
-			if ((dir == -1 || dir == 1 || dir == 2) && spring != null) revSpring.InnerColor = color;
-			List<Spring> newSpringList = new List<Spring>();
-			// Order Springs such that:
-			// unhighlighted springs appear first, and highlighted springs after
-			foreach (var s in Springs) if (s.InnerColor != color) newSpringList.Add(s);
-			foreach (var s in Springs) if (s.InnerColor == color) newSpringList.Add(s);
-			Springs = newSpringList;
+			List<Spring> springsToUpdate = new List<Spring>();
+			// Determine what springs to update
+			if (dir == Dir.Directed) springsToUpdate.Add(spring);
+			else if (dir == Dir.Reversed) springsToUpdate.Add(revSpring);
+			else
+			{
+				// dir = Dir.None OR dir = Dir.Undirected
+				springsToUpdate.Add(spring); springsToUpdate.Add(revSpring);
+			}
+			springsToUpdate.RemoveAll(item => item == null);
+			// Update spring colors
+			foreach (var s in springsToUpdate) s.InnerColor = color;
+			// Move highlighted springs to the end to ensure they are drawn ontop of other
+			// springs and hence "highlighted".
+			MoveSpringsToEnd(springsToUpdate);
 
-			// force graph redraw event
-			TriggerCanvasPaintEvent();
 
+			void MoveSpringsToEnd(List<Spring> springsToMove)
+			{
+				// Remove each spring appearing in 'springsToMove' from 'springs'
+				// Given springs assumed non-null
+				foreach (Spring springToMove in springsToMove)
+				{
+					int remCount = springs.RemoveAll(item => item == springToMove);
+					if (remCount != 1) throw new Exception("Failed to match given spring!");
+				}
+				// Add removed springs in 'springsToMove' to the end of the list
+				foreach (Spring springToMove in springsToMove) springs.Add(springToMove);
+			}
+			//void MoveSpringsToEnd_BACKUP()
+			//{
+			//	List<Spring> newSpringList = new List<Spring>();
+			//	// Order Springs such that:
+			//	// unhighlighted springs appear first, and highlighted springs after
+			//	foreach (var s in springs) if (s.InnerColor != color) newSpringList.Add(s);
+			//	foreach (var s in springs) if (s.InnerColor == color) newSpringList.Add(s);
+			//	springs = newSpringList;
+			//}
 		}
 		public void ReverseSprings()
 		{
-			foreach (Spring spring in Springs) spring.Reversed = true;
-			DrawGraph(DrawingMode.Forceless);
+			foreach (Spring spring in springs) spring.Reversed = true;
 		}
-		public void ClearGraphState()
+		public void ClearVizState()
 		{
 			// Clear "Reversed" state for all springs
-			foreach (var spring in Springs) spring.Reversed = false;
+			foreach (var spring in springs) spring.Reversed = false;
 			// Reset particle/spring colors to defaults
-			foreach (var particle in Particles) particle.SetDefaultColors();
-			foreach (var spring in Springs) spring.SetDefaultColors();
-			DrawGraph(DrawingMode.Forceless);
+			foreach (var particle in particles) particle.SetDefaultColors();
+			foreach (var spring in springs) spring.SetDefaultColors();
 		}
 		#endregion
 
-		#region Helper methods for canvas click events
+		#region Misc
 		public Particle GetClickedParticle(float x, float y)
 		{
-			// If the given coordinates are within a particle will return
-			// a reference to that particle, otherwise returns null
-			foreach (Particle particle in Particles)
+			// Returns the ref of the particle at the given pos, null if no such particle
+			foreach (Particle particle in particles)
 				if (particle.PointIsWithin(x, y)) return particle;
 			return null;
 		}
-		// Toggle the pin status for particle with given id. assumes id exists
 		public void ToggleParticlePin(int id) => GetParticle(id).TogglePin();
 		public void PinAllParticles()
 		{
-			// Pin every particle in the particle list
-			foreach (Particle particle in Particles) particle.Pinned = true;
+			foreach (Particle particle in particles) particle.Pinned = true;
 		}
 		public void UnpinAllParticles()
 		{
-			// Unpin every particle in the particle list
-			foreach (Particle particle in Particles) particle.Pinned = false;
+			foreach (Particle particle in particles) particle.Pinned = false;
 		}
-		#endregion
-
 		protected Vector RndPosWithinCanvas()
 		{
-			// Note: the position vector returned will be within the canvas and also offset
-			// from borders by PARTICLE_SPAWN_OFFSET
+			// Returns a pos within the canvas and offset from borders by PARTICLE_SPAWN_OFFSET
 			int x = rnd.Next(PARTICLE_SPAWN_OFFSET, canvas.Width - PARTICLE_SPAWN_OFFSET);
 			int y = rnd.Next(PARTICLE_SPAWN_OFFSET, canvas.Height - PARTICLE_SPAWN_OFFSET);
 			return new Vector(x, y);
 		}
+		#endregion
+
 	}
 }

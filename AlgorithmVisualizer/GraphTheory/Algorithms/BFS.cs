@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 
 using AlgorithmVisualizer.ArrayTracer;
-using AlgorithmVisualizer.GraphTheory.FDGV;
 using AlgorithmVisualizer.GraphTheory.Utils;
+using static AlgorithmVisualizer.GraphTheory.FDGV.GraphVisualizer;
 
 namespace AlgorithmVisualizer.GraphTheory.Algorithms
 {
@@ -44,7 +43,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 				qTracer.HighlightAt(0);
 				int at = q.Dequeue();
 				// Draw visited node in red if the end node otherwise in orange
-				graph.SetParticleColor(at, at == to ? Colors.Red : Colors.Orange);
+				graph.MarkParticle(at, at == to ? Colors.Red : Colors.Orange);
 				Sleep(1000);
 				qTracer.Trace();
 				Sleep(1000);
@@ -58,7 +57,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 					{
 						// Draw edge in orange before visiting. last argument(0) indicates
 						// a directed edge (edge.From --> edge.To)
-						graph.SetSpringState(edge, Colors.Orange, 0);
+						graph.MarkSpring(edge, Colors.Orange, Dir.Directed);
 						Sleep(1000);
 						// avoid edges to visited nodes
 						if (!visited.Contains(edge.To))
@@ -70,12 +69,12 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 						// Draw visited edge in dark gray
 						// Note: the last argument is ommited, meaning it defaults to -1
 						// the edge is drawn as it originally appeared in the graph
-						graph.SetSpringState(edge, Colors.Visited);
+						graph.MarkSpring(edge, Colors.Visited);
 						Sleep(1000);
 					}
 				}
 				// Draw particle in dark gray (visited)
-				graph.SetParticleColor(at, Colors.Visited, Colors.VisitedBorder);
+				graph.MarkParticle(at, Colors.Visited, Colors.VisitedBorder);
 				Sleep(1000);
 			}
 			return false;

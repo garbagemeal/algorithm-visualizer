@@ -1,6 +1,6 @@
 ﻿namespace AlgorithmVisualizer.Forms
 {
-	class GraphAlgoSettings
+	public class GraphAlgoSettings
 	{
 		public string[] AlgoNames = {
 			"BFS",

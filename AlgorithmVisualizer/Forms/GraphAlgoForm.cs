@@ -13,7 +13,6 @@ using AlgorithmVisualizer.GraphTheory.FDGV;
 using AlgorithmVisualizer.GraphTheory.Utils;
 using AlgorithmVisualizer.MathUtils;
 using static AlgorithmVisualizer.Forms.GraphAlgoSettings;
-using static AlgorithmVisualizer.GraphTheory.FDGV.GraphVisualizer;
 
 namespace AlgorithmVisualizer.Forms
 {
@@ -56,54 +55,112 @@ namespace AlgorithmVisualizer.Forms
 		private BackgroundWorker bgwGraphAlgoViz;
 		private BackgroundWorker bgwGraphLayoutViz;
 		private bool inVizMode = false;
-		public static bool ForcesEnabled = true;
+		private bool forcesEnabled = true;
 
-		// A single drawing with or without using forces
-		public void RunAlgo()
+		void StartGraphViz()
 		{
-			int nodeCount = graph.NodeCount, from = -1, to = -1;
+			if (bgwGraphLayoutViz != null) bgwGraphAlgoViz.Dispose();
+			bgwGraphLayoutViz = new BackgroundWorker();
+			// Assign work to bgw (a function) and run async (supports cancelation)
+			bgwGraphLayoutViz.WorkerSupportsCancellation = true;
+			bgwGraphLayoutViz.DoWork += new DoWorkEventHandler(bgw_GraphViz);
+			bgwGraphLayoutViz.RunWorkerAsync();
+		}
+		private void bgw_GraphViz(object sender, DoWorkEventArgs e)
+		{
+			while (true)
+			{
+				if (!graph.IsEmpty())
+				{
+					if (forcesEnabled) graph.ApplyForcesAndUpdatePositions();
+					TriggerCanvasPaintEvent();
+				}
+			}
+		}
+
+		private void VisualizeGraphAlgo()
+		{
+			// TODO: bgw.WorkerSupportsCancellation = true;
+
+			int nodeCount = graph.NodeCount;
 			if (nodeCount > 0)
 			{
-				graph.FixNodeIdNumbering(); // Make sure the node ids are sequential
-				TryPickAndHighlightStartEndNodes();
-				graph.Sleep(500);
-				RunAlgo(from, to);
-			}
-			else SimpleDialog.ShowMessage("Error, graph is empty!", "Algorithm did not run \n" +
-				"Hint: Click \"Presets\" to load a preset or rightclick in canvas create a vertex");
-
-
-
-			bool TryPickAndHighlightStartEndNodes()
-			{
-				RequiredNodes requiredNodes = settings.RequiredNodeIds[selectedAlgoIdx];
-				if (requiredNodes == RequiredNodes.None) return true;
-				// Determine if the destiantion node 'to' is required to customize the
-				// input dialog for start/end nodes
-				bool toIsRequired = requiredNodes == RequiredNodes.StartAndEnd;
-				using (var startEndNodeDialog = new StartEndNodeDialog(includeTo: toIsRequired))
+				(int From, int To)? fromTo = GetStartAndEndNodes();
+				Console.WriteLine("IS FROMTO NULL? {0}", fromTo == null);
+				if (fromTo != null)
 				{
-					startEndNodeDialog.StartPosition = FormStartPosition.CenterParent; // center dialog
-					if (startEndNodeDialog.ShowDialog() == DialogResult.OK)
+					if (bgwGraphAlgoViz != null) bgwGraphAlgoViz.Dispose();
+					// Create new backgroundworker
+					bgwGraphAlgoViz = new BackgroundWorker();
+					// Assign work to bgw (a function) and run async
+					bgwGraphAlgoViz.DoWork += new DoWorkEventHandler(bgw_VisualizeGraphAlgo);
+					bgwGraphAlgoViz.RunWorkerAsync(argument: fromTo);
+				}
+			}
+			else SimpleDialog.ShowMessage("Graph is empty!", "Algorithm did not run \n" +
+				"Hint: Click \"Presets\" to load a preset or rightclick in canvas create a vertex");
+		}
+		public (int From, int To)? GetStartAndEndNodes()
+		{
+			// Ensure node ids are sequential
+			graph.FixNodeIdNumbering();
+			RequiredNodes reqNodes = settings.RequiredNodeIds[selectedAlgoIdx];
+			if (reqNodes == RequiredNodes.None) return (-1, -1); // input not needed (valid)
+			// Get start/end nodes
+			bool includeTo = reqNodes == RequiredNodes.StartAndEnd;
+			using (var startEndNodeDialog = new StartEndNodeDialog(graph, includeTo))
+			{
+				startEndNodeDialog.StartPosition = FormStartPosition.CenterParent;
+				// if 'startEndNodeDialog' is closed and user input is valid
+				if (startEndNodeDialog.ShowDialog() == DialogResult.OK && startEndNodeDialog.InputIsValid)
+				{
+					var fromTo = (startEndNodeDialog.From, startEndNodeDialog.To);
+					MarkNodes();
+					UnmarkNodes();
+					return fromTo; // return user input as a tuple (valid)
+
+
+					void MarkNodes()
 					{
-						// Get node ids from dialog & highlight
-						from = startEndNodeDialog.From;
-						graph.SetParticleColor(from, Colors.Green); // start node in green
-						if (toIsRequired)
+						graph.MarkParticle(fromTo.From, Colors.Green); // start node
+						if (includeTo)
 						{
-							to = startEndNodeDialog.To;
-							if (from == to) graph.Sleep(500);
-							graph.SetParticleColor(to, Colors.Red); // end node in red
+							if (fromTo.From == fromTo.To) graph.Sleep(500);
+							graph.MarkParticle(fromTo.To, Colors.Red); // end node
 						}
-						// Unhighlight start/end node in case highlighted
+						// BUG: unsure why canvas paint trigger is required, doesn't
+						// 'bgwGraphLayoutViz' already trigger the same event?
+						TriggerCanvasPaintEvent();
+					}
+					void UnmarkNodes()
+					{
 						graph.Sleep(1500);
-						foreach (int id in new int[] { from, to }) if (id != -1) graph.ResetParticleColors(id);
-						return true;
+						foreach (int id in new int[] { fromTo.From, fromTo.To })
+							if (id != -1) graph.ResetParticleColors(id);
+						// Again unsure why triggering is needed if bgwGraphLayoutViz should already do so?
+						TriggerCanvasPaintEvent();
 					}
 				}
-				SimpleDialog.ShowMessage("Error", "Invalid start/end node id(s) given!");
-				return false;
 			}
+			return null; // invalid user input
+		}
+		private void bgw_VisualizeGraphAlgo(object sender, DoWorkEventArgs e)
+		{
+			// Controls to disable while visualizing (not including parent form)
+			Control[] controls = new Control[] { btnPauseResume, btnStart, btnReset, btnClearState, btnPresets, algoComboBox };
+			// Sync parent to prevent log panel resize 
+			((MainUIForm)parentForm).InVizMode = inVizMode = true;
+			((MainUIForm)parentForm).ToggleWindowResizeAndMainMenuBtns();
+			// Enable Pause/Resume and disable the rest of the controls before visualizing
+			foreach (Control control in controls) SetControlEnabled(control, control == btnPauseResume);
+
+			(int From, int To) fromTo = ((int From, int To))e.Argument;
+			RunAlgo(fromTo.From, fromTo.To); // Visualize graph algo
+
+			// Disable Pause/Resume and re-enable the rest of the controls after visualizing
+			foreach (Control control in controls) SetControlEnabled(control, control != btnPauseResume);
+			((MainUIForm)parentForm).ToggleWindowResizeAndMainMenuBtns();
+			((MainUIForm)parentForm).InVizMode = inVizMode = false;
 		}
 		private void RunAlgo(int from, int to)
 		{
@@ -170,49 +227,24 @@ namespace AlgorithmVisualizer.Forms
 					break;
 			}
 		}
-		private void VisualizeGraphAlgo()
-		{
-			// TODO: bgw.WorkerSupportsCancellation = true;
-
-			if (bgwGraphAlgoViz != null) bgwGraphAlgoViz.Dispose();
-			// Create new backgroundworker
-			bgwGraphAlgoViz = new BackgroundWorker();
-			// Assign work to bgw (a function) and run async
-			bgwGraphAlgoViz.DoWork += new DoWorkEventHandler(bgw_VisualizeGraphAlgo);
-			bgwGraphAlgoViz.RunWorkerAsync();
-		}
-		private void bgw_VisualizeGraphAlgo(object sender, DoWorkEventArgs e)
-		{
-			// Controls to disable while visualizing (not including parent form)
-			Control[] controls = new Control[] { btnPauseResume, btnStart, btnReset, btnClearState, btnPresets, algoComboBox };
-			// Sync parent to prevent log panel resize 
-			((MainUIForm)parentForm).InVizMode = inVizMode = true;
-			((MainUIForm)parentForm).ToggleWindowResizeAndMainMenuBtns();
-			// Enable Pause/Resume and disable the rest of the controls before visualizing
-			foreach (Control control in controls) SetControlEnabled(control, control == btnPauseResume);
-
-			RunAlgo(); // Visualize graph algo
-
-			// Disable Pause/Resume and re-enable the rest of the controls after visualizing
-			foreach (Control control in controls) SetControlEnabled(control, control != btnPauseResume);
-			((MainUIForm)parentForm).ToggleWindowResizeAndMainMenuBtns();
-			((MainUIForm)parentForm).InVizMode = inVizMode = false;
-		}
-
-		void StartGraphViz()
-		{
-			if (bgwGraphLayoutViz != null) bgwGraphAlgoViz.Dispose();
-			bgwGraphLayoutViz = new BackgroundWorker();
-			// Assign work to bgw (a function) and run async
-			bgwGraphLayoutViz.DoWork += new DoWorkEventHandler(bgw_GraphViz);
-			bgwGraphLayoutViz.RunWorkerAsync();
-		}
-		private void bgw_GraphViz(object sender, DoWorkEventArgs e)
-		{
-			while (true) if (ForcesEnabled) graph.Visualize();
-		}
 		
-		// Method & callback to update the Enabled prop of a given control (cross thread)
+
+
+		// Safely invoke "canvas.Refresh()"
+		private delegate void TriggerCanvasPaintEventCallback();
+		private void TriggerCanvasPaintEvent()
+		{
+			// InvokeRequired required compares the thread ID of the
+			// calling thread to the thread ID of the creating thread.
+			// If these threads are different, it returns true.
+			if (canvas.InvokeRequired)
+			{
+				var d = new TriggerCanvasPaintEventCallback(TriggerCanvasPaintEvent);
+				canvas.Invoke(d, new object[] { });
+			}
+			else canvas.Refresh();
+		}
+		// Safely access control.Enabled, i.e: btnStart.Enabled
 		private delegate void SetControlEnabledCallback(Control control, bool enabled);
 		private void SetControlEnabled(Control control, bool enabled)
 		{
@@ -221,7 +253,7 @@ namespace AlgorithmVisualizer.Forms
 			// If these threads are different, it returns true.
 			if (control.InvokeRequired)
 			{
-				SetControlEnabledCallback d = new SetControlEnabledCallback(SetControlEnabled);
+				var d = new SetControlEnabledCallback(SetControlEnabled);
 				Invoke(d, new object[] { control, enabled });
 			}
 			else control.Enabled = enabled;
@@ -229,52 +261,9 @@ namespace AlgorithmVisualizer.Forms
 		#endregion
 
 		#region Event handlers
-		private void FDGVForm_Resize(object sender, EventArgs e)
-		{
-			// Check if width is > 0 in case window was minimized
-			// Check required, otherwise all nodes may be placed at the point(0, 0)
-			if (Width > 0)
-			{
-				// Update canvas height/width for stoed in graph
-				graph.CanvasHeight = canvas.Height;
-				graph.CanvasWidth = canvas.Width;
-				graph.DrawGraph(DrawingMode.Forceless);
-			}
-		}
 		private void btnStart_Click(object sender, EventArgs e)
 		{
-			Console.WriteLine("Selected algo name: " + algoComboBox.Text);
 			VisualizeGraphAlgo();
-		}
-		private void btnReset_Click(object sender, EventArgs e)
-		{
-			string title = "Remove all vertices and edges",
-				text = "Press OK to proceed. \nYou can save this graph as a new preset by clicking the button \"Presets\" and then \"New Preset\"";
-			if (!graph.IsEmpty() && SimpleDialog.OKCancel(title, text)) graph.ClearGraph();
-		}
-		private void btnClearState_Click(object sender, EventArgs e)
-		{
-			string title = "Reset colors and edge directions",
-				text = "You are about to redraw graph at its initial configuration \nPress OK to proceed.";
-			// Clear graph state, i.e colors and edge directions and force redraw
-			if (!graph.IsEmpty() && SimpleDialog.OKCancel(title, text)) graph.ClearGraphState();
-		}
-		private void btnPresets_Click(object sender, EventArgs e)
-		{
-			using (var presetDialog = new PresetDialog(graph))
-			{
-				presetDialog.StartPosition = FormStartPosition.CenterParent;
-				if (presetDialog.ShowDialog() == DialogResult.OK)
-				{
-					string[] serialization = presetDialog.Serialization;
-					if (serialization != null)
-					{
-						graph.ClearGraph();
-						GraphSerializer.Deserialize(graph, serialization);
-						graph.DrawGraph(DrawingMode.Forceless);
-					}
-				}
-			}
 		}
 		private void btnPauseResume_Click(object sender, EventArgs e)
 		{
@@ -291,6 +280,27 @@ namespace AlgorithmVisualizer.Forms
 			{
 				btnPauseResume.Text = "Resume";
 				graph.Pause();
+			}
+		}
+		private void btnReset_Click(object sender, EventArgs e)
+		{
+			string title = "Remove all vertices and edges",
+				text = "Press OK to proceed. \nYou can save this graph as a new preset by clicking the button \"Presets\" and then \"New Preset\"";
+			if (!graph.IsEmpty() && SimpleDialog.OKCancel(title, text)) graph.ClearGraph();
+		}
+		private void btnClearState_Click(object sender, EventArgs e)
+		{
+			string title = "Reset colors and edge directions",
+				text = "You are about to redraw graph at its initial configuration \nPress OK to proceed.";
+			// Clear graph state, i.e colors and edge directions and force redraw
+			if (!graph.IsEmpty() && SimpleDialog.OKCancel(title, text)) graph.ClearVizState();
+		}
+		private void btnPresets_Click(object sender, EventArgs e)
+		{
+			using (var presetDialog = new PresetDialog(graph))
+			{
+				presetDialog.StartPosition = FormStartPosition.CenterParent;
+				presetDialog.ShowDialog();
 			}
 		}
 		private void btnDetails_Click(object sender, EventArgs e)
@@ -314,11 +324,16 @@ namespace AlgorithmVisualizer.Forms
 		{
 			selectedAlgoIdx = algoComboBox.SelectedIndex;
 		}
+		
 		private void togglePhysicsToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			// Toggle physics - does not apply to preset loading where graph.Visualize() is invoked
-			ForcesEnabled = !ForcesEnabled;
-			Console.WriteLine($"Physics toggled " + (ForcesEnabled ? "on" : "off"));
+			// Toggle physics for graph drawing
+			forcesEnabled = !forcesEnabled;
+			Console.WriteLine($"Physics toggled " + (forcesEnabled ? "on" : "off"));
+		}
+		private void toggleCenterPullToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			graph.CenterPull = !graph.CenterPull;
 		}
 		private void toggleVertexPinToolStripMenuItem_Click(object sender, EventArgs e)
 		{
@@ -336,6 +351,7 @@ namespace AlgorithmVisualizer.Forms
 		{
 			graph.UnpinAllParticles();
 		}
+		
 		private void addVertexToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			if (inVizMode) return; // do nothing if currently visualizing somthing
@@ -344,15 +360,13 @@ namespace AlgorithmVisualizer.Forms
 				vertexDialog.StartPosition = FormStartPosition.CenterParent;
 				if (vertexDialog.ShowDialog() == DialogResult.OK)
 				{
-					int id = vertexDialog.Id, data = vertexDialog.Data;
-					bool opStatus = false;
+					int id = vertexDialog.Id;
 					// if id is negative then input is invalid
 					if (id >= 0)
 					{
-						opStatus = graph.AddNode(id, data, activeRClickPos);
+						bool opStatus = graph.AddNode(id, activeRClickPos);
 						activeRClickPos = null;
-						Console.WriteLine("Adding new node (id: {0}, data: {1}), status: {2}", id, data, opStatus ? "Success" : "Failure");
-						graph.DrawGraph(DrawingMode.Forceless);
+						Console.WriteLine("Adding new node with id {0}, status: {1}", id, opStatus ? "Success" : "Failure");
 					}
 					else Console.WriteLine("Failed to add! negative node ids not prohibited!");
 				}
@@ -367,7 +381,6 @@ namespace AlgorithmVisualizer.Forms
 				Console.WriteLine("Removing particle with id {0}, status: {1}",
 					activeParticleId, remStatus ? "Success" : "Failure");
 				activeParticleId = -1;
-				graph.DrawGraph(DrawingMode.Forceless);
 			}
 		}
 		private void addEdgeToolStripMenuItem_Click(object sender, EventArgs e)
@@ -390,7 +403,6 @@ namespace AlgorithmVisualizer.Forms
 							  (opStatus ? "Success" : "Failed");
 					Console.WriteLine(msg);
 					activeParticleId = -1;
-					graph.DrawGraph(DrawingMode.Forceless);
 				}
 			}
 		}
@@ -414,9 +426,14 @@ namespace AlgorithmVisualizer.Forms
 							  (opStatus ? "Success" : "Failed");
 					Console.WriteLine(msg);
 					activeParticleId = -1;
-					graph.DrawGraph(DrawingMode.Forceless);
 				}
 			}
+		}
+
+		private void canvas_Paint(object sender, PaintEventArgs e)
+		{
+			e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+			graph.DrawGraph(e.Graphics);
 		}
 		private void canvas_MouseDown(object sender, MouseEventArgs e)
 		{
@@ -435,11 +452,7 @@ namespace AlgorithmVisualizer.Forms
 		}
 		private void canvas_MouseMove(object sender, MouseEventArgs e)
 		{
-			if (activeParticle != null)
-			{
-				activeParticle.Pos = new Vector(e.X, e.Y);
-				graph.DrawGraph(DrawingMode.Forceless);
-			}
+			if (activeParticle != null) activeParticle.Pos = new Vector(e.X, e.Y);
 		}
 		private void canvas_MouseUp(object sender, MouseEventArgs e)
 		{
@@ -448,17 +461,17 @@ namespace AlgorithmVisualizer.Forms
 			// Removing this flag allows opening context menus when visualizing, may cause issues.
 			if (/*!inVizMode && */e.Button == MouseButtons.Right)
 			{
-				// Checking if clicked within a particle and if so diplaying vertexContextStrip
+				// Find location of click release and get clicked particle
 				float x = e.X, y = e.Y;
 				Particle clickedParticle = graph.GetClickedParticle(x, y);
-				// if within a particle
+				
+				// clicked on particle particle
 				if (clickedParticle != null)
 				{
-					activeParticleId = clickedParticle.Id;
 					// show vertexContextStrip (remove vertex/add edge for current particle)
+					activeParticleId = clickedParticle.Id;
 					vertexContextStrip.Show(Cursor.Position);
 				}
-				// otherwise if not within a particle
 				else
 				{
 					// show canvasMainContextStrip (add vertex)
@@ -468,12 +481,16 @@ namespace AlgorithmVisualizer.Forms
 			}
 			activeParticle = null;
 		}
-		private void canvas_Paint(object sender, PaintEventArgs e)
+		private void FDGVForm_Resize(object sender, EventArgs e)
 		{
-			e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-			// Draw all particles and springs
-			foreach (Spring spring in graph.Springs) spring.Draw(e.Graphics);
-			foreach (Particle particle in graph.Particles) particle.Draw(e.Graphics, canvas.Height, canvas.Width);
+			// Check if width is > 0 in case window was minimized
+			// Check required, otherwise all nodes may be placed at the point(0, 0)
+			if (Width > 0)
+			{
+				// Update canvas height/width for stoed in graph
+				graph.CanvasHeight = canvas.Height;
+				graph.CanvasWidth = canvas.Width;
+			}
 		}
 		#endregion
 	}

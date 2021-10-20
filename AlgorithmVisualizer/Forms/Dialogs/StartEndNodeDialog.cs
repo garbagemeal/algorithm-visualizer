@@ -1,36 +1,49 @@
 ﻿using System;
 using System.Windows.Forms;
 
+using AlgorithmVisualizer.GraphTheory;
+
 namespace AlgorithmVisualizer.Forms.Dialogs
 {
 	public partial class StartEndNodeDialog : Form
 	{
 		public int From { get; set; }
 		public int To { get; set; }
-		private bool _includeTo;
-		public StartEndNodeDialog(bool includeTo = true)
+		// true if user perssed 'OK' and input was valid
+		public bool InputIsValid { get; private set; } = false;
+
+		// bool flag indicating if id for destination node id is a required input
+		private bool includeTo;
+		private Graph graph;
+
+		public StartEndNodeDialog(Graph _graph, bool _includeTo)
 		{
 			InitializeComponent();
-			_includeTo = includeTo;
-			// To may not be needed
-			if (!_includeTo)
-			{
-				lblTo.Visible = textBoxTo.Visible = false;
-				To = -1;
-			}
+			graph = _graph;
+			includeTo = _includeTo;
+			// If id of node 'to' not needed hide related stuff
+			if (!includeTo) lblTo.Visible = textBoxTo.Visible = false;
 		}
 
 		private void btnOK_Click(object sender, EventArgs e)
 		{
+			ParseTextBoxes();
+			if (graph.ContainsNode(From) && (!includeTo || graph.ContainsNode(To)))
+			{
+				InputIsValid = true;
+				Close();
+			}
+			else SimpleDialog.ShowMessage("Invalid input", "Invalid start/end node id(s).");
+		}
+		private void ParseTextBoxes()
+		{
 			try
 			{
 				From = Int32.Parse(textBoxFrom.Text);
-				// End may not be needed
-				if (_includeTo) To = Int32.Parse(textBoxTo.Text);
+				if (includeTo) To = Int32.Parse(textBoxTo.Text);
 			}
-			catch (FormatException)
+			catch (FormatException ex)
 			{
-				// -1 denotes an invalid start/end node ids
 				From = To = -1;
 			}
 		}

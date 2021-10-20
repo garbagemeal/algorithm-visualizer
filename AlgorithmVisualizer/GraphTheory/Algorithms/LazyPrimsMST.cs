@@ -6,6 +6,7 @@ using AlgorithmVisualizer.ArrayTracer;
 using AlgorithmVisualizer.DataStructures.Heap;
 using AlgorithmVisualizer.GraphTheory.FDGV;
 using AlgorithmVisualizer.GraphTheory.Utils;
+using static AlgorithmVisualizer.GraphTheory.FDGV.GraphVisualizer;
 
 namespace AlgorithmVisualizer.GraphTheory.Algorithms
 {
@@ -52,12 +53,12 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 			{
 				heapTracer.HighlightAt(0);
 				Edge edge = heap.Dequeue();
-				graph.SetSpringState(edge, Colors.Red, 0);
+				graph.MarkSpring(edge, Colors.Red, Dir.Directed);
 				Sleep(1500);
 				heapTracer.Trace();
 				// Avoid adding edges to already visited nodes
 				bool edgeVisited = visited.Contains(edge.To);
-				graph.SetSpringState(edge, edgeVisited ? Colors.Visited : Colors.Green, edgeVisited ? -1 : 0);
+				graph.MarkSpring(edge, edgeVisited ? Colors.Visited : Colors.Green, edgeVisited ? Dir.None : Dir.Directed);
 				if (!edgeVisited)
 				{
 					//mstEdges[edgeCount++] = edge;
@@ -75,7 +76,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 			// mark node as visited
 			visited.Add(nodeId);
 			Sleep(1000);
-			graph.SetParticleColor(nodeId, Colors.Orange);
+			graph.MarkParticle(nodeId, Colors.Orange);
 			// add all outgoing edges from nodeId while avoiding
 			// adding edges to already visited nodes
 			// also visualizes all edges to non visted nodes and the node itself
@@ -85,7 +86,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 				{
 					if (!visited.Contains(edge.To))
 					{
-						graph.SetSpringState(edge, Colors.Orange, 0);
+						graph.MarkSpring(edge, Colors.Orange, Dir.Directed);
 						heap.Enqueue(edge);
 						heapTracer.Trace();
 						Sleep(1000);
@@ -94,10 +95,10 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 				Sleep(1000);
 				// draw edges in dark grey (visited)
 				foreach (Edge edge in graph.AdjList[nodeId])
-					if (!visited.Contains(edge.To)) graph.SetSpringState(edge, Colors.Visited);
+					if (!visited.Contains(edge.To)) graph.MarkSpring(edge, Colors.Visited);
 			}
 			// draw particle in darkGreyBrush (visited)
-			graph.SetParticleColor(nodeId, Colors.Visited, Colors.VisitedBorder);
+			graph.MarkParticle(nodeId, Colors.Visited, Colors.VisitedBorder);
 			Sleep(1000);
 		}
 	}

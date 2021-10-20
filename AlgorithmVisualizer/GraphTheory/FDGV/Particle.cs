@@ -25,6 +25,11 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 			TextColor = defaultTextColor;
 		}
 
+		private int textSize = 10;
+		private float borderWidth = 1.7f;
+		public int Size { get; set; }
+		public bool Pinned { get; set; } = false;
+		public void TogglePin() => Pinned = !Pinned;
 
 		// Position, velocity and acceleration (2D vectors)
 		private Vector pos, vel, acc;
@@ -32,31 +37,11 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 		public Vector Pos { get { return new Vector(pos.X, pos.Y); } set { pos = new Vector(value.X, value.Y); } }
 		public Vector Vel { get { return new Vector(vel.X, vel.Y); } set { vel = new Vector(value.X, value.Y); } }
 		public Vector Acc { get { return new Vector(acc.X, acc.Y); } set { acc = new Vector(value.X, value.Y); } }
-
-
-		// size is the diameter of the particle
-		private int textSize = 10;
-		private float borderWidth = 1.7f;
-
-
 		// Physics related & particle stabilization
-		private const float G = 1000f, MAX_PARTICLE_SPEED = 7f, MIN_REPEL_MAG = 0.003f,
-			MAX_REPEL_MAG = 1, MAX_CENTER_PULL_MAG = 0.5f, VEL_DECAY = 0.99f;
-
-
-		// Used to capture the maximal velocity magnitude per iteration in the force
-		// directed method of drawin the graph (used as a stop condition when the maximal
-		// velocity is small enough in some interation i)
-		// Make sure to reset to 0 after each iteration, otherwise max speed will propegate
-		// between iterations (no longer max speed per iteration but total runtime max speed).
+		private const float G = 1000f, MAX_PARTICLE_SPEED = 10f, MAX_CENTER_PULL_MAG = 0.1f, VEL_DECAY = 0.99f;
+		// Captures maxival velocity when updating position
 		public static float MAX_VEL_MAG_PER_ITR { get; set; } = 0;
 
-
-		// Diameter of particle & keeping track of pinned and visible particles
-		// Note the default values for visible and pinned
-		public int Size { get; set; }
-		public bool Pinned { get; set; } = false;
-		public void TogglePin() => Pinned = !Pinned;
 
 
 		public Particle(int id, int data, Vector _pos, int size) : base(id, data)
@@ -115,20 +100,17 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 			// Ignore pinned particles
 			if (!Pinned)
 			{
-				// Update the velocity via current acceleration
+				// Update velocity using current acceleration and apply force decay
 				vel += acc;
-				// recude vel by some %
 				vel *= VEL_DECAY;
 				if (vel.Magnitude() > MAX_PARTICLE_SPEED) vel.SetMagnitude(MAX_PARTICLE_SPEED);
 				// Update the position by adding the velocity to the current position
 				pos += vel;
 				BoundWithinCanvas(canvasHeight, canvasWidth);
-				// Keep track of maximal verlocity per iteration of the FDGV; needs to be
-				// manually reset from within the FDGV algo after each iteration.
+				// Keep track of maximal particle verlocity
 				if (vel.Magnitude() > MAX_VEL_MAG_PER_ITR) MAX_VEL_MAG_PER_ITR = vel.Magnitude();
 			}
-			// Reset the acceleration to 0 for the next iteration, otherwise paricle
-			// will accelerate with each iteration and eventually "fly" of the screen.
+			// Avoid propagation of acceleration between invocations to this method
 			acc.Set(0, 0);
 		}
 		public void BoundWithinCanvas(int canvasHeight, int canvasWidth)
@@ -167,10 +149,8 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 					Vector F = particle.pos - this.pos;
 					// If the magnitude is 0 (particle overlap) - randomize F
 					if (F.Magnitude() == 0) F = Vector.GetRandom();
-					// Bound and magnitude within [MIN_REPEL_MAG, MAX_REPEL_MAG]
-					float mag = Math.Max(MIN_REPEL_MAG, Math.Min(G / (F.Magnitude() * F.Magnitude()), MAX_REPEL_MAG));
-					F.SetMagnitude(mag);
-					// Accelerate particle using computed force
+					// set F's mag and add into acc
+					F.SetMagnitude(G / (F.Magnitude() * F.Magnitude()));
 					particle.acc += F;
 				}
 			}

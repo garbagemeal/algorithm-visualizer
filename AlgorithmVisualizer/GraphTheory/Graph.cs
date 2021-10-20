@@ -32,20 +32,20 @@ namespace AlgorithmVisualizer.GraphTheory
 		public int GetRandomNodeId() => nodeLookup.ElementAt(rnd.Next(nodeLookup.Count)).Key;
 		public void ClearGraph()
 		{
-			// Clear the graph (logically and visually)
-			ClearVisualization();
 			nodeLookup.Clear();
 			AdjList.Clear();
 			EdgeCount = 0;
+			// Visuals
+			ClearParticlesAndSprings();
 		}
-		public bool AddNode(int id, int data) => AddNode(id, data, RndPosWithinCanvas());
-		public bool AddNode(int id, int data, Vector posVector)
+		public bool AddNode(int id) => AddNode(id, RndPosWithinCanvas());
+		public bool AddNode(int id, Vector posVector)
 		{
 			if (ContainsNode(id)) return false;
-			Particle particle = new Particle(id, data, posVector, DEFAULT_PARTICLE_SIZE);
+			Particle particle = new Particle(id, 0, posVector, DEFAULT_PARTICLE_SIZE);
 			nodeLookup[id] = particle;
 			AdjList[id] = new List<Edge>();
-			// For visualization:
+			// For visualization
 			AddParticle(particle);
 			return true;
 		}
@@ -250,9 +250,6 @@ namespace AlgorithmVisualizer.GraphTheory
 
 				// O(V + E)
 				UpdateNodeIds(nodeIdArray, N, inverseNodeIdDict);
-
-				// redraw graph
-				DrawGraph(DrawingMode.Forceless);
 			}
 		}
 		private void UpdateNodeIds(int[] nodeIdArray, int N, Dictionary<int, int> inverseNodeIdDict)

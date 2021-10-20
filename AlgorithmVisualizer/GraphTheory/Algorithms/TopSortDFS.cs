@@ -37,7 +37,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 		{
 			// top sort into topSortStk using DFS
 			visited.Add(at);
-			graph.SetParticleColor(at, Colors.Orange);
+			graph.MarkParticle(at, Colors.Orange);
 			Sleep(1500);
 			if (graph.AdjList[at] != null)
 				foreach (Edge edge in graph.AdjList[at])
@@ -45,19 +45,19 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 					int to = edge.To;
 					if (!visited.Contains(to))
 					{
-						graph.SetSpringState(edge, Colors.Orange);
+						graph.MarkSpring(edge, Colors.Orange);
 						Sleep(1000);
 						Solve(to, visited, topOrderStk);
-						graph.SetSpringState(edge, Colors.Visited);
+						graph.MarkSpring(edge, Colors.Visited);
 						Sleep(1000);
 					}
 				}
 			// Push values into the stack upon backtracking
 			topOrderStk.Push(at);
-			graph.SetParticleColor(at, Colors.Blue);
+			graph.MarkParticle(at, Colors.Blue);
 			topOrderStkTracer.HighlightAt(0);
 			Sleep(1000);
-			graph.SetParticleColor(at, Colors.Visited, Colors.VisitedBorder);
+			graph.MarkParticle(at, Colors.Visited, Colors.VisitedBorder);
 			topOrderStkTracer.Trace();
 			Sleep(1000);
 		}

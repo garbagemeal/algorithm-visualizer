@@ -8,25 +8,17 @@ namespace AlgorithmVisualizer.DBHandler
 {
 	public class DBConnection
 	{
-		/* Handles connection and provides basic operations for to 'Graphs' DB containing
-		 * the 'Presets' table storing: id, name, serial, img_dir.
-		 * 
-		 * In case you dont have the DB, in order to re-create it, use the file graphs.sql
-		 * located at: AlgorithmVisualizer\SQL Files\
-		 */
-
 		public static string Server = "localhost";
 		public static string DBName = "Graphs";
 		public static string Username = "root";
 		public static string Password = "";
-		private static DBConnection instance;
 
+		private static DBConnection instance;
 		private MySqlConnection connection;
 
 		private DBConnection() { }
 		public static DBConnection GetInstance()
 		{
-
 			if (instance == null) instance = new DBConnection();
 			return instance;
 		}
@@ -198,7 +190,7 @@ namespace AlgorithmVisualizer.DBHandler
 				{
 					var row = dataTable.Rows[i];
 					presets[i] = new Preset((int)row[0], (string)row[1], (string)row[2],
-						row[3] is DBNull ? "" : (string)row[3]);
+						row[3] == DBNull.Value ? "" : (string)row[3]);
 				}
 			}
 			return presets;

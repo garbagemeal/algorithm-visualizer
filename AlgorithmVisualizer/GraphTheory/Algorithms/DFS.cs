@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 
-using AlgorithmVisualizer.GraphTheory.FDGV;
 using AlgorithmVisualizer.GraphTheory.Utils;
+using static AlgorithmVisualizer.GraphTheory.FDGV.GraphVisualizer;
 
 namespace AlgorithmVisualizer.GraphTheory.Algorithms
 {
@@ -31,7 +30,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 		{
 			// DFS to check connectivity
 			visited.Add(at);
-			graph.SetParticleColor(at, at == to ? Colors.Red : Colors.Orange);
+			graph.MarkParticle(at, at == to ? Colors.Red : Colors.Orange);
 			Sleep(1500);
 			if (at == to) return true;
 			if (graph.AdjList[at] != null)
@@ -43,25 +42,25 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 					if (!visited.Contains(edge.To))
 					{
 						// draw edge in orange to mark as visiting
-						graph.SetSpringState(edge, Colors.Orange, 0);
+						graph.MarkSpring(edge, Colors.Orange, 0);
 						Sleep(1000);
 						if (Solve(edge.To, visited))
 						{
 							// If the a path has been found to the end node(to) then
 							// each node in the path will be highlighted here
-							graph.SetSpringState(edge, Colors.Green, 0);
-							graph.SetParticleColor(at, Colors.Green);
+							graph.MarkSpring(edge, Colors.Green, Dir.Directed);
+							graph.MarkParticle(at, Colors.Green);
 							Sleep(1500);
 							return true;
 						}
 						// draw edge in dark gray to to mark as visited
-						graph.SetSpringState(edge, Colors.Visited);
+						graph.MarkSpring(edge, Colors.Visited);
 						Sleep(1000);
 					}
 				}
 			}
 			// Draw particle in darkGreyBrush (visited)
-			graph.SetParticleColor(at, Colors.Visited, Colors.VisitedBorder);
+			graph.MarkParticle(at, Colors.Visited, Colors.VisitedBorder);
 			Sleep(1000);
 			return false;
 		}

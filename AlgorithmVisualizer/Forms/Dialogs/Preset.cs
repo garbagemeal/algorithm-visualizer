@@ -13,9 +13,7 @@ namespace AlgorithmVisualizer.Forms.Dialogs
 		public string ImgDir { get; private set; }
 		public const string DEFAULT_IMG_DIR = @"\images\presets\default-image.png";
 
-		public Preset(string name, string serial) :
-			this(-1, name, serial, null)
-		{ }
+		public Preset(string name, string serial) : this(-1, name, serial, null) { }
 		public Preset(int id, string name, string serial, string imgDir)
 		{
 			Id = id;

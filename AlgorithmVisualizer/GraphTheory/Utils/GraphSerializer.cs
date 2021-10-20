@@ -26,7 +26,6 @@ namespace AlgorithmVisualizer.GraphTheory.Utils
 		 .
 		 .
 		 .
-
 		 ******************************************/
 
 		public static void Serialize(Graph graph, string name)
@@ -70,7 +69,7 @@ namespace AlgorithmVisualizer.GraphTheory.Utils
 					string[] idAndEdgesSplit = Split(line, ": ");
 					int from = Int32.Parse(idAndEdgesSplit[0]);
 					// Add the node into the graph
-					graph.AddNode(from, 0);
+					graph.AddNode(from);
 				}
 			}
 		}

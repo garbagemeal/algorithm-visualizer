@@ -54,7 +54,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 			// May have colors brushes, can be bounded via SCCCount with adjustment
 			Color[] colors = new Color[graph.NodeCount];
 			for (int i = 0; i < graph.NodeCount; i++) colors[i] = Colors.GetRandom();
-			for (int i = 0; i < graph.NodeCount; i++) graph.SetParticleColor(i, colors[low[i]]);
+			for (int i = 0; i < graph.NodeCount; i++) graph.MarkParticle(i, colors[low[i]]);
 		}
 	}
 }

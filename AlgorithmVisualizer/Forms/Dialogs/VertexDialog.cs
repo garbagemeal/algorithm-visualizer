@@ -15,11 +15,10 @@ namespace AlgorithmVisualizer.Forms.Dialogs
 			try
 			{
 				Id = Int32.Parse(textBoxID.Text);
-				Data = Int32.Parse(textBoxData.Text);
 			}
 			catch (FormatException)
 			{
-				// id of -1 denotes an invalid id
+				// invalid id
 				Id = -1;
 			}
 		}

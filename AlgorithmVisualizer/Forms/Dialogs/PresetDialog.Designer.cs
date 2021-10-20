@@ -39,7 +39,6 @@ namespace AlgorithmVisualizer.Forms.Dialogs
 			// 
 			this.btnLoadPreset.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
 			this.btnLoadPreset.BackColor = System.Drawing.Color.Gray;
-			this.btnLoadPreset.DialogResult = System.Windows.Forms.DialogResult.OK;
 			this.btnLoadPreset.FlatAppearance.BorderSize = 0;
 			this.btnLoadPreset.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.btnLoadPreset.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(232)))), ((int)(((byte)(232)))), ((int)(((byte)(232)))));
@@ -49,6 +48,7 @@ namespace AlgorithmVisualizer.Forms.Dialogs
 			this.btnLoadPreset.TabIndex = 12;
 			this.btnLoadPreset.Text = "Load selected";
 			this.btnLoadPreset.UseVisualStyleBackColor = false;
+			this.btnLoadPreset.Click += new System.EventHandler(this.btnLoadPreset_Click);
 			// 
 			// listView
 			// 
@@ -107,7 +107,6 @@ namespace AlgorithmVisualizer.Forms.Dialogs
 			this.MinimizeBox = false;
 			this.Name = "PresetDialog";
 			this.Text = "Select a preset";
-			this.Load += new System.EventHandler(this.PresetDialog_Load);
 			this.ResumeLayout(false);
 
 		}
