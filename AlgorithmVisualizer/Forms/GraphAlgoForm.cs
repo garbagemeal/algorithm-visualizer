@@ -66,11 +66,13 @@ namespace AlgorithmVisualizer.Forms
 			bgwGraphLayoutViz.DoWork += new DoWorkEventHandler(bgw_GraphViz);
 			bgwGraphLayoutViz.RunWorkerAsync();
 		}
+		// Refers to the state of the parent form (minimized or not)
+		private bool formIsMinimized = false;
 		private void bgw_GraphViz(object sender, DoWorkEventArgs e)
 		{
 			while (true)
 			{
-				if (!graph.IsEmpty())
+				if (!formIsMinimized && !graph.IsEmpty())
 				{
 					if (forcesEnabled) graph.ApplyForcesAndUpdatePositions();
 					TriggerCanvasPaintEvent();
@@ -502,6 +504,9 @@ namespace AlgorithmVisualizer.Forms
 				graph.CanvasHeight = canvas.Height;
 				graph.CanvasWidth = canvas.Width;
 			}
+			// Detect when the form is minimized to stop visualizing the graph. Note that
+			// the parent the one minimized and not this form.
+			if (ParentForm != null) formIsMinimized = ParentForm.WindowState == FormWindowState.Minimized;
 		}
 		#endregion
 	}

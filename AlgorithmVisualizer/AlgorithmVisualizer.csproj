@@ -155,6 +155,7 @@
     </Compile>
     <Compile Include="GraphTheory\Utils\Colors.cs" />
     <Compile Include="GraphTheory\Utils\GraphValidator.cs" />
+    <Compile Include="MathUtils\Range.cs" />
     <Compile Include="MathUtils\Vector.cs" />
     <Compile Include="Forms\ArrayAlgoForm.cs">
       <SubType>Form</SubType>

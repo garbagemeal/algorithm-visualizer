@@ -95,7 +95,6 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 					// Used to center string with sf
 					sf.LineAlignment = StringAlignment.Center;
 					sf.Alignment = StringAlignment.Center;
-						
 					using (Font font = new Font("Arial", textSize))
 						g.DrawString(Id.ToString(), font, textBrush, rect, sf);
 				}
