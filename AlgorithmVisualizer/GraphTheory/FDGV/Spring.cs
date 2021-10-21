@@ -15,25 +15,20 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 
 		// Composing particles
 		private Particle p1, p2;
-		// Default physics related params, can be changed from "FDGVConfigForm.cs".
-		public static float DefaultK = 0.0005f, DefaultRestLen = 125;
+
+		// Physics related params and their defaults, can be changed from "FDGVConfigForm.cs".
+		public const float DefaultK = 0.0005f, DefaultRestLen = 125;
 		// Length where spring is in reest
 		public static float RestLen, K;
+
 		public bool Reversed { get; set; } = false;
 
-		// Making sure "SetDefaultPhysicsParams()" is invoked only once in the constructor
-		private static bool physicsParamsAreSet = false;
 		public Spring(Particle _p1, Particle _p2, int cost) : base(_p1.Id, _p2.Id, cost)
 		{
 			p1 = _p1;
 			p2 = _p2;
 			// Use default color scheme
 			SetDefaultColors();
-			if (!physicsParamsAreSet)
-			{
-				physicsParamsAreSet = true;
-				SetDefaultPhysicsParams();
-			}
 		}
 
 		public static void SetDefaultPhysicsParams()

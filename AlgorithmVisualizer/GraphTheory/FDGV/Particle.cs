@@ -25,14 +25,11 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 		public Vector Vel { get { return new Vector(vel.X, vel.Y); } set { vel = new Vector(value.X, value.Y); } }
 		public Vector Acc { get { return new Vector(acc.X, acc.Y); } set { acc = new Vector(value.X, value.Y); } }
 
-		// Default physics related params, can be changed from "FDGVConfigForm.cs".
-		public static float DefaultSize = 30, DefaultG = 1000f, DefaultMaxSpeed = 10f,
+		// Physics related params and their defaults, can be changed from "FDGVConfigForm.cs".
+		public const float DefaultSize = 30, DefaultG = 1000f, DefaultMaxSpeed = 10f,
 			DefaultMaxCenterPullMag = 0.1f, DefaultVelDecay = 0.99f;
-
 		public static float G, MaxSpeed, MaxCenterPullMag, VelDecay, Size;
 
-		// Making sure "SetDefaultPhysicsParams()" is invoked only once in the constructor
-		private static bool physicsParamsAreSet = false;
 		public Particle(int id, int data, Vector _pos) : base(id, data)
 		{
 			pos = _pos;
@@ -40,11 +37,6 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 			acc = new Vector(0, 0);
 			// Use default color scheme
 			SetDefaultColors();
-			if (!physicsParamsAreSet)
-			{
-				physicsParamsAreSet = true;
-				SetDefaultPhysicsParams();
-			}
 		}
 
 		public static void SetDefaultPhysicsParams()

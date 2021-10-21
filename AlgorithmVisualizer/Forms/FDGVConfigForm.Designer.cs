@@ -62,7 +62,7 @@ namespace AlgorithmVisualizer.Forms.Dialogs
 			// hScrollBarG
 			// 
 			this.hScrollBarG.Location = new System.Drawing.Point(13, 12);
-			this.hScrollBarG.Maximum = 200;
+			this.hScrollBarG.Maximum = 209;
 			this.hScrollBarG.Name = "hScrollBarG";
 			this.hScrollBarG.Size = new System.Drawing.Size(138, 20);
 			this.hScrollBarG.TabIndex = 2;
@@ -72,7 +72,7 @@ namespace AlgorithmVisualizer.Forms.Dialogs
 			// hScrollBarMaxParticleSpeed
 			// 
 			this.hScrollBarMaxParticleSpeed.Location = new System.Drawing.Point(13, 35);
-			this.hScrollBarMaxParticleSpeed.Maximum = 200;
+			this.hScrollBarMaxParticleSpeed.Maximum = 209;
 			this.hScrollBarMaxParticleSpeed.Name = "hScrollBarMaxParticleSpeed";
 			this.hScrollBarMaxParticleSpeed.Size = new System.Drawing.Size(138, 20);
 			this.hScrollBarMaxParticleSpeed.TabIndex = 5;
@@ -100,7 +100,7 @@ namespace AlgorithmVisualizer.Forms.Dialogs
 			// hScrollBarMaxCenterPullMag
 			// 
 			this.hScrollBarMaxCenterPullMag.Location = new System.Drawing.Point(13, 58);
-			this.hScrollBarMaxCenterPullMag.Maximum = 200;
+			this.hScrollBarMaxCenterPullMag.Maximum = 209;
 			this.hScrollBarMaxCenterPullMag.Name = "hScrollBarMaxCenterPullMag";
 			this.hScrollBarMaxCenterPullMag.Size = new System.Drawing.Size(138, 20);
 			this.hScrollBarMaxCenterPullMag.TabIndex = 5;
@@ -119,7 +119,7 @@ namespace AlgorithmVisualizer.Forms.Dialogs
 			// hScrollBarVelDecay
 			// 
 			this.hScrollBarVelDecay.Location = new System.Drawing.Point(13, 81);
-			this.hScrollBarVelDecay.Maximum = 200;
+			this.hScrollBarVelDecay.Maximum = 209;
 			this.hScrollBarVelDecay.Name = "hScrollBarVelDecay";
 			this.hScrollBarVelDecay.Size = new System.Drawing.Size(138, 20);
 			this.hScrollBarVelDecay.TabIndex = 5;
@@ -138,7 +138,7 @@ namespace AlgorithmVisualizer.Forms.Dialogs
 			// hScrollBarParticleSize
 			// 
 			this.hScrollBarParticleSize.Location = new System.Drawing.Point(13, 104);
-			this.hScrollBarParticleSize.Maximum = 200;
+			this.hScrollBarParticleSize.Maximum = 209;
 			this.hScrollBarParticleSize.Name = "hScrollBarParticleSize";
 			this.hScrollBarParticleSize.Size = new System.Drawing.Size(138, 20);
 			this.hScrollBarParticleSize.TabIndex = 5;
@@ -157,7 +157,7 @@ namespace AlgorithmVisualizer.Forms.Dialogs
 			// hScrollBarK
 			// 
 			this.hScrollBarK.Location = new System.Drawing.Point(13, 127);
-			this.hScrollBarK.Maximum = 200;
+			this.hScrollBarK.Maximum = 209;
 			this.hScrollBarK.Name = "hScrollBarK";
 			this.hScrollBarK.Size = new System.Drawing.Size(138, 20);
 			this.hScrollBarK.TabIndex = 5;
@@ -176,7 +176,7 @@ namespace AlgorithmVisualizer.Forms.Dialogs
 			// hScrollBarRestLen
 			// 
 			this.hScrollBarRestLen.Location = new System.Drawing.Point(13, 150);
-			this.hScrollBarRestLen.Maximum = 200;
+			this.hScrollBarRestLen.Maximum = 209;
 			this.hScrollBarRestLen.Name = "hScrollBarRestLen";
 			this.hScrollBarRestLen.Size = new System.Drawing.Size(138, 20);
 			this.hScrollBarRestLen.TabIndex = 5;

@@ -62,6 +62,8 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 			GLog = gLog;
 			particles = new List<Particle>();
 			springs = new List<Spring>();
+
+			SetDefaultPhysicsParams();
 		}
 
 		#region particle/spring list manipulation
@@ -196,21 +198,11 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 			foreach (var particle in particles) particle.SetDefaultColors();
 			foreach (var spring in springs) spring.SetDefaultColors();
 		}
-		#endregion
-
-		#region Physics
-		public void SetDefaultPhysicsParams()
+		public static void SetDefaultPhysicsParams()
 		{
 			Particle.SetDefaultPhysicsParams();
 			Spring.SetDefaultPhysicsParams();
 		}
-		public void SetG(float newG) => Particle.G = newG;
-		public void SetMaxParticleSpeed(float newMaxParticleSpeed) => Particle.MaxSpeed = newMaxParticleSpeed;
-		public void SetMaxCenterPullMag(float newMaxCenterPullMag) => Particle.MaxCenterPullMag = newMaxCenterPullMag;
-		public void SetVelDecay(float newVelDecay) => Particle.VelDecay = newVelDecay;
-		public void SetParticleSize(float newSize) => Particle.Size = newSize;
-		public void SetK(float newK) => Spring.K = newK;
-		public void SetRestLen(float newRestLen) => Spring.RestLen = newRestLen;
 		#endregion
 
 		#region Misc
