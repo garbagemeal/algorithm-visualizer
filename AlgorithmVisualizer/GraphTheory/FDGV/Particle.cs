@@ -9,21 +9,9 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 {
 	public class Particle : GNode
 	{
-		// Default particle color scheme
-		private static readonly Color
-			defaultInnerColor = ColorTranslator.FromHtml("#646464"),
-			defaultBorderColor = ColorTranslator.FromHtml("#E8E8E8"),
-			defaultTextColor = ColorTranslator.FromHtml("#E8E8E8");
 		public Color InnerColor { get; set; }
 		public Color BorderColor { get; set; }
 		public Color TextColor { get; set; }
-		public void SetDefaultColors()
-		{
-			// Set particle's colors to defaults
-			InnerColor = defaultInnerColor;
-			BorderColor = defaultBorderColor;
-			TextColor = defaultTextColor;
-		}
 
 		private int textSize = 10;
 		private float borderWidth = 1.7f;
@@ -37,32 +25,42 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 		public Vector Vel { get { return new Vector(vel.X, vel.Y); } set { vel = new Vector(value.X, value.Y); } }
 		public Vector Acc { get { return new Vector(acc.X, acc.Y); } set { acc = new Vector(value.X, value.Y); } }
 
-		// Default/instance physics related params
-		public const float defaultSize = 30;
-		public const float defaultG = 1000f, defaultMaxSpeed = 10f,
-			defaultMaxCenterPullMag = 0.1f, defaultVelDecay = 0.99f;
-		public float G { get; set; }
-		public float MaxSpeed { get; set; }
-		public float MaxCenterPullMag { get; set; }
-		public float VelDecay { get; set; }
-		public float Size { get; set; }
-		public void SetDefaultPhysicsParams()
-		{
-			G = defaultG;
-			MaxSpeed = defaultMaxSpeed;
-			MaxCenterPullMag = defaultMaxCenterPullMag;
-			VelDecay = defaultVelDecay;
-			Size = defaultSize;
-		}
+		// Default physics related params, can be changed from "FDGVConfigForm.cs".
+		public static float DefaultSize = 30, DefaultG = 1000f, DefaultMaxSpeed = 10f,
+			DefaultMaxCenterPullMag = 0.1f, DefaultVelDecay = 0.99f;
 
+		public static float G, MaxSpeed, MaxCenterPullMag, VelDecay, Size;
+
+		// Making sure "SetDefaultPhysicsParams()" is invoked only once in the constructor
+		private static bool physicsParamsAreSet = false;
 		public Particle(int id, int data, Vector _pos) : base(id, data)
 		{
 			pos = _pos;
 			vel = new Vector(0, 0);
 			acc = new Vector(0, 0);
-			// Use default color/physics schemes
+			// Use default color scheme
 			SetDefaultColors();
-			SetDefaultPhysicsParams();
+			if (!physicsParamsAreSet)
+			{
+				physicsParamsAreSet = true;
+				SetDefaultPhysicsParams();
+			}
+		}
+
+		public static void SetDefaultPhysicsParams()
+		{
+			G = DefaultG;
+			MaxSpeed = DefaultMaxSpeed;
+			MaxCenterPullMag = DefaultMaxCenterPullMag;
+			VelDecay = DefaultVelDecay;
+			Size = DefaultSize;
+		}
+		public void SetDefaultColors()
+		{
+			// Set particle's colors to defaults
+			InnerColor = Colors.ParticleInnerColor;
+			BorderColor = Colors.ParticleBorderColor;
+			TextColor = Colors.ParticleTextColor;
 		}
 
 		public void Draw(Graphics g, int canvasHeight, int canvasWidth)
@@ -100,8 +98,7 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 				}
 			}
 		}
-
-		// Add given force to acc. Note: F = ma --> a = F/m --> F = a (because m = 1) 
+ 
 		public void Accelerate(Vector F) => acc += F;
 		public void UpdatePos(int canvasHeight, int canvasWidth)
 		{

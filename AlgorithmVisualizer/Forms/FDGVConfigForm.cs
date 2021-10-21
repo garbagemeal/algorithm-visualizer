@@ -70,13 +70,13 @@ namespace AlgorithmVisualizer.Forms.Dialogs
 		private void InitParams()
 		{
 			// Load default params for graph drawing forces
-			G = Particle.defaultG;
-			MaxParticleSpeed = Particle.defaultMaxSpeed;
-			MaxCenterPullMag = Particle.defaultMaxCenterPullMag;
-			VelDecay = Particle.defaultVelDecay;
-			ParticleSize = Particle.defaultSize;
-			K = Spring.defaultK;
-			RestLen = Spring.defaultRestLen;
+			G = Particle.G;
+			MaxParticleSpeed = Particle.MaxSpeed;
+			MaxCenterPullMag = Particle.MaxCenterPullMag;
+			VelDecay = Particle.VelDecay;
+			ParticleSize = Particle.Size;
+			K = Spring.K;
+			RestLen = Spring.RestLen;
 			valuesHaveBeenSet = true;
 		}
 
@@ -97,54 +97,61 @@ namespace AlgorithmVisualizer.Forms.Dialogs
 			ResetScrollBarVals();
 			graph.SetDefaultPhysicsParams();
 		}
+
+		/* 
+		 * For each scroll bar on value change to following occurs:
+		 * The positon of the scroll bar (value) is scaled to a valie in a specified range
+		 * and then the scaled value is set as a new default for all springs/particles
+		 * */
+
 		private void hScrollBarG_Scroll(object sender, ScrollEventArgs e)
 		{
 			int newScrollBarPos = scrollBarPositions[0] = hScrollBarG.Value;
 			G = Range.Scale(newScrollBarPos, rangeIn, rangeOut[0]);
-			Console.WriteLine($"{newScrollBarPos} ||| {G}");
 			graph.SetG(G);
+			Console.WriteLine($"{newScrollBarPos} | {G}");
 		}
 		private void hScrollBarMaxParticleSpeed_Scroll(object sender, ScrollEventArgs e)
 		{
 			int newScrollBarPos = scrollBarPositions[1] = hScrollBarMaxParticleSpeed.Value;
 			MaxParticleSpeed = Range.Scale(newScrollBarPos, rangeIn, rangeOut[1]);
-			Console.WriteLine($"{newScrollBarPos} ||| {MaxParticleSpeed}");
 			graph.SetMaxParticleSpeed(MaxParticleSpeed);
+			Console.WriteLine($"{newScrollBarPos} | {MaxParticleSpeed}");
 		}
 		private void hScrollBarMaxCenterPullMag_Scroll(object sender, ScrollEventArgs e)
 		{
 			int newScrollBarPos = scrollBarPositions[2] = hScrollBarMaxCenterPullMag.Value;
 			MaxCenterPullMag = Range.Scale(newScrollBarPos, rangeIn, rangeOut[2]);
-			Console.WriteLine($"{newScrollBarPos} ||| {MaxCenterPullMag}");
 			graph.SetMaxCenterPullMag(MaxCenterPullMag);
+			Console.WriteLine($"{newScrollBarPos} | {MaxCenterPullMag}");
 		}
 		private void hScrollBarVelDecay_Scroll(object sender, ScrollEventArgs e)
 		{
 			int newScrollBarPos = scrollBarPositions[3] = hScrollBarVelDecay.Value;
 			VelDecay = Range.Scale(newScrollBarPos, rangeIn, rangeOut[3]);
-			Console.WriteLine($"{newScrollBarPos} ||| {VelDecay}");
 			graph.SetVelDecay(VelDecay);
+			Console.WriteLine($"{newScrollBarPos} | {VelDecay}");
 		}
 		private void hScrollBarParticleSize_Scroll(object sender, ScrollEventArgs e)
 		{
 			int newScrollBarPos = scrollBarPositions[4] = hScrollBarParticleSize.Value;
 			ParticleSize = Range.Scale(newScrollBarPos, rangeIn, rangeOut[4]);
-			Console.WriteLine($"{newScrollBarPos} ||| {ParticleSize}");
 			graph.SetParticleSize(ParticleSize);
+			Console.WriteLine($"{newScrollBarPos} | {ParticleSize}");
 		}
 		private void hScrollBarK_Scroll(object sender, ScrollEventArgs e)
 		{
 			int newScrollBarPos = scrollBarPositions[5] = hScrollBarK.Value;
 			K = Range.Scale(newScrollBarPos, rangeIn, rangeOut[5]);
-			Console.WriteLine($"{newScrollBarPos} ||| {K}");
 			graph.SetK(K);
+			Console.WriteLine($"{newScrollBarPos} | {K}");
 		}
 		private void hScrollBarRestLen_Scroll(object sender, ScrollEventArgs e)
 		{
 			int newScrollBarPos = scrollBarPositions[6] = hScrollBarRestLen.Value;
 			RestLen = Range.Scale(newScrollBarPos, rangeIn, rangeOut[6]);
-			Console.WriteLine($"{newScrollBarPos} ||| {RestLen}");
 			graph.SetRestLen(RestLen);
+			Console.WriteLine($"{newScrollBarPos} | {RestLen}");
 		}
 	}
 }

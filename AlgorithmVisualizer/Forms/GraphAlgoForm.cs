@@ -284,15 +284,14 @@ namespace AlgorithmVisualizer.Forms
 		}
 		private void btnReset_Click(object sender, EventArgs e)
 		{
-			string title = "Remove all vertices and edges",
-				text = "Press OK to proceed. \nYou can save this graph as a new preset by clicking the button \"Presets\" and then \"New Preset\"";
+			string title = "Clear the graph",
+				text = "You are about to remove all vertices and edges\n press OK to proceed.";
 			if (!graph.IsEmpty() && SimpleDialog.OKCancel(title, text)) graph.ClearGraph();
 		}
 		private void btnClearState_Click(object sender, EventArgs e)
 		{
 			string title = "Reset colors and edge directions",
-				text = "You are about to redraw graph at its initial configuration \nPress OK to proceed.";
-			// Clear graph state, i.e colors and edge directions and force redraw
+				text = "You are about to reset vertex/edge colors to defaults and also unreverse all reversed edged.\n Press OK to proceed.";
 			if (!graph.IsEmpty() && SimpleDialog.OKCancel(title, text)) graph.ClearVizState();
 		}
 		private void btnPresets_Click(object sender, EventArgs e)

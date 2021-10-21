@@ -5,8 +5,15 @@ namespace AlgorithmVisualizer.GraphTheory.Utils
 {
 	static class Colors
 	{
-		// Colors used for the graph visualization
+		// Default particle/spring colors
+		public static Color
+			ParticleInnerColor = ColorTranslator.FromHtml("#646464"),
+			ParticleBorderColor = ColorTranslator.FromHtml("#E8E8E8"),
+			ParticleTextColor = ColorTranslator.FromHtml("#E8E8E8"),
+			SpringInnerColor = ColorTranslator.FromHtml("#E8E8E8"),
+			SpringTextColor = ColorTranslator.FromHtml("#FF0000");
 
+		// Colors used for the graph algorithm visualization
 		public static readonly Color
 			// Visiting node/edge
 			Orange = Color.Orange,
@@ -25,9 +32,8 @@ namespace AlgorithmVisualizer.GraphTheory.Utils
 			// Visited vertex border (light grey)
 			VisitedBorder = ColorTranslator.FromHtml("#909090");
 
+
 		private static readonly Random rnd = new Random();
-		// Rturns a random rgb color
-		public static Color GetRandom() =>
-			Color.FromArgb(rnd.Next(256), rnd.Next(256), rnd.Next(256));
+		public static Color GetRandom() => Color.FromArgb(rnd.Next(256), rnd.Next(256), rnd.Next(256));
 	}
 }

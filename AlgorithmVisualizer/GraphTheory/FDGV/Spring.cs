@@ -8,52 +8,44 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 {
 	public class Spring : Edge
 	{
-		// Default spring color scheme
-		private static readonly Color
-			defaultInnerColor = ColorTranslator.FromHtml("#E8E8E8"),
-			defaultTextColor = ColorTranslator.FromHtml("#FF0000");
 		public Color InnerColor { get; set; }
 		public Color TextColor { get; set; }
-		public void SetDefaultColors()
-		{
-			// Set edge's colors to defaults
-			InnerColor = defaultInnerColor;
-			TextColor = defaultTextColor;
-		}
 		private int edgeCostTextSize = 11;
 		private float edgeWidth = 2.5f, arrowCapWidth = 2.7f, arrowCapHeight = 2.7f;
 
 		// Composing particles
 		private Particle p1, p2;
-		// Default/instance physics related params
-		public const float defaultK = 0.0005f, defaultRestLen = 125;
+		// Default physics related params, can be changed from "FDGVConfigForm.cs".
+		public static float DefaultK = 0.0005f, DefaultRestLen = 125;
 		// Length where spring is in reest
-		public float RestLen { get; set; }
-		// Proportionality constant
-		public float K { get; set; }
+		public static float RestLen, K;
 		public bool Reversed { get; set; } = false;
-		public void SetDefaultPhysicsParams()
-		{
-			RestLen = defaultRestLen;
-			K = defaultK;
-		}
 
+		// Making sure "SetDefaultPhysicsParams()" is invoked only once in the constructor
+		private static bool physicsParamsAreSet = false;
 		public Spring(Particle _p1, Particle _p2, int cost) : base(_p1.Id, _p2.Id, cost)
 		{
 			p1 = _p1;
 			p2 = _p2;
-			// Use default color/physics schemes
+			// Use default color scheme
 			SetDefaultColors();
-			SetDefaultPhysicsParams();
+			if (!physicsParamsAreSet)
+			{
+				physicsParamsAreSet = true;
+				SetDefaultPhysicsParams();
+			}
 		}
 
-		public void ExertForcesOnParticles()
+		public static void SetDefaultPhysicsParams()
 		{
-			// Apply forces on the spring's composing particles
-			Vector F = p2.Pos - p1.Pos;
-			F.SetMagnitude(K * (F.Magnitude() - RestLen));
-			p1.Accelerate(F);
-			p2.Accelerate(F * -1);
+			RestLen = DefaultRestLen;
+			K = DefaultK;
+		}
+		public void SetDefaultColors()
+		{
+			// Set edge's colors to defaults
+			InnerColor = Colors.SpringInnerColor;
+			TextColor = Colors.SpringTextColor;
 		}
 
 		public void Draw(Graphics g)
@@ -68,17 +60,19 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 		{
 			// Draw this spring using the given brush
 
-			// center points of the particles
-			float p1Rad = p1.Size / 2, p2Rad = p2.Size / 2;
+			// center point of both particles use only 1 of the following lines depending on Size (static or not)
+			float radius = Particle.Size / 2; // 
+			//float p1Rad = p1.Size / 2, p2Rad = p2.Size / 2;
+
 			var pt1 = new PointF(p1.Pos.X, p1.Pos.Y);
 			var pt2 = new PointF(p2.Pos.X, p2.Pos.Y);
 
 			// Offsetting the line starting/ending pos on the particle borders
 			Vector vector = p2.Pos - p1.Pos;
-			vector.SetMagnitude(p1Rad);
+			vector.SetMagnitude(radius);
 			pt1.X += vector.X;
 			pt1.Y += vector.Y;
-			vector.SetMagnitude(p2Rad);
+			vector.SetMagnitude(radius);
 			pt2.X -= vector.X;
 			pt2.Y -= vector.Y;
 
@@ -111,6 +105,15 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 			}
 			// Dispose of brush in case a new 1 was created in if statement
 			brush.Dispose();
+		}
+
+		public void ExertForcesOnParticles()
+		{
+			// Apply forces on the spring's composing particles
+			Vector F = p2.Pos - p1.Pos;
+			F.SetMagnitude(K * (F.Magnitude() - RestLen));
+			p1.Accelerate(F);
+			p2.Accelerate(F * -1);
 		}
 
 		// True if the given id is p1's or p2's id

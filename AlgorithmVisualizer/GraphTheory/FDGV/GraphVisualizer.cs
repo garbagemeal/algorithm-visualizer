@@ -201,37 +201,16 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 		#region Physics
 		public void SetDefaultPhysicsParams()
 		{
-			foreach (var p in particles) p.SetDefaultPhysicsParams();
-			foreach (var s in springs) s.SetDefaultPhysicsParams();
+			Particle.SetDefaultPhysicsParams();
+			Spring.SetDefaultPhysicsParams();
 		}
-		public void SetG(float newG)
-		{
-			foreach (var p in particles) p.G = newG;
-		}
-		public void SetMaxParticleSpeed(float newMaxParticleSpeed)
-		{
-			foreach (var p in particles) p.MaxSpeed = newMaxParticleSpeed;
-		}
-		public void SetMaxCenterPullMag(float newMaxCenterPullMag)
-		{
-			foreach (var p in particles) p.MaxCenterPullMag = newMaxCenterPullMag;
-		}
-		public void SetVelDecay(float newVelDecay)
-		{
-			foreach (var p in particles) p.VelDecay = newVelDecay;
-		}
-		public void SetParticleSize(float newSize)
-		{
-			foreach (var p in particles) p.Size = newSize;
-		}
-		public void SetK(float newK)
-		{
-			foreach (var p in springs) p.K = newK;
-		}
-		public void SetRestLen(float newRestLen)
-		{
-			foreach (var p in springs) p.RestLen = newRestLen;
-		}
+		public void SetG(float newG) => Particle.G = newG;
+		public void SetMaxParticleSpeed(float newMaxParticleSpeed) => Particle.MaxSpeed = newMaxParticleSpeed;
+		public void SetMaxCenterPullMag(float newMaxCenterPullMag) => Particle.MaxCenterPullMag = newMaxCenterPullMag;
+		public void SetVelDecay(float newVelDecay) => Particle.VelDecay = newVelDecay;
+		public void SetParticleSize(float newSize) => Particle.Size = newSize;
+		public void SetK(float newK) => Spring.K = newK;
+		public void SetRestLen(float newRestLen) => Spring.RestLen = newRestLen;
 		#endregion
 
 		#region Misc
