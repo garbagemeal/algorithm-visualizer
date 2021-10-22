@@ -17,7 +17,6 @@ namespace AlgorithmVisualizer.MathUtils
 		public Vector(float _x, float _y) => Set(_x, _y);
 		public Vector(Vector v) => Set(v.X, v.Y);
 
-		// Overloading arithmetic operations (+, -, *, /)
 		public static Vector operator +(Vector v1, Vector v2) =>
 			new Vector(v1.X + v2.X, v1.Y + v2.Y);
 		public static Vector operator -(Vector v1, Vector v2) =>
@@ -31,25 +30,25 @@ namespace AlgorithmVisualizer.MathUtils
 		}
 
 		// return distance using the pythagorean formula
-		public float Magnitude() => (float)Math.Sqrt(X*X + Y*Y);
 		public void Normalize()
 		{
 			// Scale vector such that its magnitude becomes 1
 			// do nothing if current magnitude is 0 or 1
-			float m = Magnitude();
+			float m = Magnitude;
 			if (m != 0 && m != 1)
 			{
 				X /= m;
 				Y /= m;
 			}
 		}
-		public void SetMagnitude(float mag)
+
+		public float Magnitude
 		{
-			// Normalize the vector and then set to new mag
-			Normalize();
-			X *= mag;
-			Y *= mag;
+			get { return (float)Math.Sqrt(X * X + Y * Y); }
+			// Normalize the vector and then set x and y to match the new mag
+			set { Normalize(); X *= value; Y *= value; }
 		}
+
 		public static Vector GetRandom()
 		{
 			// Returns a new randomized vector

@@ -47,7 +47,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ArrayTracer\ArrayTracer.cs" />
+    <Compile Include="Tracers\ArrayTracer.cs" />
     <Compile Include="DataStructures\AVLTree\AVLTree.cs" />
     <Compile Include="DataStructures\BinaryTree\BinarySearchTree.cs" />
     <Compile Include="DataStructures\AVLTree\AVLNode.cs" />
@@ -170,6 +170,11 @@
     <Compile Include="Arrays\ArrayAlgorithms.cs" />
     <Compile Include="GraphTheory\MazeGeneration\MazeVisualizer.cs" />
     <Compile Include="Arrays\ArrayVisualizer.cs" />
+    <Compile Include="Tracers\AbstractArrayTracer.cs" />
+    <Compile Include="Tracers\HeapTracer.cs" />
+    <Compile Include="Tracers\IPQTracer.cs" />
+    <Compile Include="Tracers\QueueTracer.cs" />
+    <Compile Include="Tracers\StackTracer.cs" />
     <EmbeddedResource Include="Forms\Dialogs\AlgoDetails\DetailsDialog.resx">
       <DependentUpon>DetailsDialog.cs</DependentUpon>
     </EmbeddedResource>

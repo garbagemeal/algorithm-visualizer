@@ -175,32 +175,12 @@ namespace AlgorithmVisualizer.DataStructures.Heap
 				arr = newHeap;
 			}
 		}
-		#endregion
 
-		#region Misc
-		public string[] GetSortedIdDataArray()
+		public T[] ToArray()
 		{
-			// Used by the ArrayTracer
-
-			// Copy heap into heapCP, sort copy in ASC order, return the copy.
-			// Instead of using the inbuilt sort method could also dequeue all values into new array
-			// in O(nLogn) time and finally restore heap as it was using a backup copy
 			T[] heapCP = new T[size];
 			Array.Copy(arr, heapCP, size);
-			Array.Sort(heapCP, (x, y) => x.CompareTo(y));
-
-			// "Convert" heapCP into a string array via ToString() and return it
-			string[] strHeapCP = new string[size];
-			for (int i = 0; i < size; i++) strHeapCP[i] = heapCP[i].ToString();
-			return strHeapCP;
-		}
-		public static void RunTests()
-		{
-			int[] vals = new int[] { 1, 3, 2, 5, 8, 7, 1, 56, 8, 8 };
-			int heapSize = vals.Length;
-			BinaryMinHeap<int> heap = new BinaryMinHeap<int>(heapSize);
-			foreach (int val in vals) heap.Enqueue(val);
-			while (heap.Count > 0) Console.WriteLine("Dequeue: " + heap.Dequeue());
+			return heapCP;
 		}
 		#endregion
 	}

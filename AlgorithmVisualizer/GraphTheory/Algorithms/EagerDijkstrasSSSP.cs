@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Drawing;
 
-using AlgorithmVisualizer.ArrayTracer;
+using AlgorithmVisualizer.Tracers;
 using AlgorithmVisualizer.DataStructures.Heap;
-using AlgorithmVisualizer.GraphTheory.FDGV;
 using AlgorithmVisualizer.GraphTheory.Utils;
 using static AlgorithmVisualizer.GraphTheory.FDGV.GraphVisualizer;
 
@@ -14,7 +13,8 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 	{
 		private readonly int from, to;
 		// Tacers for visuals in panel log
-		private ArrayTracer<int> idxTracer, distMapTracer, prevTracer, ipqTracer;
+		private ArrayTracer<int> idxTracer, distMapTracer, prevTracer;
+		private IPQTracer<int> ipqTracer;
 
 		public EagerDijkstrasSSSP(Graph graph, int _from, int _to) : base(graph)
 		{
@@ -78,7 +78,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 
 			while (ipq.Count > 0)
 			{
-				ipqTracer.HighlightAt(0);
+				ipqTracer.Mark(0);
 				int curNodeId = ipq.PeekMinKeyIndex(), curNodeMinDist = ipq.DequeueMinValue();
 				visited.Add(curNodeId);
 				graph.MarkParticle(curNodeId, Colors.Orange);
@@ -113,8 +113,8 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 					if (!visited.Contains(toId) && newDist < distMap[toId])
 					{
 						graph.MarkSpring(edge, Colors.Red);
-						prevTracer.HighlightAt(toId);
-						distMapTracer.HighlightAt(toId);
+						prevTracer.Mark(toId);
+						distMapTracer.Mark(toId);
 						prev[toId] = curNodeId;
 						distMap[toId] = newDist;
 						Sleep(1500);
@@ -154,16 +154,17 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 		{
 			// Visuals(Tracers) for distMap, prev
 			int[] idxArr = new int[graph.NodeCount]; for (int i = 0; i < graph.NodeCount; i++) idxArr[i] = i;
-			idxTracer = new ArrayTracer<int>(idxArr, panelLogG, "idx: ", 0, 57, 500, 25);
-			distMapTracer = new ArrayTracer<int>(distMap, panelLogG, "distMap: ", 0, 84, 500, 25);
-			prevTracer = new ArrayTracer<int>(prev, panelLogG, "prev: ", 0, 111, 500, 25);
-			ipqTracer = new ArrayTracer<int>(ipq, panelLogG, "IPQ: ", 0, 10, 500, 45);
+			idxTracer = new ArrayTracer<int>(idxArr, panelLogG, "idx: ", new PointF(0, 57), new SizeF(500, 25), 25);
+			distMapTracer = new ArrayTracer<int>(distMap, panelLogG, "distMap: ", new PointF(0, 84), new SizeF(500, 25), 25);
+			prevTracer = new ArrayTracer<int>(prev, panelLogG, "prev: ", new PointF(0, 111), new SizeF(500, 25), 25);
+			ipqTracer = new IPQTracer<int>(ipq, panelLogG, "IPQ: ", new PointF(0, 10), new SizeF(500, 45), 45);
 			// Set width of the name(title) for idxTracer and pervTracer to match distMapTracer's name width(expected to be widest)
-			idxTracer.NameOffset = prevTracer.NameOffset = distMapTracer.NameOffset;
+			idxTracer.TitleSize = prevTracer.TitleSize = distMapTracer.TitleSize;
 
 			// Trace arrays
-			ArrayTracer<int>[] tracers = new ArrayTracer<int>[] { idxTracer, distMapTracer, prevTracer, ipqTracer };
-			foreach (ArrayTracer<int> tracer in tracers) tracer.Trace();
+			AbstractArrayTracer<int>[] tracers = new AbstractArrayTracer<int>[] { idxTracer, distMapTracer, prevTracer };
+			ipqTracer.Trace();
+			foreach (AbstractArrayTracer<int> tracer in tracers) tracer.Trace();
 			Sleep(2000);
 		}
 	}

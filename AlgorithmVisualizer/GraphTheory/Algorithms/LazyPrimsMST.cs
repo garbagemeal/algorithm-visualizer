@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Drawing;
 
-using AlgorithmVisualizer.ArrayTracer;
+using AlgorithmVisualizer.Tracers;
 using AlgorithmVisualizer.DataStructures.Heap;
-using AlgorithmVisualizer.GraphTheory.FDGV;
 using AlgorithmVisualizer.GraphTheory.Utils;
 using static AlgorithmVisualizer.GraphTheory.FDGV.GraphVisualizer;
 
@@ -14,7 +13,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 	{
 		private readonly int from;
 		// Used to trace the heap
-		private ArrayTracer<Edge> heapTracer;
+		private HeapTracer<Edge> heapTracer;
 
 		public LazyPrimsMST(Graph graph, int from = 0) : base(graph)
 		{
@@ -29,7 +28,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 			if (!GraphValidator.IsConnectedUndirected(graph)) return;
 			BinaryMinHeap<Edge> heap = new BinaryMinHeap<Edge>();
 			HashSet<int> visited = new HashSet<int>();
-			heapTracer = new ArrayTracer<Edge>(heap, panelLogG, "Heap: ", 0, 10, 500, 45);
+			heapTracer = new HeapTracer<Edge>(heap, panelLogG, "Heap: ", new PointF(0, 10), new SizeF(500, 45), 45);
 			(int Cost, List<Edge> Edges) MSTDetails = Solve(heap, visited);
 			// If the edge list is null then there is no min spanning tree
 			// This case is not to be confused with an empty (non-null) list
@@ -51,7 +50,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 
 			while (heap.Count > 0 && edgeCount != expectedEdgeCount)
 			{
-				heapTracer.HighlightAt(0);
+				heapTracer.Mark(0);
 				Edge edge = heap.Dequeue();
 				graph.MarkSpring(edge, Colors.Red, Dir.Directed);
 				Sleep(1500);

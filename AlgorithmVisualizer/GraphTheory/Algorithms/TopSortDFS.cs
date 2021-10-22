@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Drawing;
 
-using AlgorithmVisualizer.ArrayTracer;
-using AlgorithmVisualizer.GraphTheory.FDGV;
+using AlgorithmVisualizer.Tracers;
 using AlgorithmVisualizer.GraphTheory.Utils;
 
 namespace AlgorithmVisualizer.GraphTheory.Algorithms
@@ -11,7 +9,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 	class TopSortDFS : GraphAlgorithm
 	{
 		// Used to trace the stack containing the topological order
-		private ArrayTracer<int> topOrderStkTracer;
+		private StackTracer<int> topOrderStkTracer;
 		// topOrder 
 		private int[] topOrder;
 		public int[] TopOrder { get { return topOrder; } }
@@ -26,7 +24,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 
 			HashSet<int> visited = new HashSet<int>();
 			Stack<int> topOrderStk = new Stack<int>();
-			topOrderStkTracer = new ArrayTracer<int>(topOrderStk, panelLogG, "Top order: ", 0, 10, 500, 45);
+			topOrderStkTracer = new StackTracer<int>(topOrderStk, panelLogG, "Top order: ", new PointF(0, 10), new SizeF(500, 45), 45);
 			for (int nodeId = 0; nodeId < graph.NodeCount; nodeId++)
 				if (!visited.Contains(nodeId)) Solve(nodeId, visited, topOrderStk);
 			// Popping the stack into the array - topOrder
@@ -55,7 +53,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 			// Push values into the stack upon backtracking
 			topOrderStk.Push(at);
 			graph.MarkParticle(at, Colors.Blue);
-			topOrderStkTracer.HighlightAt(0);
+			topOrderStkTracer.Mark(0);
 			Sleep(1000);
 			graph.MarkParticle(at, Colors.Visited, Colors.VisitedBorder);
 			topOrderStkTracer.Trace();

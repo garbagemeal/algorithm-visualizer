@@ -289,82 +289,11 @@ namespace AlgorithmVisualizer.DataStructures.Heap
 				throw new InvalidOperationException("The priority queue is empty!");
 		}
 
-		public string[] GetSortedIdValueArr()
+		public (int id, T val)[] ToArray()
 		{
-			// Used by the ArrayTracer to visualize this IPQ
-
-			// Returns a string array where each value contains the key index and the value
-			// the returned array is sorted before beging returned via the value attribute
 			(int id, T val)[] idValArr = new (int, T)[count];
 			for (int i = 0; i < count; i++) idValArr[i] = (im[i], vals[im[i]]);
-			// sort idValArr via val attribute
-			Array.Sort(idValArr, (x, y) => x.val.CompareTo(y.val));
-
-			string[] idValStrArr = new string[count];
-			for (int i = 0; i < count; i++)
-			{
-				int id = idValArr[i].id;
-				T val = idValArr[i].val;
-				idValStrArr[i] = string.Format($"id: {id} \nval: {val}");
-			}
-
-			return idValStrArr;
-		}
-		public override string ToString()
-		{
-			(int pos, int ki, T val)[] posKiValArr = new (int, int, T)[count];
-
-			string valsStr = "", pmStr = "", imStr = "";
-			for (int i = 0; i < size; i++)
-			{
-				if (i < count) posKiValArr[i] = (i, im[i], vals[im[i]]);
-				valsStr += vals[i];
-				pmStr += pm[i];
-				imStr += im[i];
-				string seperator = i == size - 1 ? "\n" : ", ";
-				valsStr += seperator;
-				pmStr += seperator;
-				imStr += seperator;
-			}
-			// sort posKiValArr via val attribute
-			Array.Sort(posKiValArr, (x, y) => x.val.CompareTo(y.val));
-			// "Convert" posKiValArr into a string array
-			string kiValArrStr = "";
-			for (int i = 0; i < count; i++)
-			{
-				int pos = posKiValArr[i].pos, ki = posKiValArr[i].ki;
-				T val = posKiValArr[i].val;
-
-				kiValArrStr += string.Format($"(pos: {pos}, ki: {ki}, val: {val})");
-				string seperator = i == size - 1 ? "\n" : ", ";
-				kiValArrStr += seperator;
-			}
-			return string.Format($"Count: {count}, Size: {size} Degree: {D}. \n" +
-				$"vals: {valsStr}pm: {pmStr}im: {imStr}kiValArr: {kiValArrStr}");
-		}
-
-
-		public static void RunTests()
-		{
-			// Some tests on the ipq
-
-			// Creating a new ipq and inserting vals into it
-			const int HEAP_DEGREE = 2;
-			int[] vals = new int[] { 1, 9, 7, 3, 4, 6, 8, 2, };
-			int heapSize = vals.Length;
-			MinIndexedDHeap<int> ipq = new MinIndexedDHeap<int>(HEAP_DEGREE, heapSize);
-			for (int i = 0; i < heapSize; i++)
-			{
-				Console.WriteLine($"Insertion: ki:{i}, val:{vals[i]}");
-				ipq.InsertAt(i, vals[i]);
-			}
-			Console.WriteLine("========================================================");
-			// Emptying heap
-			while (ipq.Count > 0)
-			{
-				int ki = ipq.PeekMinKeyIndex(), val = ipq.DequeueMinValue();
-				Console.WriteLine($"Dequeue: ki:{ki}, val:{val}");
-			}
+			return idValArr;
 		}
 	}
 }

@@ -2,17 +2,16 @@
 using System.Collections.Generic;
 using System.Drawing;
 
-using AlgorithmVisualizer.ArrayTracer;
+using AlgorithmVisualizer.Tracers;
 using AlgorithmVisualizer.DataStructures;
 using AlgorithmVisualizer.DataStructures.Heap;
-using AlgorithmVisualizer.GraphTheory.FDGV;
 using AlgorithmVisualizer.GraphTheory.Utils;
 
 namespace AlgorithmVisualizer.GraphTheory.Algorithms
 {
 	class KruskalsMST : GraphAlgorithm
 	{
-		private ArrayTracer<Edge> heapTracer;
+		private HeapTracer<Edge> heapTracer;
 
 		public KruskalsMST(Graph graph) : base(graph) => Solve();
 
@@ -41,7 +40,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 			// and thus E = roughly V^2, so O(V) is asymptotically the same as, O(sqrt(E).
 			// Creating a disjoint set (union find) of size V
 			DisjointSet disjointSet = new DisjointSet(graph.NodeCount);
-			heapTracer = new ArrayTracer<Edge>(heap, panelLogG, "Heap: ", 0, 10, 500, 45);
+			heapTracer = new HeapTracer<Edge>(heap, panelLogG, "Heap: ", new PointF(0, 10), new SizeF(500, 45), 45);
 			(int Cost, List<Edge> Edges) MSTDetails = Solve(heap, disjointSet, heapTracer);
 
 			// Note that it may be a MSF and not a MST
@@ -50,7 +49,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 			foreach (Edge edge in MSTDetails.Edges) Console.WriteLine(edge);
 		}
 		private (int, List<Edge>) Solve(BinaryMinHeap<Edge> heap,
-			DisjointSet disjointSet, ArrayTracer<Edge> heapTracer)
+			DisjointSet disjointSet, HeapTracer<Edge> heapTracer)
 		{
 			// Finds and returns the graph's MST/MSF edge list and the total edge cost
 			List<Edge> mstEdges = new List<Edge>();
@@ -61,7 +60,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 			// As long as the heap is not empty and the disjoint set has more than 1 component
 			while (heap.Count > 0 && disjointSet.NumComponents > 1)
 			{
-				heapTracer.HighlightAt(0);
+				heapTracer.Mark(0);
 				Edge edge = heap.Dequeue();
 				Sleep(1000);
 				heapTracer.Trace();

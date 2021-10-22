@@ -64,10 +64,10 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 
 			// Offsetting the line starting/ending pos on the particle borders
 			Vector vector = p2.Pos - p1.Pos;
-			vector.SetMagnitude(radius);
+			vector.Magnitude = radius;
 			pt1.X += vector.X;
 			pt1.Y += vector.Y;
-			vector.SetMagnitude(radius);
+			vector.Magnitude = radius;
 			pt2.X -= vector.X;
 			pt2.Y -= vector.Y;
 
@@ -106,7 +106,7 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 		{
 			// Apply forces on the spring's composing particles
 			Vector F = p2.Pos - p1.Pos;
-			F.SetMagnitude(K * (F.Magnitude() - RestLen));
+			F.Magnitude = K * (F.Magnitude - RestLen);
 			p1.Accelerate(F);
 			p2.Accelerate(F * -1);
 		}

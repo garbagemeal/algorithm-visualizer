@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 
-using AlgorithmVisualizer.ArrayTracer;
-using AlgorithmVisualizer.GraphTheory.FDGV;
+using AlgorithmVisualizer.Tracers;
 using AlgorithmVisualizer.GraphTheory.Utils;
 
 namespace AlgorithmVisualizer.GraphTheory.Algorithms

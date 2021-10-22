@@ -100,7 +100,7 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 				// Update velocity using current acceleration and apply force decay
 				vel += acc;
 				vel *= VelDecay;
-				if (vel.Magnitude() > MaxSpeed) vel.SetMagnitude(MaxSpeed);
+				if (vel.Magnitude > MaxSpeed) vel.Magnitude = MaxSpeed;
 				// Update the position by adding the velocity to the current position
 				pos += vel;
 				BoundWithinCanvas(canvasHeight, canvasWidth);
@@ -125,8 +125,8 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 			// Vector of full length from pos to centerPos
 			Vector F = centerPos - pos;
 			// Compute a magnitude and adjust F's mag accordingly
-			float mag = Math.Min(F.Magnitude() / G, MaxCenterPullMag);
-			F.SetMagnitude(mag);
+			float mag = Math.Min(F.Magnitude / G, MaxCenterPullMag);
+			F.Magnitude = mag;
 			// Add force into acc
 			acc += F;
 		}
@@ -143,9 +143,9 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 					// Get vector of full magnitude from this.pos to particle.pos
 					Vector F = particle.pos - this.pos;
 					// If the magnitude is 0 (particle overlap) - randomize F
-					if (F.Magnitude() == 0) F = Vector.GetRandom();
+					if (F.Magnitude == 0) F = Vector.GetRandom();
 					// set F's mag and add into acc
-					F.SetMagnitude(G / (F.Magnitude() * F.Magnitude()));
+					F.Magnitude = G / (F.Magnitude * F.Magnitude);
 					particle.acc += F;
 				}
 			}

@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 
-using AlgorithmVisualizer.ArrayTracer;
-using AlgorithmVisualizer.GraphTheory.FDGV;
+using AlgorithmVisualizer.Tracers;
 using AlgorithmVisualizer.GraphTheory.Utils;
 
 namespace AlgorithmVisualizer.GraphTheory.Algorithms
@@ -13,7 +12,8 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 		// Flag indicated weather to visualize the algo or not
 		private bool vizMode;
 		// Tracers used by the algo (visuals)
-		private ArrayTracer<int> idxTracer, qTracer, inDegTracer, topOrderTracer;
+		private QueueTracer<int> qTracer;
+		private ArrayTracer<int> idxTracer, inDegTracer, topOrderTracer;
 		// Array to contain the result of the algo - the topological ordering (if exists)
 		private int[] topOrder;
 		public int[] TopOrder { get { return topOrder; } }
@@ -52,14 +52,14 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 			// As long as the queue is not enmpty run the algo - O(V)
 			while (q.Count > 0)
 			{
-				if (vizMode) qTracer.HighlightAt(0);
+				if (vizMode) qTracer.Mark(0);
 				// Remove curNode from the q and add it to the topOrder (its inDeg is 0)
 				int curNode = q.Dequeue();
 				topOrder[idx++] = curNode;
 				if (vizMode)
 				{
 					graph.MarkParticle(curNode, Colors.Orange);
-					topOrderTracer.HighlightAt(idx - 1);
+					topOrderTracer.Mark(idx - 1);
 					Sleep(2000);
 					qTracer.Trace(); topOrderTracer.Trace();
 					Sleep(1000);
@@ -86,13 +86,13 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 					if (vizMode)
 					{
 						graph.MarkSpring(edge, Colors.Orange);
-						inDegTracer.HighlightAt(to);
+						inDegTracer.Mark(to);
 						Sleep(1000);
 					}
 					inDeg[to]--;
 					if (vizMode)
 					{
-						inDegTracer.HighlightAt(to);
+						inDegTracer.Mark(to);
 						Sleep(2000);
 					}
 					// If after decreasing To's inDeg by 1 it becomes 0, add to q
@@ -102,7 +102,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 						q.Enqueue(to);
 						if (vizMode)
 						{
-							qTracer.HighlightAt(-1);
+							qTracer.Mark(-1);
 							Sleep(1500);
 							qTracer.Trace();
 							Sleep(1000);
@@ -123,23 +123,16 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 			for (int i = 0; i < graph.NodeCount; i++) idxArr[i] = i;
 			
 			// Creating tracers
-			idxTracer = new ArrayTracer<int>(idxArr, panelLogG, "idx: ", 0, 57, 500, 25);
-			qTracer = new ArrayTracer<int>(q, panelLogG, "q: ", 0, 10, 500, 45);
-			inDegTracer = new ArrayTracer<int>(inDeg, panelLogG, "inDeg: ", 0, 84, 500, 25);
-			topOrderTracer = new ArrayTracer<int>(topOrder, panelLogG, "topOrder: ", 0, 111, 500, 25);
+			idxTracer = new ArrayTracer<int>(idxArr, panelLogG, "idx: ", new PointF(0, 57), new SizeF(500, 25), 25);
+			qTracer = new QueueTracer<int>(q, panelLogG, "q: ", new PointF(0, 10), new SizeF(500, 45), 45);
+			inDegTracer = new ArrayTracer<int>(inDeg, panelLogG, "inDeg: ", new PointF(0, 84), new SizeF(500, 25), 25);
+			topOrderTracer = new ArrayTracer<int>(topOrder, panelLogG, "topOrder: ", new PointF(0, 111), new SizeF(500, 25), 25);
 			
 			// Setting nameOffset to math the longest
-			int topOrderTracerNameOffset = topOrderTracer.NameOffset;
-			ArrayTracer<int>[] tracers =
-				new ArrayTracer<int>[] { idxTracer, qTracer, inDegTracer, topOrderTracer };
-			foreach (var tracer in tracers)
-				tracer.NameOffset = topOrderTracerNameOffset;
-
-			if (vizMode) DrawTracers(tracers);
-		}
-		private void DrawTracers(ArrayTracer<int>[] tracers)
-		{
-			foreach (ArrayTracer<int> tracer in tracers) tracer.Trace();
+			SizeF topOrderTracerNameOffset = topOrderTracer.TitleSize;
+			var tracers = new AbstractArrayTracer<int>[] { idxTracer, qTracer, inDegTracer, topOrderTracer };
+			foreach (var tracer in tracers) tracer.TitleSize = topOrderTracerNameOffset;
+			foreach (var tracer in tracers) tracer.Trace();
 		}
 	}
 }
