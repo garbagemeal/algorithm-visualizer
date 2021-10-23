@@ -84,9 +84,9 @@ namespace AlgorithmVisualizer.Forms.Dialogs
 			this.lblMaxParticleSpeed.AutoSize = true;
 			this.lblMaxParticleSpeed.Location = new System.Drawing.Point(157, 37);
 			this.lblMaxParticleSpeed.Name = "lblMaxParticleSpeed";
-			this.lblMaxParticleSpeed.Size = new System.Drawing.Size(97, 13);
+			this.lblMaxParticleSpeed.Size = new System.Drawing.Size(96, 13);
 			this.lblMaxParticleSpeed.TabIndex = 4;
-			this.lblMaxParticleSpeed.Text = "Max particle ppeed";
+			this.lblMaxParticleSpeed.Text = "Max particle speed";
 			// 
 			// lblMaxCenterPullMag
 			// 

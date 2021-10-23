@@ -1,55 +1,47 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Diagnostics;
 using System.Drawing;
-using System.Threading;
 
 namespace AlgorithmVisualizer.GraphTheory.MazeGeneration
 {
-	public class RecursiveBacktracker : MazeVisualizer
+	public class DFSMazeGenerator : MazeVisualizer
 	{
-		// Brushes for visualization stuff
-		protected readonly Brush whiteBrush = new SolidBrush(Color.White);
-		protected readonly Brush blueBrush = new SolidBrush(Color.Blue);
-		protected readonly Brush redBrush = new SolidBrush(Color.Red);
-		private readonly int delayTime;
 		// Algorithm dependant stuff
-		public int MAZE_HEIGHT { get; }
-		public int MAZE_WIDTH { get; }
+		public int MazeHeight { get; }
+		public int MazeWidth { get; }
 		protected readonly Cell[,] maze;
 		private readonly Random rnd = new Random();
 		private readonly bool RANDOMIZED;
 		protected readonly int startRow, startCol;
+		public bool IsDrawn { get; private set; } = false;
 
 		// Construction and maze initialization
-		public RecursiveBacktracker(Graphics g, int mazeHeight, int mazeWidth, int cellWidth, int pathWidth, bool rndFlag, int _delayTime) :
-			base(g, cellWidth, pathWidth)
+		public DFSMazeGenerator(Graphics g, int mazeHeight, int mazeWidth, int cellWidth, int pathWidth, bool rndFlag)
+			: base(g, cellWidth, pathWidth)
 		{
 			// Init values for maze array, visualization parameters, ...
 			if (mazeHeight <= 0 || mazeWidth <= 0)
 				throw new ArgumentException("Maze dimensions must be > 0");
-			MAZE_HEIGHT = mazeHeight;
-			MAZE_WIDTH = mazeWidth;
-			//cellWidth = _cellWidth;
+			MazeHeight = mazeHeight;
+			MazeWidth = mazeWidth;
 			RANDOMIZED = rndFlag;
-			delayTime = _delayTime;
 			// Pick random starting point
-			startRow = rnd.Next(MAZE_HEIGHT);
-			startCol = rnd.Next(MAZE_WIDTH);
+			startRow = rnd.Next(MazeHeight);
+			startCol = rnd.Next(MazeWidth);
 			// Define maze
-			maze = new Cell[MAZE_HEIGHT, MAZE_WIDTH];
+			maze = new Cell[MazeHeight, MazeWidth];
 		}
 		// Initialization functions
 		private void InitializeMaze()
 		{
 			// initialize maze and draw each cell in blue
-			for (int r = 0; r < MAZE_HEIGHT; r++)
+			for (int r = 0; r < MazeHeight; r++)
 			{
-				for (int c = 0; c < MAZE_WIDTH; c++)
+				for (int c = 0; c < MazeWidth; c++)
 				{
 					maze[r, c] = new Cell(r, c);
-					DrawCellIgnoreConnection(maze[r, c], blueBrush);
+					DrawCellIgnoreConnection(maze[r, c], Brushes.Blue);
 				}
 			}
 		}
@@ -66,8 +58,8 @@ namespace AlgorithmVisualizer.GraphTheory.MazeGeneration
 			visited.Add(maze[startRow, startCol]);
 			int countVisited = 1;
 			// Visualize starting position, wait 1 second
-			DrawCellIgnoreConnection(maze[startRow, startCol], whiteBrush);
-			Thread.Sleep(1000);
+			DrawCellIgnoreConnection(maze[startRow, startCol], Brushes.White);
+			Sleep(1000);
 			// Perform DFS
 			DFS(path, visited, countVisited);
 		}
@@ -76,20 +68,20 @@ namespace AlgorithmVisualizer.GraphTheory.MazeGeneration
 		private void DFS(Stack<Cell> path, HashSet<Cell> visited, int countVisited)
 		{
 			// Maze DFS
-			Debug.WriteLine("Starting DFS at: ({0}, {1})", startRow, startCol);
-			while (!(path.Count == 0) && countVisited < MAZE_HEIGHT * MAZE_WIDTH)
+			Console.WriteLine("Starting DFS at: ({0}, {1})", startRow, startCol);
+			while (!(path.Count == 0) && countVisited < MazeHeight * MazeWidth)
 			{
 				// Peek at current cell's coords
 				Cell curCell = path.Peek();
 				// Visualize stack top
-				DrawCellIgnoreConnection(curCell, redBrush);
+				DrawCellIgnoreConnection(curCell, Brushes.Red);
 				// Try to pick an adjacent cell
 				Cell adjUnvisitedCell = PickAdjCell(curCell, visited);
-				if (delayTime > 0) Thread.Sleep(delayTime);
+				Sleep(500);
 				// if adjUnvisitedCell is null, there is no adjacent cell to visit
 				if (adjUnvisitedCell != null)
 				{
-					Debug.WriteLine("Visiting: " + adjUnvisitedCell.GetCoordsAsString());
+					Console.WriteLine("Visiting: " + adjUnvisitedCell.GetCoordsAsString());
 					// add adjUnvisitedCell's coordiantes to the path stack and mark the coords as visited
 					path.Push(adjUnvisitedCell);
 					visited.Add(adjUnvisitedCell);
@@ -97,16 +89,17 @@ namespace AlgorithmVisualizer.GraphTheory.MazeGeneration
 					LinkCells(curCell, adjUnvisitedCell);
 					countVisited++;
 					// visualize the newly visited cell
-					DrawCellWithConnection(adjUnvisitedCell, whiteBrush);
+					DrawCellWithConnection(adjUnvisitedCell, Brushes.White);
 				}
 				else
 				{
-					Debug.WriteLine("Backtacking from: " + curCell);
+					Console.WriteLine("Backtacking from: " + curCell);
 					path.Pop(); // Backtrack
 				}
 				// "Unvisualize" stack top
-				DrawCellIgnoreConnection(curCell, whiteBrush);
+				DrawCellIgnoreConnection(curCell, Brushes.White);
 			}
+			IsDrawn = true;
 		}
 
 		// Cell linking
@@ -193,40 +186,40 @@ namespace AlgorithmVisualizer.GraphTheory.MazeGeneration
 		// Bound check of given coordinates
 		private bool BoundCheck(int r, int c)
 		{
-			return r >= 0 && c >= 0 && r < MAZE_HEIGHT && c < MAZE_WIDTH;
+			return r >= 0 && c >= 0 && r < MazeHeight && c < MazeWidth;
 		}
-		
+
 		// Debugging functions
 		public void PrintMazeToDebugCon()
 		{
-			Debug.WriteLine("");
+			Console.WriteLine("");
 			bool firstRowNotPrinted = true;
-			for (int r = 0; r < MAZE_HEIGHT; r++)
+			for (int r = 0; r < MazeHeight; r++)
 			{
-				for (int c = 0; c < MAZE_WIDTH; c++)
+				for (int c = 0; c < MazeWidth; c++)
 				{
 					// first row consists of a space followed by 2n - 1 underscores followed by another space
 					// rest of the rows 
 					if (firstRowNotPrinted)
 					{
-						if (c == 0) Debug.Write(" ");
+						if (c == 0) Console.Write(" ");
 						// prints 2 underscores except last iteration
-						Debug.Write(c < MAZE_WIDTH - 1 ? "__" : "_");
-						if (c == MAZE_WIDTH - 1) Debug.Write(" ");
+						Console.Write(c < MazeWidth - 1 ? "__" : "_");
+						if (c == MazeWidth - 1) Console.Write(" ");
 					}
 					else
 					{
 						// first col
-						if (c == 0) Debug.Write("|");
+						if (c == 0) Console.Write("|");
 
 						// if has bottom connection print " " else "_"
-						Debug.Write(maze[r, c].adj[2] != null ? " " : "_");
+						Console.Write(maze[r, c].adj[2] != null ? " " : "_");
 
 						// if has right connection print "_" else "|"
-						Debug.Write(maze[r, c].adj[1] != null ? "_" : "|");
+						Console.Write(maze[r, c].adj[1] != null ? "_" : "|");
 					}
 				}
-				Debug.WriteLine("");
+				Console.WriteLine("");
 				if (firstRowNotPrinted)
 				{
 					firstRowNotPrinted = false;
@@ -236,12 +229,12 @@ namespace AlgorithmVisualizer.GraphTheory.MazeGeneration
 		}
 		public void DebugConPrint()
 		{
-			for (int r = 0; r < MAZE_HEIGHT; r++)
+			for (int r = 0; r < MazeHeight; r++)
 			{
-				Debug.Write("{ ");
-				for (int c = 0; c < MAZE_WIDTH; c++)
-					Debug.Write(maze[r, c] + ", ");
-				Debug.WriteLine(" }");
+				Console.Write("{ ");
+				for (int c = 0; c < MazeWidth; c++)
+					Console.Write(maze[r, c] + ", ");
+				Console.WriteLine(" }");
 			}
 		}
 	}

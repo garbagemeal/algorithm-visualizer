@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Drawing;
 
+using AlgorithmVisualizer.Threading;
+
 namespace AlgorithmVisualizer.GraphTheory.MazeGeneration
 {
-	public class MazeVisualizer
+	public class MazeVisualizer : PauseResumeSleep
 	{
 		protected Graphics g;
 		protected int cellWidth, pathWidth;

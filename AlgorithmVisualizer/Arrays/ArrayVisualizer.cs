@@ -25,11 +25,11 @@ namespace AlgorithmVisualizer.Arrays
 			entryWidth = _entryWidth;
 			// Note that delayFactor is tomporairly adjusted to 0
 			// for the array the be randomized with no delays
-			double tmp = DelayFactor;
-			DelayFactor = 0;
+			float tmp = delayFactor;
+			delayFactor = 0;
 			if (sortedFlag) SortedFillArray();
 			else RndFillArray(); 
-			DelayFactor = tmp;
+			delayFactor = tmp;
 		}
 
 		private void RndFillArray()
@@ -101,11 +101,11 @@ namespace AlgorithmVisualizer.Arrays
 			// for the array the be randomized with no delays
 			if (from <= to)
 			{
-				double tmp = DelayFactor;
-				DelayFactor = 0;
+				float tmp = delayFactor;
+				delayFactor = 0;
 				for (int i = from; i <= to; i++)
 					DrawValueAt(i, brush);
-				DelayFactor = tmp;
+				delayFactor = tmp;
 				Sleep(500);
 			}
 		}

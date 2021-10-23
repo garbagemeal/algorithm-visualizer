@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AlgorithmVisualizer.MathUtils;
+using System;
 using System.Threading;
 
 namespace AlgorithmVisualizer.Threading
@@ -8,8 +9,8 @@ namespace AlgorithmVisualizer.Threading
 		// Basic threading functionality. Idea soruce:
 		// https://stackoverflow.com/questions/142826/is-there-a-way-to-indefinitely-pause-a-thread
 
-		private ManualResetEvent pauseEvent = new ManualResetEvent(true);
-		public bool Paused { get; set; } = false;
+		private readonly ManualResetEvent pauseEvent = new ManualResetEvent(true);
+		public bool Paused { get; private set; } = false;
 		public void Pause()
 		{
 			// Causes CheckForPause to pause 
@@ -30,8 +31,22 @@ namespace AlgorithmVisualizer.Threading
 			pauseEvent.WaitOne(Timeout.Infinite);
 		}
 
-		// DelayFactor can range from 0-2 (0 is faster), and is given by user at runtime.
-		public double DelayFactor { get; protected set; } = 1;
+		// delayFactor is in the domain[0, 2] (0 is faster), user input assumed in the
+		// domain[0, 100], and is scaled to match the delayFactor domain.
+		private static readonly Range rangeIn = new Range(0, 100), rangeOut = new Range(0, 2);
+		// To allow setting without scaling delayFactor is protected.
+		protected float delayFactor = 1;
+		public float DelayFactor
+		{
+			get { return delayFactor; }
+			set
+			{
+				float val = Math.Abs(value - rangeIn.Max);
+				delayFactor = Range.Scale(val, rangeIn, rangeOut);
+				Console.WriteLine($"delay factor: {delayFactor}");
+			}
+		}
+
 		public void Sleep(int millis = 0)
 		{
 			// Sleep some time if millies > 0
@@ -39,21 +54,6 @@ namespace AlgorithmVisualizer.Threading
 				Thread.Sleep((int)Math.Round(DelayFactor * millis));
 			// Check for pause event
 			CheckForPause();
-		}
-
-		public void SetDelayFactor(int speed, int min, int max)
-		{
-			// min/max denote the min/max possible given speed, i.e, the min/max possible
-			// values in a scroll bar
-
-			// "Reverse" speed such that higher speed --> higher DelayFactor
-			int delayTime = Math.Abs(speed - max);
-			// Scaling delayTime in the domain [0 - 2] and storing in newDelayFactor
-			const double MIN_FACTOR = 0, MAX_FACTOR = 2;
-			double newDelayFactor = delayTime * ((MAX_FACTOR - MIN_FACTOR) / (max - min));
-			// Update DealyFactor
-			DelayFactor = newDelayFactor;
-			Console.WriteLine("DelayFactor update: " + newDelayFactor);
 		}
 	}
 }

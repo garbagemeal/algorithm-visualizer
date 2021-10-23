@@ -18,16 +18,16 @@ namespace AlgorithmVisualizer.Forms
 {
 	public partial class GraphAlgoForm : Form
 	{
-		private Graph graph;
+		private readonly Graph graph;
 
 		// Selected algo name index in settings.AlgoNames
 		private int selectedAlgoIdx;
 		// Stores the algo names and the what node ids are required per algo
-		private GraphAlgoSettings settings;
+		private readonly GraphAlgoSettings settings;
 
-		private Form parentForm;
-		private Panel panelLog;
-		private Graphics panelLogG;
+		private readonly MainUIForm parentForm;
+		private readonly Panel panelLog;
+		private readonly Graphics panelLogG;
 
 		// Keeping track of active particles (mouse events)
 		private Vector activeRClickPos;
@@ -36,8 +36,10 @@ namespace AlgorithmVisualizer.Forms
 
 		private bool inVizMode = false;
 		private bool forcesEnabled = true;
+		
+		private bool formIsMinimized = false, formClosePending = false;
 
-		public GraphAlgoForm(Form _parentForm)
+		public GraphAlgoForm(MainUIForm _parentForm)
 		{
 			InitializeComponent();
 
@@ -47,7 +49,7 @@ namespace AlgorithmVisualizer.Forms
 			algoComboBox.SelectedIndex = selectedAlgoIdx = 0;
 
 			parentForm = _parentForm;
-			panelLog = ((MainUIForm)parentForm).PanelLog;
+			panelLog = parentForm.PanelLog;
 			panelLogG = panelLog.CreateGraphics();
 			graph = new Graph(canvas, panelLogG);
 
@@ -55,22 +57,21 @@ namespace AlgorithmVisualizer.Forms
 		}
 
 		#region Visualizing a graph (force directed graph drawing)
-		private BackgroundWorker bgwGraphLayoutViz;
+		private BackgroundWorker bgwGraphViz;
 
 		void StartGraphViz()
 		{
-			if (bgwGraphLayoutViz != null) bgwGraphAlgoViz.Dispose();
-			bgwGraphLayoutViz = new BackgroundWorker();
 			// Assign work to bgw (a function) and run async (supports cancelation)
-			bgwGraphLayoutViz.WorkerSupportsCancellation = true;
-			bgwGraphLayoutViz.DoWork += new DoWorkEventHandler(bgw_GraphViz);
-			bgwGraphLayoutViz.RunWorkerAsync();
+			if (bgwGraphViz != null) bgwGraphAlgoViz.Dispose();
+			bgwGraphViz = new BackgroundWorker { WorkerSupportsCancellation = true };
+			bgwGraphViz.DoWork += new DoWorkEventHandler(bgw_GraphViz);
+			bgwGraphViz.RunWorkerCompleted += new RunWorkerCompletedEventHandler(bgw_GraphVizRunWorkerCompleted);
+			bgwGraphViz.RunWorkerAsync();
 		}
 		// Refers to the state of the parent form (minimized or not)
-		private bool formIsMinimized = false;
 		private void bgw_GraphViz(object sender, DoWorkEventArgs e)
 		{
-			while (true)
+			while (!formClosePending)
 			{
 				if (!formIsMinimized && !graph.IsEmpty())
 				{
@@ -78,6 +79,14 @@ namespace AlgorithmVisualizer.Forms
 					TriggerCanvasPaintEvent();
 				}
 			}
+		}
+		private void bgw_GraphVizRunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+		{
+			// Occurs when the background operation has completed, canceled or has raised an exception.
+			// Required to avoid crashing as a result of graph viz still running when this
+			// form is closed, i.e when loading another form such as "ArrayAlgoForm.cs".
+			if (formClosePending) Close();
+			formClosePending = false;
 		}
 
 		// Safely invoke "canvas.Refresh()"
@@ -229,9 +238,8 @@ namespace AlgorithmVisualizer.Forms
 		{
 			// Controls to disable while visualizing (not including parent form)
 			Control[] controls = new Control[] { btnPauseResume, btnStart, btnReset, btnClearState, btnPresets, algoComboBox };
-			// Sync parent to prevent log panel resize 
-			((MainUIForm)parentForm).InVizMode = inVizMode = true;
-			((MainUIForm)parentForm).ToggleWindowResizeAndMainMenuBtns();
+			parentForm.InVizMode = inVizMode = true;
+			parentForm.ToggleMainMenuBtns();
 			// Enable Pause/Resume and disable the rest of the controls before visualizing
 			foreach (Control control in controls) SetControlEnabled(control, control == btnPauseResume);
 
@@ -241,8 +249,8 @@ namespace AlgorithmVisualizer.Forms
 
 			// Disable Pause/Resume and re-enable the rest of the controls after visualizing
 			foreach (Control control in controls) SetControlEnabled(control, control != btnPauseResume);
-			((MainUIForm)parentForm).ToggleWindowResizeAndMainMenuBtns();
-			((MainUIForm)parentForm).InVizMode = inVizMode = false;
+			parentForm.ToggleMainMenuBtns();
+			parentForm.InVizMode = inVizMode = false;
 		}
 		// Safely access control.Enabled, i.e: btnStart.Enabled
 		private delegate void SetControlEnabledCallback(Control control, bool enabled);
@@ -329,8 +337,7 @@ namespace AlgorithmVisualizer.Forms
 
 		private void speedBar_Scroll(object sender, ScrollEventArgs e)
 		{
-			if (graph != null)
-				graph.SetDelayFactor(speedBar.Value, speedBar.Minimum, speedBar.Maximum);
+			if (graph != null) graph.DelayFactor = speedBar.Value;
 		}
 		private void algoComboBox_SelectedIndexChanged(object sender, EventArgs e)
 		{
@@ -507,6 +514,19 @@ namespace AlgorithmVisualizer.Forms
 			// the parent the one minimized and not this form.
 			if (ParentForm != null) formIsMinimized = ParentForm.WindowState == FormWindowState.Minimized;
 		}
+		private void GraphAlgoForm_FormClosing(object sender, FormClosingEventArgs e)
+		{
+			// https://stackoverflow.com/questions/1731384/how-to-stop-backgroundworker-on-forms-closing-event
+			// Stopping graph viz bgw on form close to avoid crashing
+			if (bgwGraphViz.IsBusy)
+			{
+				formClosePending = true;
+				bgwGraphViz.CancelAsync();
+				e.Cancel = true;
+				Enabled = false; // or this.Hide()
+			}
+		}
 		#endregion
+
 	}
 }

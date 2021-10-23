@@ -35,9 +35,9 @@ namespace AlgorithmVisualizer.Forms
 			this.lblHeight = new System.Windows.Forms.Label();
 			this.speedBar = new System.Windows.Forms.HScrollBar();
 			this.widthTxtBox = new System.Windows.Forms.TextBox();
-			this.drawMaze = new System.Windows.Forms.Button();
+			this.btnDrawSolveClearMaze = new System.Windows.Forms.Button();
 			this.panelControls = new System.Windows.Forms.Panel();
-			this.btnFindPath = new System.Windows.Forms.Button();
+			this.btnPauseResume = new System.Windows.Forms.Button();
 			this.panelMain = new System.Windows.Forms.Panel();
 			this.panelControls.SuspendLayout();
 			this.SuspendLayout();
@@ -46,7 +46,7 @@ namespace AlgorithmVisualizer.Forms
 			// 
 			this.lblWidth.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.lblWidth.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(232)))), ((int)(((byte)(232)))), ((int)(((byte)(232)))));
-			this.lblWidth.Location = new System.Drawing.Point(206, 5);
+			this.lblWidth.Location = new System.Drawing.Point(281, 5);
 			this.lblWidth.Name = "lblWidth";
 			this.lblWidth.Size = new System.Drawing.Size(100, 22);
 			this.lblWidth.TabIndex = 26;
@@ -57,7 +57,7 @@ namespace AlgorithmVisualizer.Forms
 			// 
 			this.lblSpeedBar.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.lblSpeedBar.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(232)))), ((int)(((byte)(232)))), ((int)(((byte)(232)))));
-			this.lblSpeedBar.Location = new System.Drawing.Point(306, 5);
+			this.lblSpeedBar.Location = new System.Drawing.Point(381, 5);
 			this.lblSpeedBar.Name = "lblSpeedBar";
 			this.lblSpeedBar.Size = new System.Drawing.Size(110, 19);
 			this.lblSpeedBar.TabIndex = 22;
@@ -67,7 +67,7 @@ namespace AlgorithmVisualizer.Forms
 			// heightTxtBox
 			// 
 			this.heightTxtBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.heightTxtBox.Location = new System.Drawing.Point(100, 27);
+			this.heightTxtBox.Location = new System.Drawing.Point(175, 27);
 			this.heightTxtBox.Name = "heightTxtBox";
 			this.heightTxtBox.Size = new System.Drawing.Size(100, 23);
 			this.heightTxtBox.TabIndex = 23;
@@ -76,7 +76,7 @@ namespace AlgorithmVisualizer.Forms
 			// 
 			this.lblHeight.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.lblHeight.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(232)))), ((int)(((byte)(232)))), ((int)(((byte)(232)))));
-			this.lblHeight.Location = new System.Drawing.Point(100, 5);
+			this.lblHeight.Location = new System.Drawing.Point(175, 5);
 			this.lblHeight.Name = "lblHeight";
 			this.lblHeight.Size = new System.Drawing.Size(100, 22);
 			this.lblHeight.TabIndex = 25;
@@ -86,41 +86,40 @@ namespace AlgorithmVisualizer.Forms
 			// speedBar
 			// 
 			this.speedBar.LargeChange = 1;
-			this.speedBar.Location = new System.Drawing.Point(309, 27);
-			this.speedBar.Maximum = 500;
+			this.speedBar.Location = new System.Drawing.Point(384, 27);
 			this.speedBar.Name = "speedBar";
 			this.speedBar.Size = new System.Drawing.Size(107, 20);
 			this.speedBar.TabIndex = 21;
-			this.speedBar.Value = 100;
+			this.speedBar.Value = 90;
 			this.speedBar.Scroll += new System.Windows.Forms.ScrollEventHandler(this.speedBar_Scroll);
 			// 
 			// widthTxtBox
 			// 
 			this.widthTxtBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.widthTxtBox.Location = new System.Drawing.Point(206, 27);
+			this.widthTxtBox.Location = new System.Drawing.Point(281, 27);
 			this.widthTxtBox.Name = "widthTxtBox";
 			this.widthTxtBox.Size = new System.Drawing.Size(100, 23);
 			this.widthTxtBox.TabIndex = 24;
 			// 
-			// drawMaze
+			// btnDrawSolveClearMaze
 			// 
-			this.drawMaze.BackColor = System.Drawing.Color.Gray;
-			this.drawMaze.FlatAppearance.BorderSize = 0;
-			this.drawMaze.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.drawMaze.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.drawMaze.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(232)))), ((int)(((byte)(232)))), ((int)(((byte)(232)))));
-			this.drawMaze.Location = new System.Drawing.Point(12, 7);
-			this.drawMaze.Name = "drawMaze";
-			this.drawMaze.Size = new System.Drawing.Size(75, 42);
-			this.drawMaze.TabIndex = 20;
-			this.drawMaze.Text = "Draw Maze";
-			this.drawMaze.UseVisualStyleBackColor = false;
-			this.drawMaze.Click += new System.EventHandler(this.drawMaze_Click);
+			this.btnDrawSolveClearMaze.BackColor = System.Drawing.Color.Gray;
+			this.btnDrawSolveClearMaze.FlatAppearance.BorderSize = 0;
+			this.btnDrawSolveClearMaze.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.btnDrawSolveClearMaze.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.btnDrawSolveClearMaze.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(232)))), ((int)(((byte)(232)))), ((int)(((byte)(232)))));
+			this.btnDrawSolveClearMaze.Location = new System.Drawing.Point(12, 7);
+			this.btnDrawSolveClearMaze.Name = "btnDrawSolveClearMaze";
+			this.btnDrawSolveClearMaze.Size = new System.Drawing.Size(75, 42);
+			this.btnDrawSolveClearMaze.TabIndex = 20;
+			this.btnDrawSolveClearMaze.Text = "Draw Maze";
+			this.btnDrawSolveClearMaze.UseVisualStyleBackColor = false;
+			this.btnDrawSolveClearMaze.Click += new System.EventHandler(this.btnDrawSolveClearMaze_Click);
 			// 
 			// panelControls
 			// 
-			this.panelControls.Controls.Add(this.btnFindPath);
-			this.panelControls.Controls.Add(this.drawMaze);
+			this.panelControls.Controls.Add(this.btnPauseResume);
+			this.panelControls.Controls.Add(this.btnDrawSolveClearMaze);
 			this.panelControls.Controls.Add(this.widthTxtBox);
 			this.panelControls.Controls.Add(this.lblWidth);
 			this.panelControls.Controls.Add(this.speedBar);
@@ -133,20 +132,21 @@ namespace AlgorithmVisualizer.Forms
 			this.panelControls.Size = new System.Drawing.Size(1008, 55);
 			this.panelControls.TabIndex = 28;
 			// 
-			// btnFindPath
+			// btnPauseResume
 			// 
-			this.btnFindPath.BackColor = System.Drawing.Color.Gray;
-			this.btnFindPath.FlatAppearance.BorderSize = 0;
-			this.btnFindPath.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.btnFindPath.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.btnFindPath.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(232)))), ((int)(((byte)(232)))), ((int)(((byte)(232)))));
-			this.btnFindPath.Location = new System.Drawing.Point(431, 7);
-			this.btnFindPath.Name = "btnFindPath";
-			this.btnFindPath.Size = new System.Drawing.Size(75, 42);
-			this.btnFindPath.TabIndex = 27;
-			this.btnFindPath.Text = "Find path";
-			this.btnFindPath.UseVisualStyleBackColor = false;
-			this.btnFindPath.Click += new System.EventHandler(this.btnFindPath_Click);
+			this.btnPauseResume.BackColor = System.Drawing.Color.Gray;
+			this.btnPauseResume.Enabled = false;
+			this.btnPauseResume.FlatAppearance.BorderSize = 0;
+			this.btnPauseResume.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.btnPauseResume.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.btnPauseResume.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(232)))), ((int)(((byte)(232)))), ((int)(((byte)(232)))));
+			this.btnPauseResume.Location = new System.Drawing.Point(93, 7);
+			this.btnPauseResume.Name = "btnPauseResume";
+			this.btnPauseResume.Size = new System.Drawing.Size(75, 42);
+			this.btnPauseResume.TabIndex = 27;
+			this.btnPauseResume.Text = "Pause";
+			this.btnPauseResume.UseVisualStyleBackColor = false;
+			this.btnPauseResume.Click += new System.EventHandler(this.btnPauseResume_Click);
 			// 
 			// panelMain
 			// 
@@ -157,7 +157,7 @@ namespace AlgorithmVisualizer.Forms
 			this.panelMain.Size = new System.Drawing.Size(1008, 506);
 			this.panelMain.TabIndex = 29;
 			// 
-			// MazeGenerationForm
+			// MazeGenForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -165,7 +165,7 @@ namespace AlgorithmVisualizer.Forms
 			this.ClientSize = new System.Drawing.Size(1008, 561);
 			this.Controls.Add(this.panelMain);
 			this.Controls.Add(this.panelControls);
-			this.Name = "MazeGenerationForm";
+			this.Name = "MazeGenForm";
 			this.Text = "Maze genrator";
 			this.panelControls.ResumeLayout(false);
 			this.panelControls.PerformLayout();
@@ -181,9 +181,9 @@ namespace AlgorithmVisualizer.Forms
 		private System.Windows.Forms.Label lblHeight;
 		private System.Windows.Forms.HScrollBar speedBar;
 		private System.Windows.Forms.TextBox widthTxtBox;
-		private System.Windows.Forms.Button drawMaze;
+		private System.Windows.Forms.Button btnDrawSolveClearMaze;
 		private System.Windows.Forms.Panel panelControls;
 		private System.Windows.Forms.Panel panelMain;
-		private System.Windows.Forms.Button btnFindPath;
+		private System.Windows.Forms.Button btnPauseResume;
 	}
 }

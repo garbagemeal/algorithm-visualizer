@@ -14,9 +14,6 @@ namespace AlgorithmVisualizer.Forms
 {
 	public partial class ArrayAlgoForm : Form
 	{
-		// Delay time between operations such as swaps, delayTime may change
-		private int delayTime = 50;
-		private const int MAX_SPEED = 500;
 		// Number of entries in the array to, may change
 		private int numEntries = 100;
 		// Graphics object for the panel
@@ -24,7 +21,7 @@ namespace AlgorithmVisualizer.Forms
 		ArrayVisualizer arrayVisualizer;
 		// Stuff for algoComboBox
 		private int agoNameIdx;
-		private string[] algoNames = { "InsertionSort", "SelectionSort", "BubbleSort",
+		private readonly string[] algoNames = { "InsertionSort", "SelectionSort", "BubbleSort",
 			"MergeSort", "QuickSortLomuto", "QuickSortHoare", "HeapSort", "CountingSort",
 			"RadixSort", "IntroSort", "BinarySearch", "TernarySearch", "ExponentialSearch" };
 		// flag indicating if created array should be sorted
@@ -55,13 +52,46 @@ namespace AlgorithmVisualizer.Forms
 				ResetPanel();
 				Thread.Sleep(700);
 			}
-			// Creating a new backgroundworker and running the sorting algo on it
-			// in asynchronous mode
-			bgw = new BackgroundWorker();
-			//bgw.WorkerSupportsCancellation = true;
+			// Create bgw, assign work and runn in async mode
+			bgw = new BackgroundWorker { WorkerSupportsCancellation = true };
 			bgw.DoWork += new DoWorkEventHandler(bgw_Visualize);
 			bgw.RunWorkerAsync();
 		}
+		private void bgw_Visualize(object sender, DoWorkEventArgs e)
+		{
+			// The code to be executed by the background worker
+
+			// Selecting the method(algorithm) by name & argument count (0).
+			MethodInfo mInfo = arrayVisualizer.GetType().GetMethods().FirstOrDefault
+				(method => method.Name == algoNames[agoNameIdx]
+				&& method.GetParameters().Count() == 0);
+
+			// Enable Pause/Resume and disable btnSort, btnReset, arrSizeBar, algoComboBox controls while visualizing
+			Control[] controls = new Control[] { btnPauseResume, btnViz, btnReset, arrSizeBar, algoComboBox };
+			foreach (Control control in controls) SetControlEnabled(control, control == btnPauseResume);
+
+			// Invoking the selected method
+			mInfo.Invoke(arrayVisualizer, null);
+			Console.WriteLine("Invoked arrayVisualizer with: \n" + mInfo.ToString());
+
+			// Disable Pause/Resume and enable btnSort, btnReset, arrSizeBar, algoComboBox controls after visualizing
+			foreach (Control control in controls) SetControlEnabled(control, control != btnPauseResume);
+		}
+		// Helper method & callback to update the Enabled prop of a given control
+		private delegate void SetControlEnabledCallback(Control control, bool enabled);
+		private void SetControlEnabled(Control control, bool enabled)
+		{
+			// InvokeRequired required compares the thread ID of the
+			// calling thread to the thread ID of the creating thread.
+			// If these threads are different, it returns true.
+			if (control.InvokeRequired)
+			{
+				SetControlEnabledCallback d = new SetControlEnabledCallback(SetControlEnabled);
+				Invoke(d, new object[] { control, enabled });
+			}
+			else control.Enabled = enabled;
+		}
+
 		private void btnReset_Click(object sender, EventArgs e)
 		{
 			// Reset button even handler
@@ -80,7 +110,7 @@ namespace AlgorithmVisualizer.Forms
 			g.FillRectangle(new SolidBrush(Color.Black), 0, 0, panelMain.Width, maxVal);
 			// Creating the arrayVisualizer, upon creation will draw the array's values.
 			arrayVisualizer = new ArrayAlgorithms(arr, g, maxVal, entryWidth, sortedArrayFlag);
-			speedBar_Scroll(null, null);
+			UpdateDelayFactor();
 		}
 		private void comboBox_SelectedIndexChanged(object sender, EventArgs e)
 		{
@@ -96,10 +126,10 @@ namespace AlgorithmVisualizer.Forms
 				ResetPanel();
 			}
 		}
+		private void UpdateDelayFactor() => arrayVisualizer.DelayFactor = speedBar.Value;
 		private void speedBar_Scroll(object sender, ScrollEventArgs e)
 		{
-			if (arrayVisualizer != null)
-				arrayVisualizer.SetDelayFactor(speedBar.Value, speedBar.Minimum, speedBar.Maximum);
+			if (arrayVisualizer != null) UpdateDelayFactor();
 		}
 		private void arrSizeBar_Scroll(object sender, ScrollEventArgs e)
 		{
@@ -141,42 +171,6 @@ namespace AlgorithmVisualizer.Forms
 				detailsDialog.StartPosition = FormStartPosition.CenterParent;
 				detailsDialog.ShowDialog();
 			}
-		}
-
-		private void bgw_Visualize(object sender, DoWorkEventArgs e)
-		{
-			// The code to be executed by the background worker,
-			// namely the selected sorting algortihm
-
-			// Selecting the method(algorithm) by name & argument count (0).
-			MethodInfo mInfo = arrayVisualizer.GetType().GetMethods().FirstOrDefault
-				(method => method.Name == algoNames[agoNameIdx]
-				&& method.GetParameters().Count() == 0);
-
-			// Enable Pause/Resume and disable btnSort, btnReset, arrSizeBar, algoComboBox controls while visualizing
-			Control[] controls = new Control[] { btnPauseResume, btnViz, btnReset, arrSizeBar, algoComboBox };
-			foreach (Control control in controls) SetControlEnabled(control, control == btnPauseResume);
-
-			// Invoking the selected method
-			mInfo.Invoke(arrayVisualizer, null);
-			Console.WriteLine("Invoked arrayVisualizer with: \n" + mInfo.ToString());
-
-			// Disable Pause/Resume and enable btnSort, btnReset, arrSizeBar, algoComboBox controls after visualizing
-			foreach (Control control in controls) SetControlEnabled(control, control != btnPauseResume);
-		}
-		// Helper method & callback to update the Enabled prop of a given control
-		private delegate void SetControlEnabledCallback(Control control, bool enabled);
-		private void SetControlEnabled(Control control, bool enabled)
-		{
-			// InvokeRequired required compares the thread ID of the
-			// calling thread to the thread ID of the creating thread.
-			// If these threads are different, it returns true.
-			if (control.InvokeRequired)
-			{
-				SetControlEnabledCallback d = new SetControlEnabledCallback(SetControlEnabled);
-				Invoke(d, new object[] { control, enabled });
-			}
-			else control.Enabled = enabled;
 		}
 	}
 }

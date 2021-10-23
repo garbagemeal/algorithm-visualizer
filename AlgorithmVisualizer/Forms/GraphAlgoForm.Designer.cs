@@ -31,10 +31,10 @@ namespace AlgorithmVisualizer.Forms
 		{
 			this.components = new System.ComponentModel.Container();
 			this.vertexContextStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
-			this.toggleVertexPinToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.removeVertexToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.addEdgeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.removeEdgeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.removeVertexToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.toggleVertexPinToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.panelControls = new System.Windows.Forms.Panel();
 			this.btnPreferences = new System.Windows.Forms.Button();
 			this.btnClearState = new System.Windows.Forms.Button();
@@ -70,20 +70,6 @@ namespace AlgorithmVisualizer.Forms
 			this.vertexContextStrip.Name = "panelMainContextMenuStrip";
 			this.vertexContextStrip.Size = new System.Drawing.Size(165, 92);
 			// 
-			// toggleVertexPinToolStripMenuItem
-			// 
-			this.toggleVertexPinToolStripMenuItem.Name = "toggleVertexPinToolStripMenuItem";
-			this.toggleVertexPinToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
-			this.toggleVertexPinToolStripMenuItem.Text = "Toggle vertex pin";
-			this.toggleVertexPinToolStripMenuItem.Click += new System.EventHandler(this.toggleVertexPinToolStripMenuItem_Click);
-			// 
-			// removeVertexToolStripMenuItem
-			// 
-			this.removeVertexToolStripMenuItem.Name = "removeVertexToolStripMenuItem";
-			this.removeVertexToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
-			this.removeVertexToolStripMenuItem.Text = "Remove vertex";
-			this.removeVertexToolStripMenuItem.Click += new System.EventHandler(this.removeVertexToolStripMenuItem_Click);
-			// 
 			// addEdgeToolStripMenuItem
 			// 
 			this.addEdgeToolStripMenuItem.Name = "addEdgeToolStripMenuItem";
@@ -97,6 +83,20 @@ namespace AlgorithmVisualizer.Forms
 			this.removeEdgeToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
 			this.removeEdgeToolStripMenuItem.Text = "Remove edge";
 			this.removeEdgeToolStripMenuItem.Click += new System.EventHandler(this.removeEdgeToolStripMenuItem_Click);
+			// 
+			// removeVertexToolStripMenuItem
+			// 
+			this.removeVertexToolStripMenuItem.Name = "removeVertexToolStripMenuItem";
+			this.removeVertexToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
+			this.removeVertexToolStripMenuItem.Text = "Remove vertex";
+			this.removeVertexToolStripMenuItem.Click += new System.EventHandler(this.removeVertexToolStripMenuItem_Click);
+			// 
+			// toggleVertexPinToolStripMenuItem
+			// 
+			this.toggleVertexPinToolStripMenuItem.Name = "toggleVertexPinToolStripMenuItem";
+			this.toggleVertexPinToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
+			this.toggleVertexPinToolStripMenuItem.Text = "Toggle vertex pin";
+			this.toggleVertexPinToolStripMenuItem.Click += new System.EventHandler(this.toggleVertexPinToolStripMenuItem_Click);
 			// 
 			// panelControls
 			// 
@@ -277,40 +277,40 @@ namespace AlgorithmVisualizer.Forms
             this.togglePhysicsToolStripMenuItem,
             this.toggleCenterPullToolStripMenuItem});
 			this.canvasContextStrip.Name = "panelMainE";
-			this.canvasContextStrip.Size = new System.Drawing.Size(181, 136);
+			this.canvasContextStrip.Size = new System.Drawing.Size(169, 114);
 			// 
 			// addVertexToolStripMenuItem
 			// 
 			this.addVertexToolStripMenuItem.Name = "addVertexToolStripMenuItem";
-			this.addVertexToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.addVertexToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
 			this.addVertexToolStripMenuItem.Text = "Add vertex";
 			this.addVertexToolStripMenuItem.Click += new System.EventHandler(this.addVertexToolStripMenuItem_Click);
 			// 
 			// pinAllVerticesToolStripMenuItem
 			// 
 			this.pinAllVerticesToolStripMenuItem.Name = "pinAllVerticesToolStripMenuItem";
-			this.pinAllVerticesToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.pinAllVerticesToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
 			this.pinAllVerticesToolStripMenuItem.Text = "Pin all vertices";
 			this.pinAllVerticesToolStripMenuItem.Click += new System.EventHandler(this.pinAllVerticesToolStripMenuItem_Click);
 			// 
 			// unpinAllVerticesToolStripMenuItem
 			// 
 			this.unpinAllVerticesToolStripMenuItem.Name = "unpinAllVerticesToolStripMenuItem";
-			this.unpinAllVerticesToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.unpinAllVerticesToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
 			this.unpinAllVerticesToolStripMenuItem.Text = "Unpin all vertices";
 			this.unpinAllVerticesToolStripMenuItem.Click += new System.EventHandler(this.unpinAllVerticesToolStripMenuItem_Click);
 			// 
 			// togglePhysicsToolStripMenuItem
 			// 
 			this.togglePhysicsToolStripMenuItem.Name = "togglePhysicsToolStripMenuItem";
-			this.togglePhysicsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.togglePhysicsToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
 			this.togglePhysicsToolStripMenuItem.Text = "Toggle Physics";
 			this.togglePhysicsToolStripMenuItem.Click += new System.EventHandler(this.togglePhysicsToolStripMenuItem_Click);
 			// 
 			// toggleCenterPullToolStripMenuItem
 			// 
 			this.toggleCenterPullToolStripMenuItem.Name = "toggleCenterPullToolStripMenuItem";
-			this.toggleCenterPullToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.toggleCenterPullToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
 			this.toggleCenterPullToolStripMenuItem.Text = "Toggle center pull";
 			this.toggleCenterPullToolStripMenuItem.Click += new System.EventHandler(this.toggleCenterPullToolStripMenuItem_Click);
 			// 
@@ -339,6 +339,7 @@ namespace AlgorithmVisualizer.Forms
 			this.ForeColor = System.Drawing.Color.White;
 			this.Name = "GraphAlgoForm";
 			this.Text = "Graph algorithms";
+			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.GraphAlgoForm_FormClosing);
 			this.Resize += new System.EventHandler(this.FDGVForm_Resize);
 			this.vertexContextStrip.ResumeLayout(false);
 			this.panelControls.ResumeLayout(false);
