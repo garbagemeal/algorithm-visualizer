@@ -340,7 +340,7 @@ namespace AlgorithmVisualizer.Forms
 			this.Name = "GraphAlgoForm";
 			this.Text = "Graph algorithms";
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.GraphAlgoForm_FormClosing);
-			this.Resize += new System.EventHandler(this.FDGVForm_Resize);
+			this.Resize += new System.EventHandler(this.Form_Resize);
 			this.vertexContextStrip.ResumeLayout(false);
 			this.panelControls.ResumeLayout(false);
 			this.panelControls.PerformLayout();

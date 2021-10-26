@@ -7,8 +7,8 @@ namespace AlgorithmVisualizer.Tracers
 	{
 		private Stack<T> stk;
 
-		public StackTracer(Stack<T> _stk, Graphics g, string title, PointF startPoint, SizeF size, float entryWidth)
-			: base(g, title, startPoint, size, entryWidth) => stk = _stk;
+		public StackTracer(Stack<T> _stk, Graphics g, string title, PointF startPoint, SizeF size)
+			: base(g, title, startPoint, size) => stk = _stk;
 
 		public override void Trace() => Trace(stk.ToArray());
 		public override void Mark(int i) => Mark(stk.ToArray(), i);

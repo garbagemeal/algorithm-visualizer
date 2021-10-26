@@ -5,9 +5,9 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 {
 	class KosarajusSCCs : GraphAlgorithm
 	{
-		public KosarajusSCCs(Graph graph) : base(graph) => Solve();
+		public KosarajusSCCs(Graph graph) : base(graph) { }
 
-		public override void Solve()
+		public override bool Solve()
 		{
 			// Kosaraju's Strongly connected componenets - O(V + E)
 			HashSet<int> visited = new HashSet<int>();
@@ -43,6 +43,8 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 				Console.WriteLine($"Node id: {i}, SCC: {ids[i]}");
 			// Reverse every directed edge in adjList to unvisualize Gt
 			graph.ReverseSprings();
+			return true;
+
 
 			void DFS(Dictionary<int, List<Edge>> G, int at)
 			{

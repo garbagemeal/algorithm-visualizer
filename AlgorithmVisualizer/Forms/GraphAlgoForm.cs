@@ -36,7 +36,6 @@ namespace AlgorithmVisualizer.Forms
 
 		private bool inVizMode = false;
 		private bool forcesEnabled = true;
-		
 		private bool formIsMinimized = false, formClosePending = false;
 
 		public GraphAlgoForm(MainUIForm _parentForm)
@@ -68,7 +67,6 @@ namespace AlgorithmVisualizer.Forms
 			bgwGraphViz.RunWorkerCompleted += new RunWorkerCompletedEventHandler(bgw_GraphVizRunWorkerCompleted);
 			bgwGraphViz.RunWorkerAsync();
 		}
-		// Refers to the state of the parent form (minimized or not)
 		private void bgw_GraphViz(object sender, DoWorkEventArgs e)
 		{
 			while (!formClosePending)
@@ -157,77 +155,65 @@ namespace AlgorithmVisualizer.Forms
 				if (from == to) graph.Sleep(500);
 				graph.MarkParticle(to, Colors.Red); // end node
 			}
+			graph.Sleep(1500);
 			// BUG: unsure why canvas paint trigger is required, doesn't
 			// 'bgwGraphLayoutViz' already trigger the same event?
 			TriggerCanvasPaintEvent();
 		}
 		void UnmarkNodes(int from, int to)
 		{
-			graph.Sleep(1500);
 			foreach (int id in new int[] { from, to })
 				if (id != -1) graph.ResetParticleColors(id);
+			graph.Sleep(1500);
 			// Again unsure why triggering is needed if bgwGraphLayoutViz should already do so?
 			TriggerCanvasPaintEvent();
 		}
 		private void RunAlgo(int from, int to)
 		{
+			// TODO: refactor this uisng reflection?
 			switch (selectedAlgoIdx)
 			{
 				case 0:
-					new BFS(graph, from, to);
+					new BFS(graph, from, to).Solve();
 					break;
 				case 1:
-					new DFS(graph, from, to);
+					new DFS(graph, from, to).Solve();
 					break;
 				case 2:
-					new ConnectedComponentsDFS(graph);
+					new ConnectedComponentsDFS(graph).Solve();
 					break;
 				case 3:
-					Console.WriteLine("Number of components: " +
-						new ConnectedComponentsDisjointSet(graph));
+					new ConnectedComponentsDisjointSet(graph).Solve();
 					break;
 				case 4:
-					new LazyPrimsMST(graph);
+					new LazyPrimsMST(graph).Solve();
 					break;
 				case 5:
-					new KruskalsMST(graph);
+					new KruskalsMST(graph).Solve();
 					break;
 				case 6:
-					int[] topSortDFS = new TopSortDFS(graph).TopOrder;
-					if (topSortDFS != null)
-					{
-						foreach (int val in topSortDFS) Console.Write(val + " ");
-						Console.WriteLine();
-					}
+					new TopSortDFS(graph).Solve();
 					break;
 				case 7:
-					int[] topSortKahn = new KahnsTopSort(graph).TopOrder;
-					if (topSortKahn != null)
-					{
-						foreach (int val in topSortKahn) Console.Write(val + " ");
-						Console.WriteLine();
-					}
-					else Console.WriteLine("Cycle found in the graph");
+					new KahnsTopSort(graph).Solve();
 					break;
 				case 8:
-					new DAGSSSP(graph, from);
+					new DAGSSSP(graph, from).Solve();
 					break;
 				case 9:
-					// Lazy version
-					new LazyDijkstrasSSSP(graph, from, to);
+					new LazyDijkstrasSSSP(graph, from, to).Solve();
 					break;
 				case 10:
-					// Eager version
-					new EagerDijkstrasSSSP(graph, from, to);
+					new EagerDijkstrasSSSP(graph, from, to).Solve();
 					break;
 				case 11:
-					new BellmanFords(graph, from);
+					new BellmanFords(graph, from).Solve();
 					break;
 				case 12:
-					new TarjansSCCs(graph);
+					new TarjansSCCs(graph).Solve();
 					break;
 				case 13:
-					new KosarajusSCCs(graph);
+					new KosarajusSCCs(graph).Solve();
 					break;
 				default:
 					Console.WriteLine($"{selectedAlgoIdx} is not a valid selection");
@@ -456,9 +442,7 @@ namespace AlgorithmVisualizer.Forms
 		}
 		private void canvas_MouseDown(object sender, MouseEventArgs e)
 		{
-			// leftclick
-			// Removing this flag allows moving nodes when visualizing, may cause issues.
-			if (/*!inVizMode && */e.Button == MouseButtons.Left)
+			if (e.Button == MouseButtons.Left)
 			{
 				int x = e.X, y = e.Y;
 				Particle clickedParticle = graph.GetClickedParticle(x, y);
@@ -475,10 +459,14 @@ namespace AlgorithmVisualizer.Forms
 		}
 		private void canvas_MouseUp(object sender, MouseEventArgs e)
 		{
-			// Unpin particle for leftclick
-			if (e.Button == MouseButtons.Left) if (activeParticle != null) activeParticle.Pinned = false;
-			// Removing this flag allows opening context menus when visualizing, may cause issues.
-			if (/*!inVizMode && */e.Button == MouseButtons.Right)
+			// Unpin particle for left/right click release
+			if (activeParticle != null && e.Button == MouseButtons.Left || e.Button == MouseButtons.Right)
+			{
+				activeParticle.Pinned = false;
+				activeParticle = null;
+			}
+			// Additionaly for rightlick release open the appropriate conect menu
+			if (e.Button == MouseButtons.Right)
 			{
 				// Find location of click release and get clicked particle
 				float x = e.X, y = e.Y;
@@ -493,17 +481,15 @@ namespace AlgorithmVisualizer.Forms
 				}
 				else
 				{
-					// show canvasMainContextStrip (add vertex)
+					// show canvasContextStrip (add vertex)
 					canvasContextStrip.Show(Cursor.Position);
 					activeRClickPos = new Vector(x, y);
 				}
 			}
-			activeParticle = null;
 		}
-		private void FDGVForm_Resize(object sender, EventArgs e)
+		private void Form_Resize(object sender, EventArgs e)
 		{
-			// Check if width is > 0 in case window was minimized
-			// Check required, otherwise all nodes may be placed at the point(0, 0)
+			// Can occour when the form is minimized
 			if (Width > 0)
 			{
 				// Update canvas height/width for stoed in graph
@@ -511,7 +497,7 @@ namespace AlgorithmVisualizer.Forms
 				graph.CanvasWidth = canvas.Width;
 			}
 			// Detect when the form is minimized to stop visualizing the graph. Note that
-			// the parent the one minimized and not this form.
+			// the parent form is the one minimized and not this form.
 			if (ParentForm != null) formIsMinimized = ParentForm.WindowState == FormWindowState.Minimized;
 		}
 		private void GraphAlgoForm_FormClosing(object sender, FormClosingEventArgs e)

@@ -17,7 +17,7 @@ namespace AlgorithmVisualizer.GraphTheory.Utils
 		public static readonly Color
 			// Visiting node/edge
 			Orange = Color.Orange,
-			// Relaxed edge
+			// Relaxed edge / Start node
 			Red = Color.Red,
 			// Part of solution, i.e, the SSSP, the MST, ...
 			Green = Color.Green,

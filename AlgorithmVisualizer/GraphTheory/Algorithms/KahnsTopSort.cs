@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Drawing;
 
 using AlgorithmVisualizer.Tracers;
@@ -9,53 +8,49 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 {
 	class KahnsTopSort : GraphAlgorithm
 	{
-		// Flag indicated weather to visualize the algo or not
+		// Flag indicating whether to visualize the algo or not
 		private bool vizMode;
 		// Tracers used by the algo (visuals)
 		private QueueTracer<int> qTracer;
 		private ArrayTracer<int> idxTracer, inDegTracer, topOrderTracer;
+		private AbstractArrayTracer<int>[] tracers;
+
+		private Queue<int> q;
 		// Array to contain the result of the algo - the topological ordering (if exists)
-		private int[] topOrder;
-		public int[] TopOrder { get { return topOrder; } }
+		private int[] inDeg;
+		public int[] TopOrder { get; private set; }
 
 		public KahnsTopSort(Graph graph, bool vizMode = true) : base(graph)
 		{
+			// vizMode used to disable visuals
 			this.vizMode = vizMode;
-			Solve();
+
+			q = new Queue<int>();
+			inDeg = new int[graph.NodeCount];
+			TopOrder = new int[graph.NodeCount];
+			
+			SetupTracers();
 		}
 
-		public override void Solve()
+		public override bool Solve()
 		{
-			// Returns the graph's topologial ordering using Kahn's algo
-			// if the graph is not a DAG null will be returned
-			// Array storing the in degree per node
-			int[] inDeg = new int[graph.NodeCount];
-			// O(E) - For each Edge uv in E the in degree of the dstination vertex(u) will increase by 1
+			// Returns the graph's top order if is a DAG otherwise null
+			// O(E) - count in degree per vertex (numbre of incoming edges)
 			foreach (List<Edge> edgeList in graph.AdjList.Values)
 				foreach (Edge edge in edgeList) inDeg[edge.To]++;
-			// O(V) - Create a queue that will initially hold all nodes with in degree of 0 
-			Queue<int> q = new Queue<int>();
+			// O(V) - Create a queue to hold nodes of in degree 0
 			for (int i = 0; i < graph.NodeCount; i++) if (inDeg[i] == 0) q.Enqueue(i);
-			topOrder = Solve(q, inDeg);
-		}
-		public int[] Solve(Queue<int> q, int[] inDeg)
-		{
-			// Main method to run Kahn's top sort
-			// Note: vizMode used to disable visuals
-			// Create an array to store the topological ordering (of size NodeCount)
-			// idx is used to add node id's into the array from 0 to NodeCount
+
+			if (vizMode) ShowTracers();
+
 			int idx = 0;
-			int[] topOrder = new int[graph.NodeCount];
-
-			SetupTracers(q, inDeg, topOrder);
-
 			// As long as the queue is not enmpty run the algo - O(V)
 			while (q.Count > 0)
 			{
 				if (vizMode) qTracer.Mark(0);
 				// Remove curNode from the q and add it to the topOrder (its inDeg is 0)
 				int curNode = q.Dequeue();
-				topOrder[idx++] = curNode;
+				TopOrder[idx++] = curNode;
 				if (vizMode)
 				{
 					graph.MarkParticle(curNode, Colors.Orange);
@@ -64,18 +59,18 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 					qTracer.Trace(); topOrderTracer.Trace();
 					Sleep(1000);
 				}
-				VisitOutgoingEdges(curNode, q, inDeg);
+				VisitNeighbors(curNode, q, inDeg);
 				if (vizMode)
 				{
 					graph.MarkParticle(curNode, Colors.Visited);
 					Sleep(1000);
 				}
 			}
-			// Note that if the number of processed nodes is not NodeCount then
-			// there exists a cycle in the graph! (topOrder will become null)
-			return idx == graph.NodeCount ? topOrder : null;
+			// If TopOrder contains all nodes then the graph is a DAG,
+			// otherwise contains a directed cycle.
+			return idx == graph.NodeCount;
 		}
-		private void VisitOutgoingEdges(int curNode, Queue<int> q, int[] inDeg)
+		private void VisitNeighbors(int curNode, Queue<int> q, int[] inDeg)
 		{
 			if (graph.AdjList[curNode] != null)
 			{
@@ -117,21 +112,24 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 				}
 			}
 		}
-		private void SetupTracers(Queue<int> q, int[] inDeg, int[] topOrder)
+		private void SetupTracers()
 		{
 			int[] idxArr = new int[graph.NodeCount];
 			for (int i = 0; i < graph.NodeCount; i++) idxArr[i] = i;
 			
 			// Creating tracers
-			idxTracer = new ArrayTracer<int>(idxArr, panelLogG, "idx: ", new PointF(0, 57), new SizeF(500, 25), 25);
-			qTracer = new QueueTracer<int>(q, panelLogG, "q: ", new PointF(0, 10), new SizeF(500, 45), 45);
-			inDegTracer = new ArrayTracer<int>(inDeg, panelLogG, "inDeg: ", new PointF(0, 84), new SizeF(500, 25), 25);
-			topOrderTracer = new ArrayTracer<int>(topOrder, panelLogG, "topOrder: ", new PointF(0, 111), new SizeF(500, 25), 25);
+			idxTracer = new ArrayTracer<int>(idxArr, panelLogG, "idx: ", new PointF(0, 57), new SizeF(500, 25));
+			qTracer = new QueueTracer<int>(q, panelLogG, "q: ", new PointF(0, 10), new SizeF(500, 45));
+			inDegTracer = new ArrayTracer<int>(inDeg, panelLogG, "inDeg: ", new PointF(0, 84), new SizeF(500, 25));
+			topOrderTracer = new ArrayTracer<int>(TopOrder, panelLogG, "topOrder: ", new PointF(0, 111), new SizeF(500, 25));
 			
 			// Setting nameOffset to math the longest
 			SizeF topOrderTracerNameOffset = topOrderTracer.TitleSize;
-			var tracers = new AbstractArrayTracer<int>[] { idxTracer, qTracer, inDegTracer, topOrderTracer };
+			tracers = new AbstractArrayTracer<int>[] { idxTracer, qTracer, inDegTracer, topOrderTracer };
 			foreach (var tracer in tracers) tracer.TitleSize = topOrderTracerNameOffset;
+		}
+		private void ShowTracers()
+		{
 			foreach (var tracer in tracers) tracer.Trace();
 		}
 	}

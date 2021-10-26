@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Drawing;
-
-using AlgorithmVisualizer.GraphTheory.FDGV;
+﻿using System.Drawing;
 
 namespace AlgorithmVisualizer.GraphTheory.Algorithms
 {
@@ -23,8 +20,8 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 			graph = _graph;
 			panelLogG = graph.GLog;
 		}
-		abstract public void Solve();
-
+		
+		abstract public bool Solve();
 		protected void Sleep(int millis) => graph.Sleep(millis);
 	}
 }

@@ -1,39 +1,43 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
 
-using AlgorithmVisualizer.Tracers;
 using AlgorithmVisualizer.GraphTheory.Utils;
 
 namespace AlgorithmVisualizer.GraphTheory.Algorithms
 {
 	class DAGSSSP : GraphAlgorithm
 	{
+		/* This algo can be adjusted to compute longest paths by applying the following steps:
+		 * 1. Before running this algo multiply all edge costs by -1
+		 * 2. After running this algo the results in distMap by -1
+		 * *. At this point distMap[i] is the longest path distance to node i.
+		 * 3. Optional: multiply edge costs by -1 to restore graph to initial state.
+		 * For generic graphs the above problem is considered NP hard.
+		 * 
+		 * Remarks: 
+		 * Works only for directed acyclic graphs, 
+		 * Works with negative edge weights because the graph is acyclic */
+
 		private readonly int from;
+		private readonly int[] topSort, distMap;
+
 		public DAGSSSP(Graph graph, int _from = 0) : base(graph)
 		{
 			from = _from;
-			Solve();
+			topSort = GetTopologicalOrdering();
+			distMap = new int[graph.NodeCount];
 		}
 
-		public override void Solve()
+		private int[] GetTopologicalOrdering()
 		{
-			/* Note:
-			 * The longest path can be computed by multiplying all edge cost's by -1, 
-			 * running this very same algo and afterwards, again, multiply all edge cost's by -1.
-			 * In doing so the longest path will be computed! a problem for which general grahps 
-			 * are considered NP Hard! */
+			var kahnsTopSortSolver = new KahnsTopSort(graph, vizMode: false);
+			kahnsTopSortSolver.Solve();
+			return kahnsTopSortSolver.TopOrder;
+		}
 
-			int[] topSort = new KahnsTopSort(graph, vizMode: false).TopOrder;
-			// if graph is not a DAG do nothing
-			if (topSort == null)
-			{
-				Console.WriteLine("The given graph is not a DAG!");
-				return;
-			}
-			// a distance array where each index denotes the node id and the value
-			// denotes the current shortest distance to it
-			int[] distMap = new int[graph.NodeCount];
+		public override bool Solve()
+		{
+			// topSort == null --> graph is not a DAG --> this algo not applicable
+			if (topSort == null) return false;
 			// Fill distMap array with "inifinities" and set distance to starting node as 0
 			for (int i = 0; i < graph.NodeCount; i++) distMap[i] = int.MaxValue;
 			distMap[from] = 0;
@@ -41,8 +45,9 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 			Solve(topSort, distMap);
 
 			for (int i = 0; i < distMap.Length; i++)
-				Console.WriteLine("Distance to {0}: {1}",
-					i, distMap[i] != int.MaxValue ? distMap[i] + "" : "INF");
+				Console.WriteLine("Distance to {0}: {1}", i, distMap[i] != int.MaxValue ? distMap[i] + "" : "INF");
+
+			return true;
 		}
 		private void Solve(int[] topSort, int[] distMap)
 		{

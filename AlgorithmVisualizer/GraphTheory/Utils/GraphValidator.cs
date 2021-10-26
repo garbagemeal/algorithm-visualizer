@@ -1,19 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using AlgorithmVisualizer.GraphTheory.Algorithms;
-using AlgorithmVisualizer.GraphTheory.FDGV;
 
 namespace AlgorithmVisualizer.GraphTheory.Utils
 {
 	static class GraphValidator
 	{
 		// Util class with methods to check for some properties of the graph
-		
-		// Important note: The input graph is actually directed, however for some
-		// algorithms it is required for the graph to be undirected, and for this reason
-		// the graph's edges are restricted to be only of the from (u, v, x) and cannot
-		// coexist with the reverse edge(v, u, x), regardless of cost.
-
 
 		public static bool IsUndirected(Graph graph)
 		{
@@ -24,6 +17,7 @@ namespace AlgorithmVisualizer.GraphTheory.Utils
 				foreach (Edge edge in edgeList)
 				{
 					// if g[v] contains (v, u, x)
+					// note that it may not contain (v, u, y) because y != x (see "GraphVisualizer.cs" for more details)
 					if (!graph.AdjList[edge.To].Contains(Edge.ReversedCopy(edge)))
 					{
 						Console.WriteLine($"Found a directed edge: {edge}\nThe graph is not undirected!");
@@ -38,16 +32,17 @@ namespace AlgorithmVisualizer.GraphTheory.Utils
 			// Run connected components algo on the graph without visuals and
 			// check if there is only 1 component (meaning the graph is connected)
 			// Note: ConnectedComponentsDisjointSet ensures G is undirected.
-			if (new ConnectedComponentsDisjointSet(graph, vizMode: false).ComponentCount == 1)
-				return true;
-			else Console.WriteLine("The graph is not connected and undirected!");
+			var solver = new ConnectedComponentsDisjointSet(graph, vizMode: false);
+			if (solver.Solve() && solver.ComponentCount == 1) return true;
+			Console.WriteLine("The graph is not connected and undirected!");
 			return false;
 		}
 		public static bool IsDAG(Graph graph)
 		{
 			// Checks if the graph is a DAG using Kahn's algo
-			if (new KahnsTopSort(graph, vizMode: false).TopOrder != null) return true;
-			else Console.WriteLine("Graph is not a DAG!");
+			var solver = new KahnsTopSort(graph, vizMode: false);
+			if (solver.Solve()) return true;
+			Console.WriteLine("Graph is not a DAG!");
 			return false;
 		}
 		public static bool IsPositiveEdgeWeighted(Graph graph)

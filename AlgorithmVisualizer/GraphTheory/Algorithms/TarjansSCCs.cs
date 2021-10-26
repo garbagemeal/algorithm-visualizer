@@ -2,21 +2,20 @@
 using System.Collections.Generic;
 using System.Drawing;
 
-using AlgorithmVisualizer.Tracers;
 using AlgorithmVisualizer.GraphTheory.Utils;
 
 namespace AlgorithmVisualizer.GraphTheory.Algorithms
 {
 	class TarjansSCCs : GraphAlgorithm
 	{
-		public TarjansSCCs(Graph graph) : base(graph) => Solve();
+		public TarjansSCCs(Graph graph) : base(graph) { }
 
-		public override void Solve()
+		public override bool Solve()
 		{
 			/*
 			 * O(V + E)
 			 * Tarjan's Strongly Connected Components(Tarjan's SCC) algorithm
-			 * Expected input is a directed graph
+			 * Expected input is a directed graph (1 SCC for undirected graphs)
 			 */
 			const int UNVISITED = -1;
 			int id = 0, SCCCount = 0;
@@ -25,6 +24,13 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 			bool[] onStk = new bool[graph.NodeCount];
 			for (int i = 0; i < graph.NodeCount; i++) ids[i] = UNVISITED;
 			for (int i = 0; i < graph.NodeCount; i++) if (ids[i] == UNVISITED) DFS(i);
+			// May have colors brushes, can be bounded via SCCCount with adjustment
+			Color[] colors = new Color[graph.NodeCount];
+			for (int i = 0; i < graph.NodeCount; i++) colors[i] = Colors.GetRandom();
+			for (int i = 0; i < graph.NodeCount; i++) graph.MarkParticle(i, colors[low[i]]);
+			return true;
+
+
 			void DFS(int at)
 			{
 				stk.Push(at);
@@ -50,10 +56,6 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 					SCCCount++;
 				}
 			}
-			// May have colors brushes, can be bounded via SCCCount with adjustment
-			Color[] colors = new Color[graph.NodeCount];
-			for (int i = 0; i < graph.NodeCount; i++) colors[i] = Colors.GetRandom();
-			for (int i = 0; i < graph.NodeCount; i++) graph.MarkParticle(i, colors[low[i]]);
 		}
 	}
 }

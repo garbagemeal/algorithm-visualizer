@@ -13,40 +13,41 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 	{
 		private HeapTracer<Edge> heapTracer;
 
-		public KruskalsMST(Graph graph) : base(graph) => Solve();
+		public KruskalsMST(Graph graph) : base(graph) { }
 
-		public override void Solve()
+		public override bool Solve()
 		{
 			/*
 			 * Finds the graph's MST(min spanning tree) or MSF (min spanning forest)
 			 * Note: The algorithm will result in the MST if the graph is connected
 			 * otherwise if the graph is disconnected then the result will be a MSF.
-			 * Also all nodes must be indexed from 0 to n non inclusive
+			 * Also all nodes must be indexed from 0 to V non inclusive
 			 */
 			// If the graph is not undirected or has 0 edges do nothing
-			if (!GraphValidator.IsUndirected(graph)) return;
+			if (!GraphValidator.IsUndirected(graph)) return false;
 			// Getting list of all undirected edges from adjList
 			List<Edge> edgeList = graph.GetUndirectedEdgeList();
 			if (edgeList.Count < 1)
 			{
 				Console.WriteLine("Graph has no edges (1 edge needed at least for heap creation)");
-				return;
+				return false;
 			}
 			// O(E)
 			// Avoid sorting the edges by creating a heap from the list O(n) where n = E
 			BinaryMinHeap<Edge> heap = new BinaryMinHeap<Edge>(edgeList);
-			// O(V) = O(sqrt(E)) assuming graph is simple
+			// O(V) = O(sqrt(E)) assuming graph is simple, i.e, not a multigraph,
 			// because E = V(V-1)/2 = (V^2 - V) / 2 and can be futher simplified to O(V^2)
-			// and thus E = roughly V^2, so O(V) is asymptotically the same as, O(sqrt(E).
+			// and thus E = roughly V^2, so O(V) is asymptotically the same as, O(sqrt(E)).
 			// Creating a disjoint set (union find) of size V
 			DisjointSet disjointSet = new DisjointSet(graph.NodeCount);
-			heapTracer = new HeapTracer<Edge>(heap, panelLogG, "Heap: ", new PointF(0, 10), new SizeF(500, 45), 45);
+			heapTracer = new HeapTracer<Edge>(heap, panelLogG, "Heap: ", new PointF(0, 10), new SizeF(500, 45));
 			(int Cost, List<Edge> Edges) MSTDetails = Solve(heap, disjointSet, heapTracer);
 
 			// Note that it may be a MSF and not a MST
 			Console.WriteLine("MST Cost: " + MSTDetails.Cost);
 			Console.WriteLine("MST Edges:");
 			foreach (Edge edge in MSTDetails.Edges) Console.WriteLine(edge);
+			return true;
 		}
 		private (int, List<Edge>) Solve(BinaryMinHeap<Edge> heap,
 			DisjointSet disjointSet, HeapTracer<Edge> heapTracer)

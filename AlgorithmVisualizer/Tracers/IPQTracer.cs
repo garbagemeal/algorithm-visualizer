@@ -9,8 +9,8 @@ namespace AlgorithmVisualizer.Tracers
 	{
 		private MinIndexedDHeap<int> ipq;
 
-		public IPQTracer(MinIndexedDHeap<int> _ipq, Graphics g, string title, PointF startPoint, SizeF size, float entryWidth)
-			: base(g, title, startPoint, size, entryWidth) => ipq = _ipq;
+		public IPQTracer(MinIndexedDHeap<int> _ipq, Graphics g, string title, PointF startPoint, SizeF size)
+			: base(g, title, startPoint, size) => ipq = _ipq;
 
 		public override void Trace() => Trace(IpqToStrArr());
 		public override void Mark(int i) => Mark(IpqToStrArr(), i);

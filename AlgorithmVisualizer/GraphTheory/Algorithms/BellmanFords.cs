@@ -11,7 +11,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 			from = _from;
 		}
 
-		public override void Solve()
+		public override bool Solve()
 		{
 			// SSSP algo, detects negative cycles. O(VE)
 			// For dense graphs will be O(V^3) in which case an adjacency matrix is better
@@ -56,6 +56,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 					dist.ToString();
 				Console.WriteLine($"DistMap[{i}] = {distAsStr}");
 			}
+			return true;
 		}
 	}
 }

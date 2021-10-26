@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Threading;
 using System.Windows.Forms;
-using AlgorithmVisualizer.Forms;
 using AlgorithmVisualizer.GraphTheory.Utils;
 using AlgorithmVisualizer.MathUtils;
 using AlgorithmVisualizer.Threading;
@@ -33,7 +33,7 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 		public List<Spring> springs;
 
 		// Contains the drawing of the graph
-		private PictureBox canvas;
+		private readonly PictureBox canvas;
 
 		// GLog is a graphics object of panelLog.
 		public Graphics GLog { get; set; }
@@ -54,7 +54,7 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 		private const int PARTICLE_SPAWN_OFFSET = 50;
 
 		protected static Random rnd = new Random();
-		
+
 		public GraphVisualizer(PictureBox _canvas, Graphics gLog)
 		{
 			canvas = _canvas;
@@ -81,7 +81,10 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 				if (springs[i].Equals(edge)) return springs[i];
 			return null;
 		}
-		public void AddSpring(Spring spring) => springs.Add(spring);
+		public void AddSpring(Spring spring)
+		{
+			if (spring != null) springs.Add(spring);
+		}
 		public void RemoveSpring(Spring spring) => springs.Remove(GetSpring(spring));
 		private void RemoveSpringsConnectedTo(int id)
 		{
@@ -100,32 +103,28 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 		#region Visuals
 		public void DrawGraph(Graphics g)
 		{
-			// Note to self:
-			// 'particles' and 'springs' "copied" to avoid the exception that occurred for
-			// 'springs' when drawing the graph: System.InvalidOperationException: 'Collection was modified; enumeration operation may not execute.'
-			// Suspecting a race condition as a result of mutating the spring list
-			// 'springs', i.e the method "MoveSpringsToEnd(...)".
-			// TODO: find & fix more places where concurrent access may occour if exist
-
 			foreach (var particle in particles.ToArray()) particle.Draw(g, canvas.Height, canvas.Width);
 			foreach (var spring in springs.ToArray()) spring.Draw(g);
 		}
 		public void ApplyForcesAndUpdatePositions()
 		{
-			foreach (Particle particle in particles)
+			foreach (Particle particle in particles.ToArray())
 			{
 				if (CenterPull) particle.PullToCenter(centerPos);
 				particle.ApplyRepulsiveForces(particles);
 			}
-			foreach (Spring spring in springs) spring.ExertForcesOnParticles();
+			foreach (Spring spring in springs.ToArray())
+				spring.ExertForcesOnParticles();
 			// Update particle positions using computed forces
-			foreach (Particle particle in particles) particle.UpdatePos(canvas.Height, canvas.Width);
+			foreach (Particle particle in particles.ToArray())
+				particle.UpdatePos(canvas.Height, canvas.Width);
 		}
 
 		// The following methods assume that the given particle id exists
 		public void MarkParticle(int id, Color innerColor)
 		{
-			GetParticle(id).InnerColor = innerColor;
+			// GetParticle(id).InnerColor = innerColor;
+			MarkParticle(id, innerColor, Colors.ParticleBorderColor);
 		}
 		public void MarkParticle(int id, Color innerColor, Color borderColor)
 		{
@@ -148,23 +147,24 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 			// Find given spring and revSpring
 			Spring spring = GetSpring(edge), revSpring = GetSpring(Edge.ReversedCopy(edge));
 			List<Spring> springsToUpdate = new List<Spring>();
+			
 			// Determine what springs to update
 			if (dir == Dir.Directed) springsToUpdate.Add(spring);
 			else if (dir == Dir.Reversed) springsToUpdate.Add(revSpring);
-			else
+			else // dir = Dir.None OR dir = Dir.Undirected
 			{
-				// dir = Dir.None OR dir = Dir.Undirected
-				springsToUpdate.Add(spring); springsToUpdate.Add(revSpring);
+				springsToUpdate.Add(spring);
+				springsToUpdate.Add(revSpring);
 			}
 			springsToUpdate.RemoveAll(item => item == null);
+			
 			// Update spring colors
 			foreach (var s in springsToUpdate) s.InnerColor = color;
-			// Move highlighted springs to the end to ensure they are drawn ontop of other
-			// springs and hence "highlighted".
-			MoveSpringsToEnd(springsToUpdate);
+
+				MoveSpringsToStartOrEnd(springsToUpdate);
 
 
-			void MoveSpringsToEnd(List<Spring> springsToMove)
+			void MoveSpringsToStartOrEnd(List<Spring> springsToMove)
 			{
 				// Remove each spring appearing in 'springsToMove' from 'springs'
 				// Given springs assumed non-null
@@ -173,18 +173,14 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 					int remCount = springs.RemoveAll(item => item == springToMove);
 					if (remCount != 1) throw new Exception("Failed to match given spring!");
 				}
-				// Add removed springs in 'springsToMove' to the end of the list
-				foreach (Spring springToMove in springsToMove) springs.Add(springToMove);
+				// Add removed springs in 'springsToMove' to the start/end of the spring list
+				foreach (Spring springToMove in springsToMove)
+				{
+					// If color is not 'Colors.Visited' prepend, else append into 'springs'
+					if (color != Colors.Visited) AddSpring(springToMove);
+					else springs.Insert(0, springToMove);
+				}
 			}
-			//void MoveSpringsToEnd_BACKUP()
-			//{
-			//	List<Spring> newSpringList = new List<Spring>();
-			//	// Order Springs such that:
-			//	// unhighlighted springs appear first, and highlighted springs after
-			//	foreach (var s in springs) if (s.InnerColor != color) newSpringList.Add(s);
-			//	foreach (var s in springs) if (s.InnerColor == color) newSpringList.Add(s);
-			//	springs = newSpringList;
-			//}
 		}
 		public void ReverseSprings()
 		{

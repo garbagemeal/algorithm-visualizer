@@ -239,6 +239,8 @@ namespace AlgorithmVisualizer.Forms.Dialogs
 			this.Controls.Add(this.panel2);
 			this.Controls.Add(this.panel1);
 			this.ForeColor = System.Drawing.Color.White;
+			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+			this.MaximizeBox = false;
 			this.Name = "FDGVConfigForm";
 			this.Text = "GraphConfiguratorForm";
 			this.panel1.ResumeLayout(false);

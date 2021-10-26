@@ -1,72 +1,58 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Drawing;
 
-using AlgorithmVisualizer.GraphTheory.FDGV;
 using AlgorithmVisualizer.GraphTheory.Utils;
+using static AlgorithmVisualizer.GraphTheory.FDGV.GraphVisualizer;
 
 namespace AlgorithmVisualizer.GraphTheory.Algorithms
 {
 	class ConnectedComponentsDFS : GraphAlgorithm
 	{
 		
-		private int[] components;
+		private readonly int[] components;
 		private int componentCount = 0;
-		public ConnectedComponentsDFS(Graph graph) : base(graph) => Solve();
-
-		public override void Solve()
+		private readonly HashSet<int> visited;
+		public ConnectedComponentsDFS(Graph graph) : base(graph)
 		{
-			// List graph's components
 			// components[i] = j implies node with id i is in component j
 			components = new int[graph.NodeCount];
-			// If the graph is not undirected "does nothing"
+			visited = new HashSet<int>();
+		}
+
+		public override bool Solve()
+		{
+			if (!GraphValidator.IsUndirected(graph)) return false;
 			Color randomColor = Colors.GetRandom();
-			if (GraphValidator.IsUndirected(graph))
+			// for each node in the graph
+			for (int nodeId = 0; nodeId < graph.NodeCount; nodeId++)
 			{
-				HashSet<int> visited = new HashSet<int>();
-				for (int nodeId = 0; nodeId < graph.NodeCount; nodeId++)
+				// if not visited
+				if (!visited.Contains(nodeId))
 				{
-					if (!visited.Contains(nodeId))
-					{
-						// count & get new rnd color only when creating a new comp.
-						Solve(nodeId, visited, randomColor);
-						Sleep(1500);
-						componentCount++;
-						randomColor = Colors.GetRandom();
-					}
-				}
-				Color[] colors = new Color[componentCount];
-				for (int i = 0; i < 3; i++) colors[i] = Colors.GetRandom();
-				for (int i = 0; i < graph.NodeCount; i++)
-				{
-					graph.MarkParticle(i, colors[components[i]]);
-					Console.WriteLine($"Node id: {i}, comp id: {components[i]}");
+					// Create new component using DFS
+					DFS(nodeId, randomColor);
+					Sleep(1500);
+					componentCount++;
+					randomColor = Colors.GetRandom();
 				}
 			}
+			return true;
 		}
-		private void Solve(int at, HashSet<int> visited, Color color)
+		private void DFS(int at, Color color)
 		{
-			// DFS to find the connected componenets
 			visited.Add(at);
 			components[at] = componentCount;
 			graph.MarkParticle(at, color);
 			Sleep(1500);
-			if (graph.AdjList[at] != null)
+			foreach (Edge edge in graph.AdjList[at])
 			{
-				foreach (Edge edge in graph.AdjList[at])
+				if (!visited.Contains(edge.To))
 				{
-					if (!visited.Contains(edge.To))
-					{
-						// draw edge in orange to mark as visiting
-						graph.MarkSpring(edge, color, GraphVisualizer.Dir.Directed);
-						Sleep(1000);
-
-						Solve(edge.To, visited, color);
-
-						// draw edge in dark gret to to mark as visited
-						graph.MarkSpring(edge, Colors.Visited);
-						Sleep(1000);
-					}
+					graph.MarkSpring(edge, color, Dir.Directed);
+					Sleep(1000);
+					DFS(edge.To, color);
+					graph.MarkSpring(edge, Colors.Visited);
+					Sleep(1000);
 				}
 			}
 			Sleep(1000);

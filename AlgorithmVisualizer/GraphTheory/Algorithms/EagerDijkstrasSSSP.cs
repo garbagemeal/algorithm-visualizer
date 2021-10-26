@@ -11,7 +11,17 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 {
 	class EagerDijkstrasSSSP : GraphAlgorithm
 	{
+		/* Runtime is O(VlogE/V(V) + ElogE/V(V)) = O((V + E)(logE/V(V))), however because
+		 * only simple graphs are supported (not multi graphs), E = V(V - 1) * 2 and thus:
+		 * E = O(V^2). 
+		 * Because E = O(V^2), the expression O((V + E)(logE/V(V))) can be simplified to:
+		 * O(ElogE/V(V)) */
+
 		private readonly int from, to;
+		private readonly int[] distMap, prev;
+		private readonly HashSet<int> visited;
+		private readonly MinIndexedDHeap<int> ipq;
+
 		// Tacers for visuals in panel log
 		private ArrayTracer<int> idxTracer, distMapTracer, prevTracer;
 		private IPQTracer<int> ipqTracer;
@@ -20,145 +30,126 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 		{
 			from = _from;
 			to = _to;
-			Solve();
-		}
 
-		public override void Solve()
-		{
-			// Note: algoNum denotes the algorithm number where:
-			// 0 is the lazy Dijkstra's SSSP algo variant
-			// 1 is the eager Dijkstra's SSSP algo variant
-			// If the graph is not positive edge weighted do nothing
-			if (!GraphValidator.IsPositiveEdgeWeighted(graph)) return;
-			int[] distMap = new int[graph.NodeCount];
-			int[] prev = new int[graph.NodeCount];
-			// distMap initially hols "infinities" and prev ids of -1 (instead of null)
+			visited = new HashSet<int>();
+			distMap = new int[graph.NodeCount];
+			prev = new int[graph.NodeCount];
 			for (int i = 0; i < graph.NodeCount; i++)
 			{
 				distMap[i] = int.MaxValue;
 				prev[i] = -1;
 			}
-			HashSet<int> visited = new HashSet<int>();
 			distMap[from] = 0;
-
-			// Running Dijkstra's algo
-			bool endReached = Solve(visited, distMap, prev);
-
-			List<int> path = ReconstructPath(to, prev, endReached);
-
-			if (endReached)
-			{
-				Console.WriteLine($"Shortest path from {from} to {to}:");
-				foreach (int nodeId in path) Console.Write(nodeId + " ");
-				Console.WriteLine("Cost: " + distMap[to]);
-				// Draw SP in green
-				for (int i = 0; i < path.Count; i++)
-				{
-					graph.MarkParticle(path[i], Colors.Green);
-					// If not the starting node 
-					if (i != 0)
-					{
-						// Find and draw edge to it in SP
-						int at = path[i], prevAt = prev[at], delta = distMap[at] - distMap[prevAt];
-						graph.MarkSpring(new Edge(prevAt, at, delta), Colors.Green, Dir.Directed);
-					}
-					Sleep(700);
-				}
-			}
-			else Console.WriteLine($"No path from {from} to {to}.");
-		}
-		private bool Solve(HashSet<int> visited, int[] distMap, int[] prev)
-		{
-			// Eager Dijkstra's algo - O(ElogE/V(V))
 			int degree = graph.EdgeCount / graph.NodeCount;
-			MinIndexedDHeap<int> ipq = new MinIndexedDHeap<int>(degree, graph.NodeCount);
+			ipq = new MinIndexedDHeap<int>(degree, graph.NodeCount);
+		}
+
+		public override bool Solve()
+		{
+			if (!GraphValidator.IsPositiveEdgeWeighted(graph)) return false;
+
+			bool endReached = false;
 			ipq.InsertAt(from, 0);
-
-			SetupAndShowTracers(distMap, prev, ipq);
-
-			while (ipq.Count > 0)
+			SetupAndShowTracers();
+			while (ipq.Count > 0 && !endReached)
 			{
 				ipqTracer.Mark(0);
-				int curNodeId = ipq.PeekMinKeyIndex(), curNodeMinDist = ipq.DequeueMinValue();
+				int curNodeId = ipq.DequeueMinKeyIndex();
 				visited.Add(curNodeId);
 				graph.MarkParticle(curNodeId, Colors.Orange);
 				Sleep(1500);
 				ipqTracer.Trace();
 				Sleep(1000);
-				// Optimization: in case destionation node has been reached (to id)
-				if (curNodeId == to)
+				if (curNodeId == to) endReached = true;
+				else
 				{
-					return true;
+					VisitNeighbors(curNodeId);
+					graph.MarkParticle(curNodeId, Colors.Visited, Colors.VisitedBorder);
+					Sleep(1000);
 				}
-				VisitOutgoingEdges(curNodeId, visited, distMap, prev, ipq);
-				graph.MarkParticle(curNodeId, Colors.Visited, Colors.VisitedBorder);
+			}
+		
+			if (endReached) MarkSP();
+			else Console.WriteLine($"No path from {from} to {to}.");
+			return endReached;
+		}
+		private void VisitNeighbors(int curNodeId)
+		{
+			foreach (Edge edge in graph.AdjList[curNodeId])
+			{
+				graph.MarkSpring(edge, Colors.Orange, Dir.Directed);
+				Sleep(1000);
+				RelaxEdge(edge, curNodeId);
+				Sleep(1000);
+				graph.MarkSpring(edge, Colors.Visited, Dir.Directed);
 				Sleep(1000);
 			}
-			return false;
 		}
-		private void VisitOutgoingEdges(int curNodeId, HashSet<int> visited, int[] distMap, int[] prev, MinIndexedDHeap<int> ipq)
+		private void RelaxEdge(Edge edge, int curNodeId)
 		{
-			// Assumption(need to verify): stale nodes may not exist in the ipq because
-			// any update for distMap in this function is also reflected in ipq.
-			if (graph.AdjList[curNodeId] != null)
+			int toId = edge.To;
+			int newDist = distMap[curNodeId] + edge.Cost;
+			// Can't imporove distance by revisiting a node
+			if (!visited.Contains(toId) && newDist < distMap[toId])
 			{
-				foreach (Edge edge in graph.AdjList[curNodeId])
-				{
-					graph.MarkSpring(edge, Colors.Orange);
-					Sleep(1000);
-					// Edge relaxation
-					int toId = edge.To;
-					int newDist = distMap[curNodeId] + edge.Cost;
-					// Can't imporove distance by revisiting a node
-					if (!visited.Contains(toId) && newDist < distMap[toId])
-					{
-						graph.MarkSpring(edge, Colors.Red);
-						prevTracer.Mark(toId);
-						distMapTracer.Mark(toId);
-						prev[toId] = curNodeId;
-						distMap[toId] = newDist;
-						Sleep(1500);
-						prevTracer.Trace();
-						distMapTracer.Trace();
-						// Insert node into ipq with its distance if not present in it,
-						// otherwise try improve the value (decrease it)
-						if (!ipq.Contains(toId)) ipq.InsertAt(toId, newDist);
-						else ipq.DecreaseKey(toId, newDist);
-						ipqTracer.Trace();
-						Sleep(1000);
-					}
-					// stale edge (to already visited or no imporvement in cost)
-					else graph.MarkSpring(edge, Colors.Blue);
-					Sleep(1000);
-					graph.MarkSpring(edge, Colors.Visited);
-					Sleep(1000);
-				}
+				graph.MarkSpring(edge, Colors.Red, Dir.Directed);
+				prevTracer.Mark(toId);
+				distMapTracer.Mark(toId);
+				prev[toId] = curNodeId;
+				distMap[toId] = newDist;
+				Sleep(1500);
+				prevTracer.Trace();
+				distMapTracer.Trace();
+				// Insert toId into ipq if not present else decrease key
+				if (!ipq.Contains(toId)) ipq.InsertAt(toId, newDist);
+				else ipq.DecreaseKey(toId, newDist);
+				ipqTracer.Trace();
+				Sleep(1000);
 			}
+			else graph.MarkSpring(edge, Colors.Blue, Dir.Directed);
 		}
 
-		private List<int> ReconstructPath(int to, int[] prev, bool endReached)
+		private List<int> ReconstructPath()
 		{
+			// 'to' assumed to be reachable from the start node 'from'.
 			// Reconstruct the path using prev array by following predecessors starting
-			// from to until -1 is reached, -1 is the starting node's predecessor.
+			// from 'to' until -1 is reached, -1 is the starting node's predecessor.
 			List<int> path = new List<int>();
-			// if to is reachable
-			if (endReached)
-			{
-				for (int at = to; at != -1; at = prev[at]) path.Add(at);
-				path.Reverse();
-			}
+			for (int at = to; at != -1; at = prev[at]) path.Add(at);
+			path.Reverse();
 			return path;
 		}
-
-		private void SetupAndShowTracers(int[] distMap, int[] prev, MinIndexedDHeap<int> ipq)
+		private void MarkSP()
 		{
-			// Visuals(Tracers) for distMap, prev
+			List<int> path = ReconstructPath();
+			Console.WriteLine($"Shortest path from {from} to {to}:");
+			foreach (int nodeId in path) Console.Write(nodeId + " ");
+			Console.WriteLine("Cost: " + distMap[to]);
+			// Marking the SP
+			for (int i = 0; i < path.Count; i++)
+			{
+				graph.MarkParticle(path[i], Colors.Green);
+				// If not the starting node 
+				if (i != 0)
+				{
+					// Find and draw the edge to it in the SP
+					int at = path[i], prevAt = prev[at], delta = distMap[at] - distMap[prevAt];
+					graph.MarkSpring(new Edge(prevAt, at, delta), Colors.Green, Dir.Directed);
+				}
+				Sleep(700);
+			}
+		}
+
+		private void SetupAndShowTracers()
+		{
+			// Setup tracers
 			int[] idxArr = new int[graph.NodeCount]; for (int i = 0; i < graph.NodeCount; i++) idxArr[i] = i;
-			idxTracer = new ArrayTracer<int>(idxArr, panelLogG, "idx: ", new PointF(0, 57), new SizeF(500, 25), 25);
-			distMapTracer = new ArrayTracer<int>(distMap, panelLogG, "distMap: ", new PointF(0, 84), new SizeF(500, 25), 25);
-			prevTracer = new ArrayTracer<int>(prev, panelLogG, "prev: ", new PointF(0, 111), new SizeF(500, 25), 25);
-			ipqTracer = new IPQTracer<int>(ipq, panelLogG, "IPQ: ", new PointF(0, 10), new SizeF(500, 45), 45);
-			// Set width of the name(title) for idxTracer and pervTracer to match distMapTracer's name width(expected to be widest)
+			idxTracer = new ArrayTracer<int>(idxArr, panelLogG, "idx: ", new PointF(0, 57), new SizeF(500, 25));
+			distMapTracer = new ArrayTracer<int>(distMap, panelLogG, "distMap: ", new PointF(0, 84), new SizeF(500, 25));
+			prevTracer = new ArrayTracer<int>(prev, panelLogG, "prev: ", new PointF(0, 111), new SizeF(500, 25));
+			ipqTracer = new IPQTracer<int>(ipq, panelLogG, "IPQ: ", new PointF(0, 10), new SizeF(500, 45));
+
+			// Setting the title width of all tracers to math the longest name's width
 			idxTracer.TitleSize = prevTracer.TitleSize = distMapTracer.TitleSize;
 
 			// Trace arrays

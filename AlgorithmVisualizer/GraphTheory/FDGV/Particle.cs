@@ -15,24 +15,46 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 
 		private int textSize = 10;
 		private float borderWidth = 1.7f;
+
 		public bool Pinned { get; set; } = false;
 		public void TogglePin() => Pinned = !Pinned;
 
-		// Position, velocity and acceleration (2D vectors)
+		/* pos - a position vector; the center point of the particle
+		 * vel - the velocity of the particle
+		 * acc - the acceleration of the particle
+		 * Note that getters/setters use a copy constructor, and
+		 * setters avoid setting if given vector's X/Y is NaN or infinity. */
 		private Vector pos, vel, acc;
-		// Note that vector getter/setters use a copy constructor!
-		public Vector Pos { get { return new Vector(pos.X, pos.Y); } set { pos = new Vector(value.X, value.Y); } }
-		public Vector Vel { get { return new Vector(vel.X, vel.Y); } set { vel = new Vector(value.X, value.Y); } }
-		public Vector Acc { get { return new Vector(acc.X, acc.Y); } set { acc = new Vector(value.X, value.Y); } }
+		public Vector Pos
+		{
+			get { return new Vector(pos.X, pos.Y); }
+			set { if (Vector.IsValid(value)) pos = new Vector(value.X, value.Y); }
+		}
+		public Vector Vel
+		{
+			get { return new Vector(vel.X, vel.Y); }
+			set { if (Vector.IsValid(value)) vel = new Vector(value.X, value.Y); }
+		}
+		public Vector Acc
+		{
+			get { return new Vector(acc.X, acc.Y); }
+			set { if (Vector.IsValid(value)) acc = new Vector(value.X, value.Y); }
+		}
 
-		// Physics related params and their defaults, can be changed from "FDGVConfigForm.cs".
+		/* Physics related params and their defaults, can be changed from "FDGVConfigForm.cs".
+		 * G - The gravitational force used to pull particles to the center or repel others.
+		 * MaxSpeed - the maximum allowed speed of particles
+		 * MaxCenterPullMag - the maximum allowed magnitude(size) of the center pull force
+		 * VelDey - the rate of velocity loss, i.e a velDecay of .99 will result in 
+		 * 1% loss of velocity per invocation of UpdatePos()
+		 * Size - the size of the particle */
 		public const float DefaultSize = 30, DefaultG = 1000f, DefaultMaxSpeed = 10f,
 			DefaultMaxCenterPullMag = 0.1f, DefaultVelDecay = 0.99f;
 		public static float G, MaxSpeed, MaxCenterPullMag, VelDecay, Size;
 
 		public Particle(int id, int data, Vector _pos) : base(id, data)
 		{
-			pos = _pos;
+			Pos = _pos;
 			vel = new Vector(0, 0);
 			acc = new Vector(0, 0);
 			// Use default color scheme
@@ -49,7 +71,6 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 		}
 		public void SetDefaultColors()
 		{
-			// Set particle's colors to defaults
 			InnerColor = Colors.ParticleInnerColor;
 			BorderColor = Colors.ParticleBorderColor;
 			TextColor = Colors.ParticleTextColor;
@@ -57,8 +78,8 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 
 		public void Draw(Graphics g, int canvasHeight, int canvasWidth)
 		{
-			// Needed in case of window resize where forces are disabled and particle
-			// clips outside of canvas
+			// Required for the particle move event by drag in order to prohibit
+			// moving particles outside of the canvas
 			BoundWithinCanvas(canvasHeight, canvasWidth);
 			using (var innerBrush = new SolidBrush(InnerColor)) Draw(g, innerBrush);
 		}
@@ -79,46 +100,32 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 				// Draw border
 				using (var pen = new Pen(BorderColor, borderWidth)) g.DrawEllipse(pen, rect);
 				// Draw node id centered within particle
+				using (var font = new Font("Arial", textSize))
 				using (var textBrush = new SolidBrush(TextColor))
 				using (var sf = new StringFormat())
 				{
-					// Used to center string with sf
 					sf.LineAlignment = StringAlignment.Center;
 					sf.Alignment = StringAlignment.Center;
-					using (Font font = new Font("Arial", textSize))
-						g.DrawString(Id.ToString(), font, textBrush, rect, sf);
+					g.DrawString(Id.ToString(), font, textBrush, rect, sf);
 				}
 			}
 		}
  
-		public void Accelerate(Vector F) => acc += F;
 		public void UpdatePos(int canvasHeight, int canvasWidth)
 		{
 			// Ignore pinned particles
 			if (!Pinned)
 			{
 				// Update velocity using current acceleration and apply force decay
-				vel += acc;
-				vel *= VelDecay;
+				Vel += acc;
+				Vel *= VelDecay;
 				if (vel.Magnitude > MaxSpeed) vel.Magnitude = MaxSpeed;
 				// Update the position by adding the velocity to the current position
-				pos += vel;
+				Pos += vel;
 				BoundWithinCanvas(canvasHeight, canvasWidth);
 			}
 			// Avoid propagation of acceleration between invocations to this method
 			acc.Set(0, 0);
-		}
-		public void BoundWithinCanvas(int canvasHeight, int canvasWidth)
-		{
-			// Bounds the position vector of this particle within the canvas.
-			// The bounding is with respect to the middle point where x, y are
-			// always offset by radius from all 4 directions
-
-			float radius = Size / 2;
-			// Bound X within canvasWidth
-			pos.X = Math.Max(radius, Math.Min(canvasWidth - radius, pos.X));
-			// Bound Y within canvasHeight
-			pos.Y = Math.Max(radius, Math.Min(canvasHeight - radius, pos.Y));
 		}
 		public void PullToCenter(Vector centerPos)
 		{
@@ -128,7 +135,7 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 			float mag = Math.Min(F.Magnitude / G, MaxCenterPullMag);
 			F.Magnitude = mag;
 			// Add force into acc
-			acc += F;
+			Acc += F;
 		}
 		public void ApplyRepulsiveForces(List<Particle> paricleList)
 		{
@@ -146,11 +153,18 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 					if (F.Magnitude == 0) F = Vector.GetRandom();
 					// set F's mag and add into acc
 					F.Magnitude = G / (F.Magnitude * F.Magnitude);
-					particle.acc += F;
+					particle.Acc += F;
 				}
 			}
 		}
 
+		private void BoundWithinCanvas(int canvasHeight, int canvasWidth)
+		{
+			// Offset pos by radius from all 4 directions of the canvas
+			float radius = Size / 2;
+			Pos = new Vector(Math.Max(radius, Math.Min(canvasWidth - radius, pos.X)),
+							 Math.Max(radius, Math.Min(canvasHeight - radius, pos.Y)));
+		}
 		public bool PointIsWithin(float x, float y)
 		{
 			// Check if the given point's coordinates are within the particle(circle)

@@ -9,8 +9,8 @@ namespace AlgorithmVisualizer.Tracers
 	{
 		private BinaryMinHeap<T> heap;
 
-		public HeapTracer(BinaryMinHeap<T> _heap, Graphics g, string title, PointF startPoint, SizeF size, float entryWidth)
-			: base(g, title, startPoint, size, entryWidth) => heap = _heap;
+		public HeapTracer(BinaryMinHeap<T> _heap, Graphics g, string title, PointF startPoint, SizeF size)
+			: base(g, title, startPoint, size) => heap = _heap;
 
 		public override void Trace() => Trace(heap.ToArray());
 		public override void Mark(int i) => Mark(heap.ToArray(), i);

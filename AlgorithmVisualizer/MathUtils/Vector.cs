@@ -29,7 +29,6 @@ namespace AlgorithmVisualizer.MathUtils
 			return new Vector(v.X / scalar, v.Y / scalar);
 		}
 
-		// return distance using the pythagorean formula
 		public void Normalize()
 		{
 			// Scale vector such that its magnitude becomes 1
@@ -44,11 +43,25 @@ namespace AlgorithmVisualizer.MathUtils
 
 		public float Magnitude
 		{
+			// Return distance using the pythagorean formula
 			get { return (float)Math.Sqrt(X * X + Y * Y); }
 			// Normalize the vector and then set x and y to match the new mag
 			set { Normalize(); X *= value; Y *= value; }
 		}
+		
+		public override string ToString() => string.Format("({0}, {1})", X, Y);
 
+		public static bool IsValid(Vector v)
+		{
+			// false if v.X or v.Y is NaN or positive/negative infinity, true otherwise
+			float[] values = new float[] { v.X, v.Y };
+			foreach (float val in values)
+			{
+				if (float.IsNaN(val)) return false;
+				if (float.IsInfinity(val)) return false;
+			}
+			return true;
+		}
 		public static Vector GetRandom()
 		{
 			// Returns a new randomized vector
@@ -63,6 +76,7 @@ namespace AlgorithmVisualizer.MathUtils
 				return (float)(mantissa * exponent);
 			}
 		}
-		public override string ToString() => string.Format("({0}, {1})", X, Y);
+
+
 	}
 }
