@@ -137,12 +137,12 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 			// Add force into acc
 			Acc += F;
 		}
-		public void ApplyRepulsiveForces(List<Particle> paricleList)
+		public void ApplyRepulsiveForces(Particle[] paricles)
 		{
 			// Gravitational force formula: F = G * (m1 + m2) / d^2
 
 			// foreach particle in the particle list
-			foreach (Particle particle in paricleList)
+			foreach (Particle particle in paricles)
 			{
 				// If not this particle
 				if (this != particle)

@@ -10,7 +10,7 @@ namespace AlgorithmVisualizer.Forms
 		private readonly int logMinHeight, logMaxHeight;
 		private bool inResizeMode = false;
 		// Used to avoid panel log resize when visualizing
-		public bool InVizMode { get; set; } = false;
+		public bool inGraphAlgoViz { get; set; } = false;
 
 		public MainUIForm()
 		{
@@ -52,7 +52,7 @@ namespace AlgorithmVisualizer.Forms
 		private void panelLog_MouseDown(object sender, MouseEventArgs e)
 		{
 			// Enter resize mode on left click if not visualizing
-			if (!InVizMode && e.Button == MouseButtons.Left) inResizeMode = true;
+			if (!inGraphAlgoViz && e.Button == MouseButtons.Left) inResizeMode = true;
 		}
 		private void panelLog_MouseMove(object sender, MouseEventArgs e)
 		{

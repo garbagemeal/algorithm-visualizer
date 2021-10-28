@@ -325,6 +325,7 @@ namespace AlgorithmVisualizer.Forms
 			this.canvas.TabStop = false;
 			this.canvas.Paint += new System.Windows.Forms.PaintEventHandler(this.canvas_Paint);
 			this.canvas.MouseDown += new System.Windows.Forms.MouseEventHandler(this.canvas_MouseDown);
+			this.canvas.MouseLeave += new System.EventHandler(this.canvas_MouseLeave);
 			this.canvas.MouseMove += new System.Windows.Forms.MouseEventHandler(this.canvas_MouseMove);
 			this.canvas.MouseUp += new System.Windows.Forms.MouseEventHandler(this.canvas_MouseUp);
 			// 
@@ -337,10 +338,12 @@ namespace AlgorithmVisualizer.Forms
 			this.Controls.Add(this.canvas);
 			this.Controls.Add(this.panelControls);
 			this.ForeColor = System.Drawing.Color.White;
+			this.KeyPreview = true;
 			this.Name = "GraphAlgoForm";
 			this.Text = "Graph algorithms";
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.GraphAlgoForm_FormClosing);
-			this.Resize += new System.EventHandler(this.Form_Resize);
+			this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.GraphAlgoForm_KeyDown);
+			this.Resize += new System.EventHandler(this.GraphAlgoForm_Resize);
 			this.vertexContextStrip.ResumeLayout(false);
 			this.panelControls.ResumeLayout(false);
 			this.panelControls.PerformLayout();

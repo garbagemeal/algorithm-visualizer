@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 using AlgorithmVisualizer.GraphTheory.Utils;
@@ -103,21 +104,21 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 		#region Visuals
 		public void DrawGraph(Graphics g)
 		{
-			foreach (var particle in particles.ToArray()) particle.Draw(g, canvas.Height, canvas.Width);
+			foreach (var particle in particles.ToList()) particle.Draw(g, canvas.Height, canvas.Width);
 			foreach (var spring in springs.ToArray()) spring.Draw(g);
 		}
 		public void ApplyForcesAndUpdatePositions()
 		{
-			foreach (Particle particle in particles.ToArray())
+			Particle[] particlesCP = particles.ToArray();
+			Spring [] springsCP = springs.ToArray();
+			foreach (var particle in particlesCP)
 			{
 				if (CenterPull) particle.PullToCenter(centerPos);
-				particle.ApplyRepulsiveForces(particles);
+				particle.ApplyRepulsiveForces(particlesCP);
 			}
-			foreach (Spring spring in springs.ToArray())
-				spring.ExertForcesOnParticles();
+			foreach (var spring in springsCP) spring.ExertForcesOnParticles();
 			// Update particle positions using computed forces
-			foreach (Particle particle in particles.ToArray())
-				particle.UpdatePos(canvas.Height, canvas.Width);
+			foreach (var particle in particlesCP) particle.UpdatePos(canvas.Height, canvas.Width);
 		}
 
 		// The following methods assume that the given particle id exists

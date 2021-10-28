@@ -29,14 +29,21 @@ namespace AlgorithmVisualizer.Forms
 		private readonly Panel panelLog;
 		private readonly Graphics panelLogG;
 
-		// Keeping track of active particles (mouse events)
-		private Vector activeRClickPos;
-		private Particle activeParticle;
+		/*
+		 * canvasRightClickPos - used when adding new particles
+		 * canvasHoverPos - pos of the mouse within the canvas on hover (null if outside)
+		 * movingParticle - particle movment by drag(left click hold)
+		 * activeParticleId - toggling vertex pins, removing particles, adding/removing edges
+		 * 
+		 * inGraphAlgoViz - avoid adding/removing nodes/edges during graph algo viz
+		 * forcesEnabled - store force toggle status for graph viz bgw
+		 * formIsMinimized - avoid applying forces and drawing the graph while form is minimized
+		 * formClosePending - making sure to close graph viz bgw before form close
+		 */
+		private Vector canvasRightClickPos, canvasMouseHoverPos;
+		private Particle movingParticle;
 		private int activeParticleId = -1;
-
-		private bool inVizMode = false;
-		private bool forcesEnabled = true;
-		private bool formIsMinimized = false, formClosePending = false;
+		private bool inGraphAlgoViz = false, forcesEnabled = true, formIsMinimized = false, formClosePending = false;
 
 		public GraphAlgoForm(MainUIForm _parentForm)
 		{
@@ -74,7 +81,7 @@ namespace AlgorithmVisualizer.Forms
 				if (!formIsMinimized && !graph.IsEmpty())
 				{
 					if (forcesEnabled) graph.ApplyForcesAndUpdatePositions();
-					TriggerCanvasPaintEvent();
+					RefreshCanvas();
 				}
 			}
 		}
@@ -88,17 +95,14 @@ namespace AlgorithmVisualizer.Forms
 		}
 
 		// Safely invoke "canvas.Refresh()"
-		private delegate void TriggerCanvasPaintEventCallback();
-		private void TriggerCanvasPaintEvent()
+		private delegate void RefreshCanvasCallback();
+		private void RefreshCanvas()
 		{
 			// InvokeRequired required compares the thread ID of the
 			// calling thread to the thread ID of the creating thread.
 			// If these threads are different, it returns true.
 			if (canvas.InvokeRequired)
-			{
-				var d = new TriggerCanvasPaintEventCallback(TriggerCanvasPaintEvent);
-				canvas.Invoke(d, new object[] { });
-			}
+				canvas.Invoke(new RefreshCanvasCallback(RefreshCanvas), new object[] { });
 			else canvas.Refresh();
 		}
 		#endregion
@@ -158,7 +162,7 @@ namespace AlgorithmVisualizer.Forms
 			graph.Sleep(1500);
 			// BUG: unsure why canvas paint trigger is required, doesn't
 			// 'bgwGraphLayoutViz' already trigger the same event?
-			TriggerCanvasPaintEvent();
+			RefreshCanvas();
 		}
 		void UnmarkNodes(int from, int to)
 		{
@@ -166,7 +170,7 @@ namespace AlgorithmVisualizer.Forms
 				if (id != -1) graph.ResetParticleColors(id);
 			graph.Sleep(1500);
 			// Again unsure why triggering is needed if bgwGraphLayoutViz should already do so?
-			TriggerCanvasPaintEvent();
+			RefreshCanvas();
 		}
 		private void RunAlgo(int from, int to)
 		{
@@ -224,7 +228,7 @@ namespace AlgorithmVisualizer.Forms
 		{
 			// Controls to disable while visualizing (not including parent form)
 			Control[] controls = new Control[] { btnPauseResume, btnStart, btnReset, btnClearState, btnPresets, algoComboBox };
-			parentForm.InVizMode = inVizMode = true;
+			parentForm.inGraphAlgoViz = inGraphAlgoViz = true;
 			parentForm.ToggleMainMenuBtns();
 			// Enable Pause/Resume and disable the rest of the controls before visualizing
 			foreach (Control control in controls) SetControlEnabled(control, control == btnPauseResume);
@@ -236,7 +240,7 @@ namespace AlgorithmVisualizer.Forms
 			// Disable Pause/Resume and re-enable the rest of the controls after visualizing
 			foreach (Control control in controls) SetControlEnabled(control, control != btnPauseResume);
 			parentForm.ToggleMainMenuBtns();
-			parentForm.InVizMode = inVizMode = false;
+			parentForm.inGraphAlgoViz = inGraphAlgoViz = false;
 		}
 		// Safely access control.Enabled, i.e: btnStart.Enabled
 		private delegate void SetControlEnabledCallback(Control control, bool enabled);
@@ -359,27 +363,11 @@ namespace AlgorithmVisualizer.Forms
 		
 		private void addVertexToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			if (inVizMode) return; // do nothing if currently visualizing somthing
-			using (var vertexDialog = new VertexDialog())
-			{
-				vertexDialog.StartPosition = FormStartPosition.CenterParent;
-				if (vertexDialog.ShowDialog() == DialogResult.OK)
-				{
-					int id = vertexDialog.Id;
-					// if id is negative then input is invalid
-					if (id >= 0)
-					{
-						bool opStatus = graph.AddNode(id, activeRClickPos);
-						activeRClickPos = null;
-						Console.WriteLine("Adding new node with id {0}, status: {1}", id, opStatus ? "Success" : "Failure");
-					}
-					else Console.WriteLine("Failed to add! negative node ids not prohibited!");
-				}
-			}
+			graph.AddNode(canvasRightClickPos);
 		}
 		private void removeVertexToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			if (inVizMode) return; // do nothing if currently visualizing somthing
+			if (inGraphAlgoViz) return; // do nothing if currently visualizing somthing
 			if (activeParticleId != -1)
 			{
 				bool remStatus = graph.RemoveNode(activeParticleId);
@@ -390,7 +378,7 @@ namespace AlgorithmVisualizer.Forms
 		}
 		private void addEdgeToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			if (inVizMode) return; // do nothing if currently visualizing somthing
+			if (inGraphAlgoViz) return; // do nothing if currently visualizing somthing
 			using (var edgeDialog = new EdgeDialog(addingMode: true))
 			{
 				edgeDialog.StartPosition = FormStartPosition.CenterParent;
@@ -413,7 +401,7 @@ namespace AlgorithmVisualizer.Forms
 		}
 		private void removeEdgeToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			if (inVizMode) return; // do nothing if currently visualizing somthing
+			if (inGraphAlgoViz) return; // do nothing if currently visualizing somthing
 			using (var edgeDialog = new EdgeDialog(addingMode: false))
 			{
 				edgeDialog.StartPosition = FormStartPosition.CenterParent;
@@ -448,22 +436,23 @@ namespace AlgorithmVisualizer.Forms
 				Particle clickedParticle = graph.GetClickedParticle(x, y);
 				if (clickedParticle != null)
 				{
-					activeParticle = clickedParticle;
-					activeParticle.Pinned = true;
+					movingParticle = clickedParticle;
+					movingParticle.Pinned = true;
 				}
 			}
 		}
 		private void canvas_MouseMove(object sender, MouseEventArgs e)
 		{
-			if (activeParticle != null) activeParticle.Pos = new Vector(e.X, e.Y);
+			canvasMouseHoverPos = new Vector(e.X, e.Y);
+			if (movingParticle != null) movingParticle.Pos = canvasMouseHoverPos;
 		}
 		private void canvas_MouseUp(object sender, MouseEventArgs e)
 		{
 			// Unpin particle for left/right click release
-			if (activeParticle != null && e.Button == MouseButtons.Left || e.Button == MouseButtons.Right)
+			if (movingParticle != null && (e.Button == MouseButtons.Left || e.Button == MouseButtons.Right))
 			{
-				activeParticle.Pinned = false;
-				activeParticle = null;
+				movingParticle.Pinned = false;
+				movingParticle = null;
 			}
 			// Additionaly for rightlick release open the appropriate conect menu
 			if (e.Button == MouseButtons.Right)
@@ -482,12 +471,18 @@ namespace AlgorithmVisualizer.Forms
 				else
 				{
 					// show canvasContextStrip (add vertex)
+					canvasRightClickPos = new Vector(x, y);
 					canvasContextStrip.Show(Cursor.Position);
-					activeRClickPos = new Vector(x, y);
 				}
 			}
 		}
-		private void Form_Resize(object sender, EventArgs e)
+
+		private void canvas_MouseLeave(object sender, EventArgs e)
+		{
+			canvasMouseHoverPos = null;
+		}
+
+		private void GraphAlgoForm_Resize(object sender, EventArgs e)
 		{
 			// Can occour when the form is minimized
 			if (Width > 0)
@@ -511,6 +506,31 @@ namespace AlgorithmVisualizer.Forms
 				e.Cancel = true;
 				Enabled = false; // or this.Hide()
 			}
+		}
+		private void GraphAlgoForm_KeyDown(object sender, KeyEventArgs e)
+		{
+			// If not during a graph algo viz and hovering over canvas
+			if (!inGraphAlgoViz && canvasMouseHoverPos != null)
+			{
+				// If pressd key is 'a' try adding a node, if failed to add show a message
+				if (e.KeyCode == Keys.A && !graph.AddNode(canvasMouseHoverPos))
+					SimpleDialog.ShowMessage("", "Failed to add node");
+				// If pressd key is 'r'
+				else if (e.KeyCode == Keys.R)
+				{
+					// Try getting the clicked particle using the postion of the mouse
+					var clickedParticle = graph.GetClickedParticle(canvasMouseHoverPos.X, canvasMouseHoverPos.Y);
+					// Try removing the particle if non null, if failed to remove show a message
+					if (clickedParticle != null && !graph.RemoveNode(clickedParticle.Id))
+						SimpleDialog.ShowMessage("", "Failed to remove node with id " + clickedParticle.Id);
+				}
+			}
+		}
+		protected override void OnShown(EventArgs e)
+		{
+			// Used to make key binds work, otherwise need to foucs on the form, i.e,
+			// press a button, and only then can keybinds will work
+			Focus();
 		}
 		#endregion
 

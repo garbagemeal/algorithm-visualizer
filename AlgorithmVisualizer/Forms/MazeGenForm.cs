@@ -36,7 +36,7 @@ namespace AlgorithmVisualizer.Forms
 
 			// Enable Pause/Resume and disable btnDrawSolveClearMaze while visualizing
 			Control[] controls = new Control[] { btnPauseResume, btnDrawSolveClearMaze };
-			parentForm.InVizMode = true;
+			parentForm.inGraphAlgoViz = true;
 			parentForm.ToggleMainMenuBtns();
 			foreach (Control control in controls) SetControlEnabled(control, control == btnPauseResume);
 
@@ -47,7 +47,7 @@ namespace AlgorithmVisualizer.Forms
 			// Disable Pause/Resume and enable btnDrawSolveClearMaze after visualizing
 			foreach (Control control in controls) SetControlEnabled(control, control != btnPauseResume);
 			parentForm.ToggleMainMenuBtns();
-			parentForm.InVizMode = false;
+			parentForm.inGraphAlgoViz = false;
 			if (worker.CancellationPending) e.Cancel = true;
 		}
 

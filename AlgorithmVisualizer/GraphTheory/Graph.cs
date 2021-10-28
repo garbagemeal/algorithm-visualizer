@@ -13,23 +13,15 @@ namespace AlgorithmVisualizer.GraphTheory
 	// Directed adjacency list representation of a graph.
 	public class Graph : GraphVisualizer
 	{
-		/* Keep in mind:
-		 * Presence of node i ==> adj[i] != null
-		 * Absence  of node i ==> adj[i] == null */
-
 		// The adjacencey list
 		public Dictionary<int, List<Edge>> AdjList { get; private set; }
-		public int NodeCount { get { return nodeLookup.Count; } }
+		public int NodeCount { get { return nodeLookup.Count; } private set { } }
 		public int EdgeCount { get; private set; } = 0;
 
 		public Graph(PictureBox canvas, Graphics gLog) : base(canvas, gLog) =>
 			AdjList = new Dictionary<int, List<Edge>>();
 
 		#region Graph manipulation
-		public bool IsEmpty() => NodeCount == 0;
-		public bool ContainsNode(int id) => nodeLookup.ContainsKey(id);
-		// Returns a random key from nodeLookup; a random node id
-		public int GetRandomNodeId() => nodeLookup.ElementAt(rnd.Next(nodeLookup.Count)).Key;
 		public void ClearGraph()
 		{
 			nodeLookup.Clear();
@@ -38,15 +30,28 @@ namespace AlgorithmVisualizer.GraphTheory
 			// Visuals
 			ClearParticlesAndSprings();
 		}
-		public bool AddNode(int id) => AddNode(id, RndPosWithinCanvas());
-		public bool AddNode(int id, Vector posVector)
+		public bool IsEmpty() => NodeCount == 0;
+		public bool ContainsNode(int id) => nodeLookup.ContainsKey(id);
+
+		public bool AddNode(int id)
 		{
 			if (ContainsNode(id)) return false;
+			return AddNode(id, RndPosWithinCanvas());
+		}
+		public bool AddNode(Vector posVector)
+		{
+			for (int i = 0; i <= NodeCount; i++)
+				if (!ContainsNode(i)) return AddNode(i, posVector);
+			return false;
+		}
+		private bool AddNode(int id, Vector posVector)
+		{
 			Particle particle = new Particle(id, 0, posVector);
 			nodeLookup[id] = particle;
 			AdjList[id] = new List<Edge>();
 			// For visualization
 			AddParticle(particle);
+			Console.WriteLine("Node count: " + NodeCount);
 			return true;
 		}
 		public bool RemoveNode(int id)
@@ -78,6 +83,7 @@ namespace AlgorithmVisualizer.GraphTheory
 			nodeLookup.Remove(id);
 			return true;
 		}
+
 		public bool AddDirectedEdge(int from, int to, int cost)
 		{
 			// Both node id's present in nodeLookup and not trying to create a self loop
@@ -188,40 +194,9 @@ namespace AlgorithmVisualizer.GraphTheory
 			}
 			return false;
 		}
-		private bool ResultsInParallelEdge(Edge cmpEdge)
-		{
-			// forbid parlel edges, i.e, (u, v, x1), (u, v, x2).
-			int from = cmpEdge.From, to = cmpEdge.To;
+		#endregion
 
-			foreach (Edge edge in AdjList[from])
-			{
-				if (edge.From == from && edge.To == to)
-				{
-					Console.WriteLine("ResultInParallelEdge1");
-					return true;
-				}
-			}
-			return false;
-		}
-		private bool ResultsInInverseEdgesOfDiffCost(Edge cmpEdge)
-		{
-			// forbid coexistance of edges of the form (u, v, x1), (v, u, x2) if x1 != x2
-			int from = cmpEdge.From, to = cmpEdge.To, cost = cmpEdge.Cost;
-			List<Edge> toEdgeList = AdjList[to];
-
-			for (int i = 0; i < toEdgeList.Count; i++)
-			{
-				if (toEdgeList[i].From == to &&
-					toEdgeList[i].To == from &&
-					toEdgeList[i].Cost != cost)
-				{
-					Console.WriteLine("ResultInParallelEdge2");
-					return true;
-				}
-			}
-			return false;
-		}
-
+		#region Miscellaneous
 		// Some data structures require node id's to be in the range 0 - V non inclusive
 		public void FixNodeIdNumbering()
 		{
@@ -291,9 +266,41 @@ namespace AlgorithmVisualizer.GraphTheory
 				}
 			}
 		}
-		#endregion
 
-		#region Miscellaneous
+		private bool ResultsInParallelEdge(Edge cmpEdge)
+		{
+			// forbid parlel edges, i.e, (u, v, x1), (u, v, x2).
+			int from = cmpEdge.From, to = cmpEdge.To;
+
+			foreach (Edge edge in AdjList[from])
+			{
+				if (edge.From == from && edge.To == to)
+				{
+					Console.WriteLine("ResultInParallelEdge1");
+					return true;
+				}
+			}
+			return false;
+		}
+		private bool ResultsInInverseEdgesOfDiffCost(Edge cmpEdge)
+		{
+			// forbid coexistance of edges of the form (u, v, x1), (v, u, x2) if x1 != x2
+			int from = cmpEdge.From, to = cmpEdge.To, cost = cmpEdge.Cost;
+			List<Edge> toEdgeList = AdjList[to];
+
+			for (int i = 0; i < toEdgeList.Count; i++)
+			{
+				if (toEdgeList[i].From == to &&
+					toEdgeList[i].To == from &&
+					toEdgeList[i].Cost != cost)
+				{
+					Console.WriteLine("ResultInParallelEdge2");
+					return true;
+				}
+			}
+			return false;
+		}
+
 		public Dictionary<int, List<Edge>> GetGTranspose()
 		{
 			// Returns a new adjacency list, Gt, where each edge(u, v, x) becomes(v, u, x)
@@ -311,6 +318,7 @@ namespace AlgorithmVisualizer.GraphTheory
 			}
 			return Gt;
 		}
+
 		public List<Edge> GetUndirectedEdgeList()
 		{
 			// *** SHOULD ONLY BE USED FOR UNDIRECTED GRAPHS! ***
