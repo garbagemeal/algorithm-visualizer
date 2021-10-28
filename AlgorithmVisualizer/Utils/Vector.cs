@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace AlgorithmVisualizer.MathUtils
+namespace AlgorithmVisualizer.Utils
 {
 	public class Vector
 	{

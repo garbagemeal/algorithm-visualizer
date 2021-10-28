@@ -11,6 +11,6 @@ namespace AlgorithmVisualizer.Tracers
 			: base(g, title, startPoint, size) => stk = _stk;
 
 		public override void Trace() => Trace(stk.ToArray());
-		public override void Mark(int i) => Mark(stk.ToArray(), i);
+		public override void Mark(int i, Color color) => Mark(stk.ToArray(), i, color);
 	}
 }

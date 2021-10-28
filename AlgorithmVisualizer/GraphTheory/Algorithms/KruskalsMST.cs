@@ -41,12 +41,12 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 			// Creating a disjoint set (union find) of size V
 			DisjointSet disjointSet = new DisjointSet(graph.NodeCount);
 			heapTracer = new HeapTracer<Edge>(heap, panelLogG, "Heap: ", new PointF(0, 10), new SizeF(500, 45));
-			(int Cost, List<Edge> Edges) MSTDetails = Solve(heap, disjointSet, heapTracer);
+			(int Cost, List<Edge> Edges) = Solve(heap, disjointSet, heapTracer);
 
 			// Note that it may be a MSF and not a MST
-			Console.WriteLine("MST Cost: " + MSTDetails.Cost);
+			Console.WriteLine("MST Cost: " + Cost);
 			Console.WriteLine("MST Edges:");
-			foreach (Edge edge in MSTDetails.Edges) Console.WriteLine(edge);
+			foreach (Edge edge in Edges) Console.WriteLine(edge);
 			return true;
 		}
 		private (int, List<Edge>) Solve(BinaryMinHeap<Edge> heap,
@@ -61,7 +61,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 			// As long as the heap is not empty and the disjoint set has more than 1 component
 			while (heap.Count > 0 && disjointSet.NumComponents > 1)
 			{
-				heapTracer.Mark(0);
+				heapTracer.Mark(0, Colors.Red);
 				Edge edge = heap.Dequeue();
 				Sleep(1000);
 				heapTracer.Trace();

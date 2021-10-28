@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 using AlgorithmVisualizer.GraphTheory.Utils;
-using AlgorithmVisualizer.MathUtils;
+using AlgorithmVisualizer.Utils;
 using AlgorithmVisualizer.Threading;
 
 namespace AlgorithmVisualizer.GraphTheory.FDGV

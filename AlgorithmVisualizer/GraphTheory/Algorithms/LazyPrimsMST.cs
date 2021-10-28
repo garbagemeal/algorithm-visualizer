@@ -28,19 +28,19 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 			BinaryMinHeap<Edge> heap = new BinaryMinHeap<Edge>();
 			HashSet<int> visited = new HashSet<int>();
 			heapTracer = new HeapTracer<Edge>(heap, panelLogG, "Heap: ", new PointF(0, 10), new SizeF(500, 50));
-			(int Cost, List<Edge> Edges) MSTDetails = Solve(heap, visited);
+			(int Cost, List<Edge> Edges) = Solve(heap, visited);
 			// If the edge list is null then there is no min spanning tree
 			// This case is not to be confused with an empty (non-null) list
 			// represents an MST of a single node with no edes.
-			if (MSTDetails.Edges == null)
+			if (Edges == null)
 			{
 				Console.WriteLine("There is no MST for the given graph");
 				return false;
 			}
 			else
 			{
-				Console.WriteLine("MST Details: \nCost: {0}, Edge list:", MSTDetails.Cost);
-				foreach (Edge edge in MSTDetails.Edges) Console.WriteLine(edge);
+				Console.WriteLine("MST Details: \nCost: {0}, Edge list:", Cost);
+				foreach (Edge edge in Edges) Console.WriteLine(edge);
 				return true;
 			}
 		}
@@ -53,7 +53,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 
 			while (heap.Count > 0 && edgeCount != expectedEdgeCount)
 			{
-				heapTracer.Mark(0);
+				heapTracer.Mark(0, Colors.Red);
 				Edge edge = heap.Dequeue();
 				graph.MarkSpring(edge, Colors.Red, Dir.Directed);
 				Sleep(1500);

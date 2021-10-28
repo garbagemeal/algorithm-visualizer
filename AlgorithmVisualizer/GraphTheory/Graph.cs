@@ -6,7 +6,7 @@ using System.Linq;
 using System.Windows.Forms;
 using AlgorithmVisualizer.Forms.Dialogs;
 using AlgorithmVisualizer.GraphTheory.FDGV;
-using AlgorithmVisualizer.MathUtils;
+using AlgorithmVisualizer.Utils;
 
 namespace AlgorithmVisualizer.GraphTheory
 {

@@ -13,6 +13,6 @@ namespace AlgorithmVisualizer.Tracers
 			: base(g, title, startPoint, size) => heap = _heap;
 
 		public override void Trace() => Trace(heap.ToArray());
-		public override void Mark(int i) => Mark(heap.ToArray(), i);
+		public override void Mark(int i, Color color) => Mark(heap.ToArray(), i, color);
 	}
 }

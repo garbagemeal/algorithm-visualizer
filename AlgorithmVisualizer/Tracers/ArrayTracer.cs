@@ -10,6 +10,6 @@ namespace AlgorithmVisualizer.Tracers
 			: base(g, title, startPoint, size) => arrToTrace = arr;
 
 		public override void Trace() => Trace(arrToTrace);
-		public override void Mark(int i) => Mark(arrToTrace, i);
+		public override void Mark(int i, Color color) => Mark(arrToTrace, i, color);
 	}
 }

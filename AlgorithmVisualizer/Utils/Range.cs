@@ -1,4 +1,4 @@
-﻿namespace AlgorithmVisualizer.MathUtils
+﻿namespace AlgorithmVisualizer.Utils
 {
 	class Range
 	{

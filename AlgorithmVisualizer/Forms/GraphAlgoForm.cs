@@ -11,7 +11,7 @@ using AlgorithmVisualizer.GraphTheory;
 using AlgorithmVisualizer.GraphTheory.Algorithms;
 using AlgorithmVisualizer.GraphTheory.FDGV;
 using AlgorithmVisualizer.GraphTheory.Utils;
-using AlgorithmVisualizer.MathUtils;
+using AlgorithmVisualizer.Utils;
 using static AlgorithmVisualizer.Forms.GraphAlgoSettings;
 
 namespace AlgorithmVisualizer.Forms

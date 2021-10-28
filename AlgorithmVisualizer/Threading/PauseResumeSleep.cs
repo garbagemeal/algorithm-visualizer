@@ -1,4 +1,4 @@
-﻿using AlgorithmVisualizer.MathUtils;
+﻿using AlgorithmVisualizer.Utils;
 using System;
 using System.Threading;
 

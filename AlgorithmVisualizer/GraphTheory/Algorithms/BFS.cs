@@ -33,7 +33,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 			Sleep(1500);
 			while (q.Count > 0)
 			{
-				qTracer.Mark(0);
+				qTracer.Mark(0, Colors.Red);
 				int at = q.Dequeue();
 				// Mark node on visit
 				graph.MarkParticle(at, at == to ? Colors.Red : Colors.Orange);

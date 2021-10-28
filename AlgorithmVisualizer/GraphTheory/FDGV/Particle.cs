@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 
 using AlgorithmVisualizer.GraphTheory.Utils;
-using AlgorithmVisualizer.MathUtils;
+using AlgorithmVisualizer.Utils;
 
 namespace AlgorithmVisualizer.GraphTheory.FDGV
 {

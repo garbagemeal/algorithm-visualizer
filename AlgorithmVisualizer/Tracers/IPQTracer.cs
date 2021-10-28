@@ -13,7 +13,7 @@ namespace AlgorithmVisualizer.Tracers
 			: base(g, title, startPoint, size) => ipq = _ipq;
 
 		public override void Trace() => Trace(IpqToStrArr());
-		public override void Mark(int i) => Mark(IpqToStrArr(), i);
+		public override void Mark(int i, Color color) => Mark(IpqToStrArr(), i, color);
 
 		private string[] IpqToStrArr()
 		{

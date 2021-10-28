@@ -31,7 +31,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 				if (!visited.Contains(edge.To))
 				{
 					// Mark edge on visit
-					graph.MarkSpring(edge, Colors.Orange, 0);
+					graph.MarkSpring(edge, Colors.Orange, Dir.Directed);
 					Sleep(1000);
 					if (Solve(edge.To)) // Current edge is in a path to 'to'
 					{

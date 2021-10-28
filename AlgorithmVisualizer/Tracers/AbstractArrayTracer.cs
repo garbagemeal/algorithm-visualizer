@@ -27,7 +27,7 @@ namespace AlgorithmVisualizer.Tracers
 		}
 
 		public abstract void Trace();
-		public abstract void Mark(int i);
+		public abstract void Mark(int i, Color color);
 
 		private bool EntryInBounds(float x, float entryWidth) => x + entryWidth < size.Width;
 
@@ -64,12 +64,14 @@ namespace AlgorithmVisualizer.Tracers
 			using (var undrawBrush = new SolidBrush(Colors.UndrawLog))
 				g.FillRectangle(undrawBrush, new RectangleF(startPoint, size + new SizeF(1, 1)));
 		}
-		protected void Mark(T[] arr, int i)
+		protected void Mark(T[] arr, int i, Color color)
 		{
 			Trace(arr);
 			int N = arr.Length;
 			if (N > i && i >= -1)
 			{
+				using (var pen = new Pen(color))
+				using (var brush = new SolidBrush(color))
 				using (var font = new Font(fontName, fontSize))
 				using (var sf = new StringFormat())
 				{
@@ -84,11 +86,11 @@ namespace AlgorithmVisualizer.Tracers
 					{
 						// Draw rect for entry
 						var rect = new RectangleF(rectStartX, startPoint.Y, entryWidth, size.Height);
-						DrawRectF(Pens.Red, rect);
+						DrawRectF(pen, rect);
 
 						// Draw the value centered in the rect
 						string val = GetVal(arr[i], font, entryWidth);
-						g.DrawString(val, font, Brushes.Red, rect, sf);
+						g.DrawString(val, font, brush, rect, sf);
 					}
 				}
 			}

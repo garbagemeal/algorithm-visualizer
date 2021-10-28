@@ -52,7 +52,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 			}
 			topOrderStk.Push(at);
 			graph.MarkParticle(at, Colors.Blue);
-			topOrderStkTracer.Mark(0);
+			topOrderStkTracer.Mark(0, Colors.Red);
 			Sleep(1000);
 			graph.MarkParticle(at, Colors.Visited, Colors.VisitedBorder);
 			topOrderStkTracer.Trace();

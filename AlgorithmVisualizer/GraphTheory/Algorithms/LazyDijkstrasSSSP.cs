@@ -50,7 +50,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 			SetupAndShowTracers();
 			while (heap.Count > 0)
 			{
-				heapTracer.Mark(0);
+				heapTracer.Mark(0, Colors.Red);
 				GNode curNode = heap.Dequeue();
 				int curNodeId = curNode.Id, curNodeMinDist = curNode.Data;
 				visited.Add(curNodeId);
@@ -97,8 +97,8 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 			if (!visited.Contains(toId) && newDist < distMap[toId])
 			{
 				graph.MarkSpring(edge, Colors.Red);
-				prevTracer.Mark(toId);
-				distMapTracer.Mark(toId);
+				prevTracer.Mark(toId, Colors.Red);
+				distMapTracer.Mark(toId, Colors.Red);
 				prev[toId] = curNodeId;
 				distMap[toId] = newDist;
 				Sleep(1500);

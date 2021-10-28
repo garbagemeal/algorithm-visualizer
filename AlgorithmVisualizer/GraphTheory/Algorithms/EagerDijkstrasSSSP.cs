@@ -53,7 +53,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 			SetupAndShowTracers();
 			while (ipq.Count > 0 && !endReached)
 			{
-				ipqTracer.Mark(0);
+				ipqTracer.Mark(0, Colors.Red);
 				int curNodeId = ipq.DequeueMinKeyIndex();
 				visited.Add(curNodeId);
 				graph.MarkParticle(curNodeId, Colors.Orange);
@@ -93,8 +93,8 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 			if (!visited.Contains(toId) && newDist < distMap[toId])
 			{
 				graph.MarkSpring(edge, Colors.Red, Dir.Directed);
-				prevTracer.Mark(toId);
-				distMapTracer.Mark(toId);
+				prevTracer.Mark(toId, Colors.Red);
+				distMapTracer.Mark(toId, Colors.Red);
 				prev[toId] = curNodeId;
 				distMap[toId] = newDist;
 				Sleep(1500);

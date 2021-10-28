@@ -47,14 +47,14 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 			// As long as the queue is not enmpty run the algo - O(V)
 			while (q.Count > 0)
 			{
-				if (vizMode) qTracer.Mark(0);
+				if (vizMode) qTracer.Mark(0, Colors.Red);
 				// Remove curNode from the q and add it to the topOrder (its inDeg is 0)
 				int curNode = q.Dequeue();
 				TopOrder[idx++] = curNode;
 				if (vizMode)
 				{
 					graph.MarkParticle(curNode, Colors.Orange);
-					topOrderTracer.Mark(idx - 1);
+					topOrderTracer.Mark(idx - 1, Colors.Red);
 					Sleep(2000);
 					qTracer.Trace(); topOrderTracer.Trace();
 					Sleep(1000);
@@ -81,13 +81,13 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 					if (vizMode)
 					{
 						graph.MarkSpring(edge, Colors.Orange);
-						inDegTracer.Mark(to);
+						inDegTracer.Mark(to, Colors.Red);
 						Sleep(1000);
 					}
 					inDeg[to]--;
 					if (vizMode)
 					{
-						inDegTracer.Mark(to);
+						inDegTracer.Mark(to, Colors.Red);
 						Sleep(2000);
 					}
 					// If after decreasing To's inDeg by 1 it becomes 0, add to q
@@ -97,7 +97,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 						q.Enqueue(to);
 						if (vizMode)
 						{
-							qTracer.Mark(-1);
+							qTracer.Mark(-1, Colors.Red);
 							Sleep(1500);
 							qTracer.Trace();
 							Sleep(1000);
