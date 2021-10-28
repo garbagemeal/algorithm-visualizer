@@ -39,6 +39,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 		public override bool Solve()
 		{
 			ShowTracers();
+			Sleep(1000);
 			// Perform DFS on given graph, after visiting all neighbors of a node push it into into stk
 			for (int i = 0; i < graph.NodeCount; i++)
 				if (!visited.Contains(i)) DFS(graph.AdjList, i);
@@ -48,6 +49,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 			// Clear visuals by the former DFS (finish times)
 			Sleep(2500);
 			graph.ClearVizState();
+			// For the visuals to match Gt need to reverse the springs
 			graph.ReverseSprings();
 			Sleep(2500);
 			// Perfrom DFS on Gt, after visiting all neighbors of a node assign it a SCC id
@@ -69,7 +71,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 			HideTracers();
 			return true;
 		}
-		void DFS(Dictionary<int, List<Edge>> G, int at)
+		private void DFS(Dictionary<int, List<Edge>> G, int at)
 		{
 			visited.Add(at);
 			graph.MarkParticle(at, nodeMarkColor);
