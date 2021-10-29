@@ -3,6 +3,8 @@ using System.Drawing;
 
 using AlgorithmVisualizer.Tracers;
 using AlgorithmVisualizer.GraphTheory.Utils;
+using static AlgorithmVisualizer.GraphTheory.FDGV.GraphVisualizer;
+using AlgorithmVisualizer.Utils;
 
 namespace AlgorithmVisualizer.GraphTheory.Algorithms
 {
@@ -28,7 +30,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 			q = new Queue<int>();
 			inDeg = new int[graph.NodeCount];
 			TopOrder = new int[graph.NodeCount];
-			
+			TopOrder.Fill(-1); // used to better visualize unset values
 			SetupTracers();
 		}
 
@@ -41,74 +43,80 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 			// O(V) - Create a queue to hold nodes of in degree 0
 			for (int i = 0; i < graph.NodeCount; i++) if (inDeg[i] == 0) q.Enqueue(i);
 
-			if (vizMode) ShowTracers();
+			if (vizMode)
+			{
+				ShowTracers();
+				Sleep(1000);
+			}
 
 			int idx = 0;
-			// As long as the queue is not enmpty run the algo - O(V)
+			// O(V)
 			while (q.Count > 0)
 			{
-				if (vizMode) qTracer.Mark(0, Colors.Red);
+				if (vizMode) qTracer.Mark(0, Colors.Orange);
 				// Remove curNode from the q and add it to the topOrder (its inDeg is 0)
 				int curNode = q.Dequeue();
 				TopOrder[idx++] = curNode;
 				if (vizMode)
 				{
 					graph.MarkParticle(curNode, Colors.Orange);
-					topOrderTracer.Mark(idx - 1, Colors.Red);
-					Sleep(2000);
-					qTracer.Trace(); topOrderTracer.Trace();
+					Sleep(1000);
+					qTracer.Trace();
+					Sleep(1000);
+					topOrderTracer.Mark(idx - 1, Colors.Orange);
+					Sleep(1000);
+					topOrderTracer.Trace();
 					Sleep(1000);
 				}
-				VisitNeighbors(curNode, q, inDeg);
+
+				//O(Eadj) - Eadj is the out degree of curNode
+				VisitNeighbors(curNode);
+
 				if (vizMode)
 				{
 					graph.MarkParticle(curNode, Colors.Visited);
 					Sleep(1000);
 				}
 			}
-			// If TopOrder contains all nodes then the graph is a DAG,
-			// otherwise contains a directed cycle.
+			// If TopOrder contains all nodes then the graph is a DAG, otherwise contains a directed cycle.
 			return idx == graph.NodeCount;
 		}
-		private void VisitNeighbors(int curNode, Queue<int> q, int[] inDeg)
+		private void VisitNeighbors(int curNode)
 		{
-			if (graph.AdjList[curNode] != null)
+			// for each outgoint edge from curNode
+			foreach (Edge edge in graph.AdjList[curNode])
 			{
-				// for each outgoint edge from curNode
-				foreach (Edge edge in graph.AdjList[curNode])
+				int to = edge.To;
+				if (vizMode)
 				{
-					int to = edge.To;
+					graph.MarkSpring(edge, Colors.Orange, Dir.Directed);
+					inDegTracer.Mark(to, Colors.Red);
+					Sleep(1000);
+				}
+				// decrease in-deg by 1
+				inDeg[to]--;
+				if (vizMode)
+				{
+					inDegTracer.Mark(to, Colors.Red);
+					Sleep(2000);
+				}
+				// If after decreasing To's inDeg by 1 it becane 0, enqueue into q
+				if (inDeg[to] == 0)
+				{
+					q.Enqueue(to);
 					if (vizMode)
 					{
-						graph.MarkSpring(edge, Colors.Orange);
-						inDegTracer.Mark(to, Colors.Red);
+						qTracer.Mark(-1, Colors.Red);
+						Sleep(1500);
+						qTracer.Trace();
 						Sleep(1000);
 					}
-					inDeg[to]--;
-					if (vizMode)
-					{
-						inDegTracer.Mark(to, Colors.Red);
-						Sleep(2000);
-					}
-					// If after decreasing To's inDeg by 1 it becomes 0, add to q
-					//O(Eadj) - Eadj is the out degree of curNode
-					if (inDeg[to] == 0)
-					{
-						q.Enqueue(to);
-						if (vizMode)
-						{
-							qTracer.Mark(-1, Colors.Red);
-							Sleep(1500);
-							qTracer.Trace();
-							Sleep(1000);
-						}
-					}
-					if (vizMode)
-					{
-						inDegTracer.Trace();
-						graph.MarkSpring(edge, Colors.Visited);
-						Sleep(1000);
-					}
+				}
+				if (vizMode)
+				{
+					inDegTracer.Trace();
+					graph.MarkSpring(edge, Colors.Visited, Dir.Directed);
+					Sleep(1000);
 				}
 			}
 		}

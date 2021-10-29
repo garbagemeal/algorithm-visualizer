@@ -6,6 +6,7 @@ using AlgorithmVisualizer.Tracers;
 using AlgorithmVisualizer.DataStructures.Heap;
 using AlgorithmVisualizer.GraphTheory.Utils;
 using static AlgorithmVisualizer.GraphTheory.FDGV.GraphVisualizer;
+using AlgorithmVisualizer.Utils;
 
 namespace AlgorithmVisualizer.GraphTheory.Algorithms
 {
@@ -32,11 +33,8 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 			visited = new HashSet<int>();
 			distMap = new int[graph.NodeCount];
 			prev = new int[graph.NodeCount];
-			for (int i = 0; i < graph.NodeCount; i++)
-			{
-				distMap[i] = int.MaxValue;
-				prev[i] = -1;
-			}
+			distMap.Fill(int.MaxValue);
+			prev.Fill(-1);
 			distMap[from] = 0;
 			heap = new BinaryMinHeap<GNode>();
 		}
