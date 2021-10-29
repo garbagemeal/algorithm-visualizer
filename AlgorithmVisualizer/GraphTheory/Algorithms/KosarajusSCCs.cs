@@ -21,7 +21,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 		public int[] SccIds { get; private set; }
 
 
-		private Color nodeMarkColor = Colors.Orange, edgeMarkColor = Colors.Orange;
+		private Color nodeMarkColor = Colors.Orange;
 		private StackTracer<int> stkTracer;
 		private ArrayTracer<int> sccIdsTracer, idxTracer;
 		private AbstractArrayTracer<int>[] tracers;
@@ -61,34 +61,35 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 				stkTracer.Trace();
 				if (!visited.Contains(i))
 				{
-					nodeMarkColor = edgeMarkColor = Colors.GetRandom();
+					nodeMarkColor = Colors.GetRandom();
 					// Each non recursive call to DFS(G, at) results in a new SCC
 					DFS(Gt, i);
 					SccCount++;
 				}
 				Sleep(1000);
 			}
-			HideTracers();
+			//HideTracers();
 			return true;
 		}
 		private void DFS(Dictionary<int, List<Edge>> G, int at)
 		{
 			visited.Add(at);
-			graph.MarkParticle(at, nodeMarkColor);
+			graph.MarkParticle(at, Colors.Orange);
 			Sleep(1500);
 			// Visit neighbors of 'at'
 			foreach (Edge edge in G[at])
 			{
 				if (!visited.Contains(edge.To))
 				{
-					// Reversed copies of edges are used becuase the visualizer is still using the
-					// original graph, however all springs(edges) have thier "Reversed" state set to true.
-					// Given a clone of an edge the visualizer can find the actual spring, but it doesn't
-					// use the "Reversed" state for spring(edge) comaprisons.
-					graph.MarkSpring(Edge.ReversedCopy(edge), edgeMarkColor, Dir.Directed);
+					// If G == graph.AdjList then working with original graph, otherwise
+					// working with a clone graph and edges are revered. the visualizer is
+					// still using the original graph and sets spring.Reversed = true without
+					// actually changing the edge.
+					var drawingSpring = G == graph.AdjList ? edge : Edge.ReversedCopy(edge);
+					graph.MarkSpring(drawingSpring, Colors.Orange, Dir.Directed);
 					Sleep(1000);
 					DFS(G, edge.To);
-					graph.MarkSpring(Edge.ReversedCopy(edge), Colors.Visited, Dir.Directed);
+					graph.MarkSpring(drawingSpring, Colors.Visited, Dir.Directed);
 					Sleep(1000);
 				}
 			}
@@ -104,13 +105,16 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 			{
 				SccIds[at] = SccCount;
 				TraceNode(at, sccIdsTracer);
+				graph.MarkParticle(at, nodeMarkColor);
 			}
+			Sleep(1000);
 		}
 		private void TraceNode(int id, AbstractArrayTracer<int> tracer)
 		{
 			tracer.Mark(id, nodeMarkColor);
-			Sleep(1500);
+			Sleep(1000);
 			tracer.Trace();
+			Sleep(1000);
 		}
 
 		private void SetupTracers()

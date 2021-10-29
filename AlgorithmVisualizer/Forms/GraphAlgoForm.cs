@@ -288,9 +288,12 @@ namespace AlgorithmVisualizer.Forms
 		}
 		private void btnClearState_Click(object sender, EventArgs e)
 		{
-			string title = "Reset colors and edge directions",
-				text = "You are about to reset vertex/edge colors to defaults and also unreverse all reversed edged.\n Press OK to proceed.";
-			if (!graph.IsEmpty() && SimpleDialog.OKCancel(title, text)) graph.ClearVizState();
+			string title = "Clear state", text = "Clear particle/spring colors, spring \"Reversed\" state and the logging panel?";
+			if (!graph.IsEmpty() && SimpleDialog.OKCancel(title, text))
+			{
+				graph.ClearVizState();
+				panelLogG.Clear(Colors.UndrawLog);
+			}
 		}
 		private void btnPresets_Click(object sender, EventArgs e)
 		{

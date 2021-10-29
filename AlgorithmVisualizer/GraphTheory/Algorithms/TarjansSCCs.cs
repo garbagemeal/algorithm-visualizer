@@ -3,58 +3,71 @@ using System.Collections.Generic;
 using System.Drawing;
 
 using AlgorithmVisualizer.GraphTheory.Utils;
+using AlgorithmVisualizer.Utils;
 
 namespace AlgorithmVisualizer.GraphTheory.Algorithms
 {
 	class TarjansSCCs : GraphAlgorithm
 	{
-		public TarjansSCCs(Graph graph) : base(graph) { }
+		// Tarjan's Strongly Connected Components(Tarjan's SCC) - O(V + E)
+
+		private const int UNVISITED = -1;
+		private int id = 0, SCCCount = 0;
+		private int[] ids, low;
+		private Stack<int> stk;
+		private bool[] onStk;
+
+		public TarjansSCCs(Graph graph) : base(graph)
+		{
+			ids = new int[graph.NodeCount];
+			low = new int[graph.NodeCount];
+			stk = new Stack<int>();
+			onStk = new bool[graph.NodeCount];
+			ids.Fill(UNVISITED);
+		}
+
 
 		public override bool Solve()
 		{
-			/*
-			 * O(V + E)
-			 * Tarjan's Strongly Connected Components(Tarjan's SCC) algorithm
-			 * Expected input is a directed graph (1 SCC for undirected graphs)
-			 */
-			const int UNVISITED = -1;
-			int id = 0, SCCCount = 0;
-			int[] ids = new int[graph.NodeCount], low = new int[graph.NodeCount];
-			Stack<int> stk = new Stack<int>();
-			bool[] onStk = new bool[graph.NodeCount];
-			for (int i = 0; i < graph.NodeCount; i++) ids[i] = UNVISITED;
+			// DFS foreach unvisted node to find the graph's SCCs
 			for (int i = 0; i < graph.NodeCount; i++) if (ids[i] == UNVISITED) DFS(i);
-			// May have colors brushes, can be bounded via SCCCount with adjustment
-			Color[] colors = new Color[graph.NodeCount];
-			for (int i = 0; i < graph.NodeCount; i++) colors[i] = Colors.GetRandom();
-			for (int i = 0; i < graph.NodeCount; i++) graph.MarkParticle(i, colors[low[i]]);
-			return true;
-
-
-			void DFS(int at)
+			
+			// Color the SCCs. Note that the SCC ids may not be sequntial
+			Dictionary<int, Color> colors = new Dictionary<int, Color>(SCCCount);
+			for (int i = 0; i < graph.NodeCount; i++)
 			{
-				stk.Push(at);
-				onStk[at] = true;
-				ids[at] = low[at] = id++;
-				// Visit at's neighbours and min low-link on callback
-				foreach (Edge edge in graph.AdjList[at])
+				int k = low[i];
+				if (!colors.ContainsKey(k)) colors[k] = Colors.GetRandom();
+				graph.MarkParticle(i, colors[k]);
+			}
+			
+			return true;
+		}
+		private void DFS(int at)
+		{
+			stk.Push(at);
+			onStk[at] = true;
+			ids[at] = low[at] = id++;
+			// Visit neighbors of 'at'
+			foreach (Edge edge in graph.AdjList[at])
+			{
+				int to = edge.To;
+				if (ids[to] == UNVISITED) DFS(to);
+				// min the low link for 'at', 'to' on the recursive callback
+				if (onStk[to]) low[at] = Math.Min(low[at], low[to]);
+			}
+			// If 'at' started the SCC
+			if (ids[at] == low[at])
+			{
+				// Remove nodes in the SCC from stk, removing 'at' is the stop condition
+				while (true)
 				{
-					int to = edge.To;
-					if (ids[to] == UNVISITED) DFS(to);
-					if (onStk[to]) low[at] = Math.Min(low[at], low[to]);
+					int node = stk.Pop();
+					onStk[node] = false;
+					low[node] = ids[at];
+					if (node == at) break;
 				}
-				// If we're at the start of a SCC empty the seen stack
-				// until we're back to the start of the SCC.
-				if (ids[at] == low[at])
-				{
-					for (int nodeId = stk.Pop(); ; nodeId = stk.Pop())
-					{
-						onStk[nodeId] = false;
-						low[nodeId] = ids[at];
-						if (nodeId == at) break;
-					}
-					SCCCount++;
-				}
+				SCCCount++;
 			}
 		}
 	}
