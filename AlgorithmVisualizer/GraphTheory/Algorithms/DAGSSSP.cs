@@ -1,6 +1,10 @@
 ﻿using System;
+using System.Drawing;
 
 using AlgorithmVisualizer.GraphTheory.Utils;
+using AlgorithmVisualizer.Tracers;
+using AlgorithmVisualizer.Utils;
+using static AlgorithmVisualizer.GraphTheory.FDGV.GraphVisualizer;
 
 namespace AlgorithmVisualizer.GraphTheory.Algorithms
 {
@@ -14,17 +18,26 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 		 * For generic graphs the above problem is considered NP hard.
 		 * 
 		 * Remarks: 
-		 * Works only for directed acyclic graphs, 
+		 * Works only for directed acyclic graphs
 		 * Works with negative edge weights because the graph is acyclic */
 
 		private readonly int from;
 		private readonly int[] topSort, distMap;
+
+		private ArrayTracer<int> idxTracer;
+		private ArrayTracer<int> topSortTracer;
+		private ArrayTracer<int> distMapTracer;
+		private AbstractArrayTracer<int>[] tracers;
 
 		public DAGSSSP(Graph graph, int _from = 0) : base(graph)
 		{
 			from = _from;
 			topSort = GetTopologicalOrdering();
 			distMap = new int[graph.NodeCount];
+			// Fill distMap array with "inifinities" and set distance to starting node as 0
+			distMap.Fill(int.MaxValue);
+			distMap[from] = 0;
+			SetupTracers();
 		}
 
 		private int[] GetTopologicalOrdering()
@@ -38,49 +51,70 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 		{
 			// topSort == null --> graph is not a DAG --> this algo not applicable
 			if (topSort == null) return false;
-			// Fill distMap array with "inifinities" and set distance to starting node as 0
-			for (int i = 0; i < graph.NodeCount; i++) distMap[i] = int.MaxValue;
-			distMap[from] = 0;
 
-			Solve(topSort, distMap);
+			ShowTracers();
+			Sleep(1000);
+			for (int i = 0; i < graph.NodeCount; i++)
+			{
+				// Note: i is the index of curNodeId in topSort
+				int curNodeId = topSort[i];
+				graph.MarkParticle(curNodeId, Colors.Orange);
+				topSortTracer.Mark(i, Colors.Orange);
+				Sleep(1500);
+				topSortTracer.Trace();
+				Sleep(1000);
+				VisitNeighbors(curNodeId);
+				graph.MarkParticle(curNodeId, Colors.Visited, Colors.VisitedBorder);
+				Sleep(1000);
+			}
 
 			for (int i = 0; i < distMap.Length; i++)
 				Console.WriteLine("Distance to {0}: {1}", i, distMap[i] != int.MaxValue ? distMap[i] + "" : "INF");
 
 			return true;
 		}
-		private void Solve(int[] topSort, int[] distMap)
+		private void VisitNeighbors(int at)
 		{
-			// Method to run the DAGSSSP after topSort and distMap have been prepared
-			// Go over each node in the topSort
-			for (int i = 0; i < graph.NodeCount; i++)
+			// Relax each outgoing edge of 'at if 'at' is reachable
+			if (distMap[at] != int.MaxValue)
+				foreach (Edge edge in graph.AdjList[at]) RelaxEdge(edge, at);
+		}
+		private void RelaxEdge(Edge edge, int at)
+		{
+			graph.MarkSpring(edge, Colors.Orange, Dir.Directed);
+			Sleep(1000);
+			// Compute new distance for edge.To
+			int newDist = distMap[at] + edge.Cost;
+			bool distanceImproved = newDist < distMap[edge.To];
+			graph.MarkSpring(edge, distanceImproved ? Colors.Red : Colors.Blue);
+			Sleep(1000);
+			if (distanceImproved)
 			{
-				// Note: i is the index of curNodeId in topSort
-				int curNodeId = topSort[i];
-				graph.MarkParticle(curNodeId, Colors.Orange);
+				distMap[edge.To] = newDist;
+				distMapTracer.Mark(edge.To, Colors.Red);
 				Sleep(1500);
-				// If the current node has alrady been reached and has incident edges
-				if (distMap[curNodeId] != int.MaxValue && graph.AdjList[curNodeId] != null)
-				{
-					// foreach edge incident to curNodeId
-					foreach (Edge edge in graph.AdjList[curNodeId])
-					{
-						// Edge relaxation
-						graph.MarkSpring(edge, Colors.Orange);
-						Sleep(1000);
-						// Compute new distance to reach edge.To
-						int newDist = distMap[curNodeId] + edge.Cost;
-						graph.MarkSpring(edge, newDist < distMap[edge.To] ? Colors.Red : Colors.Blue);
-						// Comapre both new and old distances and set to the smaller one
-						distMap[edge.To] = Math.Min(distMap[edge.To], newDist);
-						Sleep(1000);
-						graph.MarkSpring(edge, Colors.Visited);
-						Sleep(1000);
-					}
-				}
-				graph.MarkParticle(curNodeId, Colors.Visited, Colors.VisitedBorder);
+				distMapTracer.Trace();
 				Sleep(1000);
 			}
+			graph.MarkSpring(edge, Colors.Visited, Dir.Directed);
+			Sleep(1000);
+		}
+
+
+		private void SetupTracers()
+		{
+			// Setup tracers
+			int[] idxArr = new int[graph.NodeCount]; for (int i = 0; i < graph.NodeCount; i++) idxArr[i] = i;
+			idxTracer = new ArrayTracer<int>(idxArr, panelLogG, "idx: ", new PointF(0, 5), new SizeF(500, 30));
+			topSortTracer = new ArrayTracer<int>(topSort, panelLogG, "Top sort: ", new PointF(0, 37), new SizeF(500, 30));
+			distMapTracer = new ArrayTracer<int>(distMap, panelLogG, "DistMap: ", new PointF(0, 69), new SizeF(500, 30));
+			tracers = new AbstractArrayTracer<int>[] { idxTracer, distMapTracer, topSortTracer };
+
+			idxTracer.TitleSize = distMapTracer.TitleSize = topSortTracer.TitleSize;
+		}
+		private void ShowTracers()
+		{
+			foreach (var tracer in tracers) tracer.Trace();
 		}
 	}
 }
