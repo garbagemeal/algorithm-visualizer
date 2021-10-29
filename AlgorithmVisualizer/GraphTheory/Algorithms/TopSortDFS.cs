@@ -3,32 +3,42 @@ using System.Drawing;
 
 using AlgorithmVisualizer.Tracers;
 using AlgorithmVisualizer.GraphTheory.Utils;
+using static AlgorithmVisualizer.GraphTheory.FDGV.GraphVisualizer;
 
 namespace AlgorithmVisualizer.GraphTheory.Algorithms
 {
 	class TopSortDFS : GraphAlgorithm
 	{
+		private HashSet<int> visited = new HashSet<int>();
+		private Stack<int> topOrderStk = new Stack<int>();
+		public int[] TopOrder { get; private set; }
+
 		// Used to trace the stack containing the topological order
 		private StackTracer<int> topOrderStkTracer;
-		// topOrder 
-		public int[] TopOrder { get; private set; }
 		
-		public TopSortDFS(Graph graph) : base(graph) { }
+		public TopSortDFS(Graph graph) : base(graph)
+		{
+			visited = new HashSet<int>();
+			topOrderStk = new Stack<int>();
+			TopOrder = new int[topOrderStk.Count];
+
+			topOrderStkTracer = new StackTracer<int>(topOrderStk, panelLogG, "Top order: ", new PointF(0, 10), new SizeF(500, 45));
+		}
 
 		public override bool Solve()
 		{
 			// Returns the graph's topologial ordering using DFS
 			// If the graph is not a DAG there is no top order.
 			if (!GraphValidator.IsDAG(graph)) return false;
+			
+			topOrderStkTracer.Trace();
 
-			HashSet<int> visited = new HashSet<int>();
-			Stack<int> topOrderStk = new Stack<int>();
-			topOrderStkTracer = new StackTracer<int>(topOrderStk, panelLogG, "Top order: ", new PointF(0, 10), new SizeF(500, 45));
 			for (int nodeId = 0; nodeId < graph.NodeCount; nodeId++)
 				if (!visited.Contains(nodeId)) Solve(nodeId, visited, topOrderStk);
+
 			// Popping the stack into the array - topOrder
-			TopOrder = new int[topOrderStk.Count];
 			for (int i = 0; i < TopOrder.Length; i++) TopOrder[i] = topOrderStk.Pop();
+
 			return true;
 		}
 		private void Solve(int at, HashSet<int> visited, Stack<int> topOrderStk)
@@ -40,18 +50,17 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 			Sleep(1500);
 			foreach (Edge edge in graph.AdjList[at])
 			{
-				int to = edge.To;
-				if (!visited.Contains(to))
+				if (!visited.Contains(edge.To))
 				{
-					graph.MarkSpring(edge, Colors.Orange);
+					graph.MarkSpring(edge, Colors.Orange, Dir.Directed);
 					Sleep(1000);
-					Solve(to, visited, topOrderStk);
-					graph.MarkSpring(edge, Colors.Visited);
+					Solve(edge.To, visited, topOrderStk);
+					graph.MarkSpring(edge, Colors.Visited, Dir.Directed);
 					Sleep(1000);
 				}
 			}
 			topOrderStk.Push(at);
-			graph.MarkParticle(at, Colors.Blue);
+			graph.MarkParticle(at, Colors.Red);
 			topOrderStkTracer.Mark(0, Colors.Red);
 			Sleep(1000);
 			graph.MarkParticle(at, Colors.Visited, Colors.VisitedBorder);
