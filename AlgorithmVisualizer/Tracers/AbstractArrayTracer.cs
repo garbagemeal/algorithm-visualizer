@@ -15,6 +15,7 @@ namespace AlgorithmVisualizer.Tracers
 		private string fontName = "Arial";
 		private int fontSize = 8;
 		public SizeF TitleSize { get; set; }
+		public float EntryWidth { get; set; }
 
 		public AbstractArrayTracer(Graphics _g, string _title, PointF _startPoint, SizeF _size)
 		{
@@ -22,6 +23,7 @@ namespace AlgorithmVisualizer.Tracers
 			title = _title;
 			startPoint = _startPoint;
 			size = _size;
+			EntryWidth = size.Height;
 			// Store title measurements in TitleMeasure
 			using (var f = new Font(fontName, fontSize)) TitleSize = g.MeasureString(title, f);
 		}
@@ -29,34 +31,17 @@ namespace AlgorithmVisualizer.Tracers
 		public abstract void Trace();
 		public abstract void Mark(int i, Color color);
 
-		private bool EntryInBounds(float x, float entryWidth) => x + entryWidth < size.Width;
-
 		protected void Trace(T[] arr)
 		{
+			int n = arr.Length;
+			if (arr == null || n == 0) return;
 			Untrace();
 			DrawTitle();
-			int n = arr.Length;
-			if (n == 0) return;
-			using (var font = new Font(fontName, fontSize))
-			using (var sf = new StringFormat())
+			float rectStartX = startPoint.X + TitleSize.Width;
+			for (int i = 0; i < n; i++)
 			{
-				float entryWidth = GetEntryWidth(arr, font), rectStartX = startPoint.X + TitleSize.Width;
-				for (int i = 0; i < n; i++)
-				{
-					if (EntryInBounds(rectStartX, entryWidth))
-					{
-						// Draw rect for entry
-						var rect = new RectangleF(rectStartX, startPoint.Y, entryWidth, size.Height);
-						DrawRectF(Pens.Black, rect);
-
-						// Draw the value centered in the rect
-						string val = GetVal(arr[i], font, entryWidth);
-						sf.LineAlignment = StringAlignment.Center;
-						sf.Alignment = StringAlignment.Center;
-						g.DrawString(val, font, Brushes.White, rect, sf);
-						rectStartX += entryWidth;
-					}
-				}
+				DrawEntry(arr[i], rectStartX, Color.Black, Color.White);
+				rectStartX += EntryWidth;
 			}
 		}
 		public void Untrace()
@@ -67,34 +52,42 @@ namespace AlgorithmVisualizer.Tracers
 		protected void Mark(T[] arr, int i, Color color)
 		{
 			Trace(arr);
-			int N = arr.Length;
-			if (N > i && i >= -1)
+			int n = arr.Length;
+			if (i < -1 || i >= n) return; // index out of bounds
+			if (i == -1) i = n - 1; // Support tracing last value
+
+			float rectStartX = i * EntryWidth + startPoint.X + TitleSize.Width;
+			UndrawEntry(rectStartX);
+			DrawEntry(arr[i], rectStartX, color, color);
+		}
+
+		private void DrawEntry(T val, float rectStartX, Color rectColor, Color txtColor)
+		{
+			if (!EntryInBounds(rectStartX)) return; // Avoid trying to draw the entry off screen
+			using (var pen = new Pen(rectColor))
+			using (var brush = new SolidBrush(txtColor))
+			using (var font = new Font(fontName, fontSize))
+			using (var sf = new StringFormat())
 			{
-				using (var pen = new Pen(color))
-				using (var brush = new SolidBrush(color))
-				using (var font = new Font(fontName, fontSize))
-				using (var sf = new StringFormat())
-				{
-					sf.LineAlignment = StringAlignment.Center;
-					sf.Alignment = StringAlignment.Center;
-
-					// Support tracing last value
-					if (i == -1 && N > 0) i = N - 1;
-
-					float entryWidth = GetEntryWidth(arr, font), rectStartX = i * entryWidth + startPoint.X + TitleSize.Width;
-					if (EntryInBounds(rectStartX, entryWidth))
-					{
-						// Draw rect for entry
-						var rect = new RectangleF(rectStartX, startPoint.Y, entryWidth, size.Height);
-						DrawRectF(pen, rect);
-
-						// Draw the value centered in the rect
-						string val = GetVal(arr[i], font, entryWidth);
-						g.DrawString(val, font, brush, rect, sf);
-					}
-				}
+				sf.LineAlignment = StringAlignment.Center;
+				sf.Alignment = StringAlignment.Center;
+				sf.Trimming = StringTrimming.EllipsisCharacter;
+				sf.FormatFlags = StringFormatFlags.NoWrap;
+				// Draw rect for entry
+				var rect = GetEntryRectForX(rectStartX);
+				DrawRectF(pen, rect);
+				// Draw the value centered in the rect
+				g.DrawString(ToStr(val), font, brush, rect, sf);
 			}
 		}
+		private void UndrawEntry(float rectStartX)
+		{
+			var rect = GetEntryRectForX(rectStartX);
+			using (var brush = new SolidBrush(Colors.UndrawLog)) g.FillRectangle(brush, rect);
+		}
+
+		private RectangleF GetEntryRectForX(float x) => new RectangleF(x, startPoint.Y, EntryWidth, size.Height);
+		private bool EntryInBounds(float x) => x + EntryWidth < size.Width;
 
 		private void DrawTitle()
 		{
@@ -103,44 +96,25 @@ namespace AlgorithmVisualizer.Tracers
 			{
 				sf.LineAlignment = StringAlignment.Center;
 				sf.Alignment = StringAlignment.Center;
+				sf.Trimming = StringTrimming.EllipsisCharacter;
+				sf.FormatFlags = StringFormatFlags.NoWrap;
 				var rect = new RectangleF(startPoint, new SizeF(TitleSize.Width, size.Height));
 				g.DrawString(title, font, Brushes.White, rect, sf);
 			}
 		}
 
-		private float GetEntryWidth(T[] arr, Font font)
-		{
-			float maxPossibleEntryWidth = (size.Width - TitleSize.Width) / arr.Length;
-			//float longestEntryWidth = 0;
-			//foreach (T val in arr)
-			//{
-			//	float curEntryWidth = g.MeasureString(val.ToString(), font).Width;
-			//	if (curEntryWidth > longestEntryWidth) longestEntryWidth = curEntryWidth;
-			//}
-			// return Math.Min(maxPossibleEntryWidth, longestEntryWidth);
-			return Math.Min(size.Height, maxPossibleEntryWidth);
-		}
-
-		private string GetVal(T val, Font font, float entryWidth)
+		private string ToStr(T val)
 		{
 			string str = val.ToString();
 			// replace Int.MinValue/MaxValue with "+inf"/"-inf"
-			if (str.ToString().Equals(int.MaxValue.ToString())) str = "+inf";
-			if (str.ToString().Equals(int.MinValue.ToString())) str = "-inf";
-			// if string width measurement > entryWidth
-			if (g.MeasureString(str, font).Width > entryWidth)
-			{
-				// Remove last char While value width measurement > entryWidth + ".."
-				while (g.MeasureString(str + "..", font).Width > entryWidth)
-					str = str.Substring(0, str.Length - 1);
-				str += "..";
-			}
+			if (str.Equals(int.MaxValue.ToString())) str = "+inf";
+			else if (str.Equals(int.MinValue.ToString())) str = "-inf";
 			return str;
 		}
 
 		private void DrawRectF(Pen pen, RectangleF rectF)
 		{
-			// Somewhy "g.DrawRectangle()" wont accept the type "RectangleF", only "RectangleF[]"
+			// Somewhy "g.DrawRectangle()" wont accept the type "RectangleF"
 			RectangleF[] rectFs = new RectangleF[] { rectF };
 			g.DrawRectangles(pen, rectFs);
 		}

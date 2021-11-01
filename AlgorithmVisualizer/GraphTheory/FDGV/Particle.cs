@@ -124,6 +124,7 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 				Pos += vel;
 				BoundWithinCanvas(canvasHeight, canvasWidth);
 			}
+			else vel.Set(0, 0); // avoid storing vel for pinned particles
 			// Avoid propagation of acceleration between invocations to this method
 			acc.Set(0, 0);
 		}
@@ -137,7 +138,7 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 			// Add force into acc
 			Acc += F;
 		}
-		public void ApplyRepulsiveForces(Particle[] paricles)
+		public void ApplyRepulsiveForces(List<Particle> paricles)
 		{
 			// Gravitational force formula: F = G * (m1 + m2) / d^2
 

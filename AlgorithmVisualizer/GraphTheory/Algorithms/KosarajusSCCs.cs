@@ -132,9 +132,5 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 		{
 			foreach (var tracer in tracers) tracer.Trace();
 		}
-		private void HideTracers()
-		{
-			foreach (var tracer in tracers) tracer.Untrace();
-		}
 	}
 }

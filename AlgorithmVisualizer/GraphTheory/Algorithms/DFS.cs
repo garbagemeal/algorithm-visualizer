@@ -42,7 +42,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 						return true;
 					}
 					// Unmark edge after visit
-					graph.MarkSpring(edge, Colors.Visited);
+					graph.MarkSpring(edge, Colors.Visited, Dir.Directed);
 					Sleep(1000);
 				}
 			}

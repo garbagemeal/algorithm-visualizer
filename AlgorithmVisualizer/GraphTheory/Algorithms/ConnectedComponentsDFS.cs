@@ -51,7 +51,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 					graph.MarkSpring(edge, color, Dir.Directed);
 					Sleep(1000);
 					DFS(edge.To, color);
-					graph.MarkSpring(edge, Colors.Visited);
+					graph.MarkSpring(edge, Colors.Visited, Dir.Directed);
 					Sleep(1000);
 				}
 			}

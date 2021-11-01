@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Threading;
 using System.Windows.Forms;
 using AlgorithmVisualizer.GraphTheory.Utils;
 using AlgorithmVisualizer.Utils;
 using AlgorithmVisualizer.Threading;
+using System.Threading;
 
 namespace AlgorithmVisualizer.GraphTheory.FDGV
 {
@@ -30,8 +29,8 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 		// Mapping node ids to the GNode objects of instance Particle
 		protected Dictionary<int, GNode> nodeLookup = new Dictionary<int, GNode>();
 
-		public List<Particle> particles;
-		public List<Spring> springs;
+		private List<Particle> particles;
+		private List<Spring> springs;
 
 		// Contains the drawing of the graph
 		private readonly PictureBox canvas;
@@ -55,9 +54,12 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 		private const int PARTICLE_SPAWN_OFFSET = 50;
 
 		protected static Random rnd = new Random();
+		private static Semaphore sem;
 
 		public GraphVisualizer(PictureBox _canvas, Graphics gLog)
 		{
+			sem = new Semaphore(1, 1);
+
 			canvas = _canvas;
 			centerPos = findCenterPos();
 			GLog = gLog;
@@ -68,57 +70,118 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 		}
 
 		#region particle/spring list manipulation
-		protected Particle GetParticle(int id) =>  nodeLookup[id] as Particle;
-		protected void AddParticle(Particle particle) => particles.Add(particle);
+		protected Particle GetParticle(int id)
+		{
+			sem.WaitOne();
+			var p = nodeLookup[id] as Particle;
+			sem.Release();
+			return p;
+		}
+		public Particle GetParticle(float x, float y)
+		{
+			// Returns the ref of the particle at the given pos, null if no such particle.
+
+			sem.WaitOne();
+			for (int i = particles.Count - 1; i >= 0; i--)
+			{
+				if (particles[i].PointIsWithin(x, y))
+				{
+					sem.Release();
+					return particles[i];
+				}
+			}
+			sem.Release();
+			return null;
+		}
+		protected void AddParticle(Particle particle)
+		{
+			sem.WaitOne();
+			particles.Add(particle);
+			sem.Release();
+		}
 		protected void RemoveParticle(int id)
 		{
 			RemoveSpringsConnectedTo(id);
-			particles.Remove(GetParticle(id));
+			var p = GetParticle(id);
+			sem.WaitOne();
+			particles.Remove(p);
+			sem.Release();
 		}
 		private Spring GetSpring(Edge edge)
 		{
+			sem.WaitOne();
 			// Compare edges using only (from, to, cost)
 			for (int i = 0; i < springs.Count; i++)
-				if (springs[i].Equals(edge)) return springs[i];
+			{
+				if (springs[i].Equals(edge))
+				{
+					sem.Release();
+					return springs[i];
+				}
+			}
+			sem.Release();
 			return null;
 		}
 		public void AddSpring(Spring spring)
 		{
-			if (spring != null) springs.Add(spring);
+			if (spring != null)
+			{
+				sem.WaitOne();
+				springs.Add(spring);
+				sem.Release();
+			}
 		}
-		public void RemoveSpring(Spring spring) => springs.Remove(GetSpring(spring));
+		public void RemoveSpring(Spring spring)
+		{
+			var s = GetSpring(spring);
+			sem.WaitOne();
+			springs.Remove(s);
+			sem.Release();
+		}
 		private void RemoveSpringsConnectedTo(int id)
 		{
 			// Remove any spring containing a particle with the given id
+			sem.WaitOne();
 			for (int i = 0; i < springs.Count;)
+			{
 				if (springs[i].ContainsNodeId(id)) springs.RemoveAt(i);
 				else i++;
+			}
+			sem.Release();
 		}
 		protected void ClearParticlesAndSprings()
 		{
+			sem.WaitOne();
 			springs.Clear();
 			particles.Clear();
+			sem.Release();
 		}
 		#endregion
 
 		#region Visuals
 		public void DrawGraph(Graphics g)
 		{
-			foreach (var particle in particles.ToList()) particle.Draw(g, canvas.Height, canvas.Width);
-			foreach (var spring in springs.ToArray()) spring.Draw(g);
+			//var particlesCP = ThreadingUtils<Particle>.ThreadSafeCopy(particles);
+			//var springsCP = ThreadingUtils<Spring>.ThreadSafeCopy(springs);
+			sem.WaitOne();
+			foreach (var spring in springs) spring.Draw(g);
+			foreach (var particle in particles) particle.Draw(g, canvas.Height, canvas.Width);
+			sem.Release();
 		}
 		public void ApplyForcesAndUpdatePositions()
 		{
-			Particle[] particlesCP = particles.ToArray();
-			Spring [] springsCP = springs.ToArray();
-			foreach (var particle in particlesCP)
+			//var particlesCP = ThreadingUtils<Particle>.ThreadSafeCopy(particles);
+			//var springsCP = ThreadingUtils<Spring>.ThreadSafeCopy(springs);
+			sem.WaitOne();
+			foreach (var particle in particles)
 			{
 				if (CenterPull) particle.PullToCenter(centerPos);
-				particle.ApplyRepulsiveForces(particlesCP);
+				particle.ApplyRepulsiveForces(particles);
 			}
-			foreach (var spring in springsCP) spring.ExertForcesOnParticles();
+			foreach (var spring in springs) spring.ExertForcesOnParticles();
 			// Update particle positions using computed forces
-			foreach (var particle in particlesCP) particle.UpdatePos(canvas.Height, canvas.Width);
+			foreach (var particle in particles) particle.UpdatePos(canvas.Height, canvas.Width);
+			sem.Release();
 		}
 
 		// The following methods assume that the given particle id exists
@@ -130,10 +193,18 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 		public void MarkParticle(int id, Color innerColor, Color borderColor)
 		{
 			Particle particle = GetParticle(id);
+			sem.WaitOne();
 			particle.InnerColor = innerColor;
 			particle.BorderColor = borderColor;
+			sem.Release();
 		}
-		public void ResetParticleColors(int id) => GetParticle(id).SetDefaultColors();
+		public void ResetParticleColors(int id)
+		{
+			var p = GetParticle(id);
+			sem.WaitOne();
+			p.SetDefaultColors();
+			sem.Release();
+		}
 		public enum Dir { None = -1, Directed = 0, Reversed = 1, Undirected = 2 }
 		public void MarkSpring(Edge edge, Color color, Dir dir = Dir.None)
 		{
@@ -147,6 +218,7 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 
 			// Find given spring and revSpring
 			Spring spring = GetSpring(edge), revSpring = GetSpring(Edge.ReversedCopy(edge));
+			sem.WaitOne();
 			List<Spring> springsToUpdate = new List<Spring>();
 			
 			// Determine what springs to update
@@ -162,7 +234,8 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 			// Update spring colors
 			foreach (var s in springsToUpdate) s.InnerColor = color;
 
-				MoveSpringsToStartOrEnd(springsToUpdate);
+			MoveSpringsToStartOrEnd(springsToUpdate);
+			sem.Release();
 
 
 			void MoveSpringsToStartOrEnd(List<Spring> springsToMove)
@@ -177,47 +250,56 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 				// Add removed springs in 'springsToMove' to the start/end of the spring list
 				foreach (Spring springToMove in springsToMove)
 				{
-					// If color is not 'Colors.Visited' prepend, else append into 'springs'
-					if (color != Colors.Visited) AddSpring(springToMove);
+					// If color is not 'Colors.Visited' append, else prepend into 'springs'
+					if (color != Colors.Visited) springs.Add(springToMove);
 					else springs.Insert(0, springToMove);
 				}
 			}
 		}
 		public void ReverseSprings()
 		{
+			sem.WaitOne();
 			foreach (Spring spring in springs) spring.Reversed = true;
+			sem.Release();
 		}
 		public void ClearVizState()
 		{
+			sem.WaitOne();
 			// Clear "Reversed" state for all springs
 			foreach (var spring in springs) spring.Reversed = false;
 			// Reset particle/spring colors to defaults
 			foreach (var particle in particles) particle.SetDefaultColors();
 			foreach (var spring in springs) spring.SetDefaultColors();
+			sem.Release();
 		}
 		public static void SetDefaultPhysicsParams()
 		{
+			sem.WaitOne();
 			Particle.SetDefaultPhysicsParams();
 			Spring.SetDefaultPhysicsParams();
+			sem.Release();
 		}
 		#endregion
 
 		#region Misc
-		public Particle GetClickedParticle(float x, float y)
+		public void ToggleParticlePin(int id)
 		{
-			// Returns the ref of the particle at the given pos, null if no such particle
-			foreach (Particle particle in particles)
-				if (particle.PointIsWithin(x, y)) return particle;
-			return null;
+			var p = GetParticle(id);
+			sem.WaitOne();
+			p.TogglePin();
+			sem.Release();
 		}
-		public void ToggleParticlePin(int id) => GetParticle(id).TogglePin();
 		public void PinAllParticles()
 		{
+			sem.WaitOne();
 			foreach (Particle particle in particles) particle.Pinned = true;
+			sem.Release();
 		}
 		public void UnpinAllParticles()
 		{
+			sem.WaitOne();
 			foreach (Particle particle in particles) particle.Pinned = false;
+			sem.Release();
 		}
 		protected Vector RndPosWithinCanvas()
 		{

@@ -423,7 +423,7 @@ namespace AlgorithmVisualizer.Arrays
 				DrawValues(i / 2, i - 1, Brushes.DimGray);
 				i *= 2;
 			}
-			DrawValues(Min(i, N - 1) + 1, N - 1, Brushes.DimGray);
+			DrawValues(Min(i, N - 1) + 1, N - 1, Brushes.DimGray); // "Unmark" values not in search sapce
 			Sleep(2500);
 			// Use binary serach in the selected searching space
 			return BinarySearch(arr, i / 2, Min(i, N - 1), val);

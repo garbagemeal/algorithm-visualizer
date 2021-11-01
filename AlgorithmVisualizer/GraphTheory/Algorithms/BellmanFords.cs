@@ -66,7 +66,6 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 				Console.WriteLine($"DistMap[{i}] = {distAsStr}");
 			}
 
-			HideTracers();
 			return true;
 		}
 		private enum RelaxMode { Default = 0, CycleDetection = 1 };
@@ -116,10 +115,6 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 		private void ShowTracers()
 		{
 			foreach (var tracer in tracers) tracer.Trace();
-		}
-		private void HideTracers()
-		{
-			foreach (var tracer in tracers) tracer.Untrace();
 		}
 
 		private SizeF? prevMsgSize = null;

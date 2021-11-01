@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
+using System.Threading;
 using System.Windows.Forms;
 
 using AlgorithmVisualizer.Forms.Dialogs;
@@ -81,6 +82,7 @@ namespace AlgorithmVisualizer.Forms
 				if (!formIsMinimized && !graph.IsEmpty())
 				{
 					if (forcesEnabled) graph.ApplyForcesAndUpdatePositions();
+					else Thread.Sleep(1);
 					RefreshCanvas();
 				}
 			}
@@ -112,10 +114,7 @@ namespace AlgorithmVisualizer.Forms
 
 		private void VisualizeGraphAlgo()
 		{
-			// TODO: bgw.WorkerSupportsCancellation = true;
-
-			int nodeCount = graph.NodeCount;
-			if (nodeCount > 0)
+			if (!graph.IsEmpty())
 			{
 				if (bgwGraphAlgoViz != null) bgwGraphAlgoViz.Dispose();
 				// Create new backgroundworker
@@ -282,14 +281,14 @@ namespace AlgorithmVisualizer.Forms
 		}
 		private void btnReset_Click(object sender, EventArgs e)
 		{
-			string title = "Clear the graph",
-				text = "You are about to remove all vertices and edges\n press OK to proceed.";
-			if (!graph.IsEmpty() && SimpleDialog.OKCancel(title, text)) graph.ClearGraph();
+			if (!graph.IsEmpty() && SimpleDialog.OKCancel("Clear the graph",
+				"You are about to remove all vertices and edges\n press OK to proceed."))
+				graph.ClearGraph();
 		}
 		private void btnClearState_Click(object sender, EventArgs e)
 		{
-			string title = "Clear state", text = "Clear particle/spring colors, spring \"Reversed\" state and the logging panel?";
-			if (!graph.IsEmpty() && SimpleDialog.OKCancel(title, text))
+			if (!graph.IsEmpty() && SimpleDialog.OKCancel("Clear state", "Clear " +
+				"particle/spring colors, spring \"Reversed\" state and the logging panel?"))
 			{
 				graph.ClearVizState();
 				panelLogG.Clear(Colors.UndrawLog);
@@ -436,7 +435,7 @@ namespace AlgorithmVisualizer.Forms
 			if (e.Button == MouseButtons.Left)
 			{
 				int x = e.X, y = e.Y;
-				Particle clickedParticle = graph.GetClickedParticle(x, y);
+				Particle clickedParticle = graph.GetParticle(x, y);
 				if (clickedParticle != null)
 				{
 					movingParticle = clickedParticle;
@@ -462,7 +461,7 @@ namespace AlgorithmVisualizer.Forms
 			{
 				// Find location of click release and get clicked particle
 				float x = e.X, y = e.Y;
-				Particle clickedParticle = graph.GetClickedParticle(x, y);
+				Particle clickedParticle = graph.GetParticle(x, y);
 				
 				// clicked on particle particle
 				if (clickedParticle != null)
@@ -510,23 +509,38 @@ namespace AlgorithmVisualizer.Forms
 				Enabled = false; // or this.Hide()
 			}
 		}
+		private static Random rnd = new Random();
 		private void GraphAlgoForm_KeyDown(object sender, KeyEventArgs e)
 		{
-			// If not during a graph algo viz and hovering over canvas
-			if (!inGraphAlgoViz && canvasMouseHoverPos != null)
+			// If not during a graph algo viz
+			if (!inGraphAlgoViz)
 			{
 				// If pressd key is 'a' try adding a node, if failed to add show a message
-				if (e.KeyCode == Keys.A && !graph.AddNode(canvasMouseHoverPos))
+				if (e.KeyCode == Keys.A && canvasMouseHoverPos != null && !graph.AddNode(canvasMouseHoverPos))
 					SimpleDialog.ShowMessage("", "Failed to add node");
-				// If pressd key is 'r'
-				else if (e.KeyCode == Keys.R)
+				// If pressd key is 'r' and hovering within canvas
+				else if (e.KeyCode == Keys.R && canvasMouseHoverPos != null)
 				{
-					// Try getting the clicked particle using the postion of the mouse
-					var clickedParticle = graph.GetClickedParticle(canvasMouseHoverPos.X, canvasMouseHoverPos.Y);
+					// Try getting the hovered particle using the postion of the mouse
+					var hoverParticle = graph.GetParticle(canvasMouseHoverPos.X, canvasMouseHoverPos.Y);
 					// Try removing the particle if non null, if failed to remove show a message
-					if (clickedParticle != null && !graph.RemoveNode(clickedParticle.Id))
-						SimpleDialog.ShowMessage("", "Failed to remove node with id " + clickedParticle.Id);
+					if (hoverParticle != null && !graph.RemoveNode(hoverParticle.Id))
+						SimpleDialog.ShowMessage("", "Failed to remove node with id " + hoverParticle.Id);
 				}
+				else if (e.KeyCode == Keys.C)
+				{
+					// for 'ctrl' + 'c' clear the graph (remove vertices and edges)
+					if (e.Modifiers == Keys.Control) btnReset_Click(sender, e);
+					// else for 'c' clear the state (colors, "Reversed" stat for springs and panel log)
+					else btnClearState_Click(sender, e);
+				}
+			}
+			if (e.KeyCode == Keys.P)
+			{
+				// for 'ctrl' + 'p' toggle center pull
+				if (e.Modifiers == Keys.Control) toggleCenterPullToolStripMenuItem_Click(sender, e);
+				// else for 'p' toggle the physics
+				else togglePhysicsToolStripMenuItem_Click(sender, e);
 			}
 		}
 		protected override void OnShown(EventArgs e)

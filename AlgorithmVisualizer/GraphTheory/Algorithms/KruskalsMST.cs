@@ -11,6 +11,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 {
 	class KruskalsMST : GraphAlgorithm
 	{
+		// O(ElogE)
 		private HeapTracer<Edge> heapTracer;
 
 		public KruskalsMST(Graph graph) : base(graph) { }
@@ -26,21 +27,16 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 			// If the graph is not undirected or has 0 edges do nothing
 			if (!GraphValidator.IsUndirected(graph)) return false;
 			// Getting list of all undirected edges from adjList
-			List<Edge> edgeList = graph.GetUndirectedEdgeList();
+			List<Edge> edgeList = graph.GetUndirectedEdgeList(); // O(E)
 			if (edgeList.Count < 1)
 			{
 				Console.WriteLine("Graph has no edges (1 edge needed at least for heap creation)");
 				return false;
 			}
-			// O(E)
-			// Avoid sorting the edges by creating a heap from the list O(n) where n = E
+			// Avoid sorting the edges by creating a heap from the edge list in O(E)
 			BinaryMinHeap<Edge> heap = new BinaryMinHeap<Edge>(edgeList);
-			// O(V) = O(sqrt(E)) assuming graph is simple, i.e, not a multigraph,
-			// because E = V(V-1)/2 = (V^2 - V) / 2 and can be futher simplified to O(V^2)
-			// and thus E = roughly V^2, so O(V) is asymptotically the same as, O(sqrt(E)).
-			// Creating a disjoint set (union find) of size V
-			DisjointSet disjointSet = new DisjointSet(graph.NodeCount);
-			heapTracer = new HeapTracer<Edge>(heap, panelLogG, "Heap: ", new PointF(0, 10), new SizeF(500, 45));
+			DisjointSet disjointSet = new DisjointSet(graph.NodeCount); // O(V)
+			heapTracer = new HeapTracer<Edge>(heap, panelLogG, "Heap: ", new PointF(0, 10), new SizeF(500, 50));
 			(int Cost, List<Edge> Edges) = Solve(heap, disjointSet, heapTracer);
 
 			// Note that it may be a MSF and not a MST
@@ -57,25 +53,23 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 			int mstCost = 0;
 			heapTracer.Trace();
 			Sleep(1500);
-			// O(E*log(E))
-			// As long as the heap is not empty and the disjoint set has more than 1 component
-			while (heap.Count > 0 && disjointSet.NumComponents > 1)
+			// While heap not empty and the disjoint set has more than 1 component
+			while (heap.Count > 0 && disjointSet.NumComponents > 1) // O(E)
 			{
 				heapTracer.Mark(0, Colors.Red);
-				Edge edge = heap.Dequeue();
+				Edge edge = heap.Dequeue(); // O(logE)
 				Sleep(1000);
 				heapTracer.Trace();
 				Sleep(1000);
 				// Avoid adding edges where both composing nodes already belong
 				// to the same group (would introduce a cycle to the MST!)
-				if (!disjointSet.Connected(edge.From, edge.To))
+				if (!disjointSet.Connected(edge.From, edge.To)) // α(n) - amortized constant time
 				{
 					// Add edge into the MST's edge list and sum its cost
 					mstEdges.Add(edge);
 					mstCost += edge.Cost;
 					// Unify both composing nodes via id in the disjoint set
-					// This operation takes amortized time complexity(near constant)
-					disjointSet.Unify(edge.From, edge.To);
+					disjointSet.Unify(edge.From, edge.To); // α(n) - amortized constant time
 					// Draw the edge
 					graph.MarkSpring(edge, Colors.Green);
 					Sleep(1000);

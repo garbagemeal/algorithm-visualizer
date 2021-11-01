@@ -32,6 +32,11 @@ namespace AlgorithmVisualizer.GraphTheory
 		}
 		public bool IsEmpty() => NodeCount == 0;
 		public bool ContainsNode(int id) => nodeLookup.ContainsKey(id);
+		public Edge GetRndEdge()
+		{
+			var edgeList = GetUndirectedEdgeList();
+			return edgeList.Count > 0 ? edgeList[rnd.Next(edgeList.Count - 1)] : null;
+		}
 
 		public bool AddNode(int id)
 		{
@@ -56,24 +61,26 @@ namespace AlgorithmVisualizer.GraphTheory
 		}
 		public bool RemoveNode(int id)
 		{
-			// Remove all edges coming from or going to 'id' (if exists) and update node/edge counts
+			// Remove all edges coming from or going to 'id' (if exist) and update node/edge counts
 			if (!ContainsNode(id)) return false;
 			// Remove edges coming to 'id' in AdjList and update EdgeCount
-			foreach (Edge edge in AdjList[id])
+			foreach (KeyValuePair<int, List<Edge>> entry in AdjList)
 			{
-				List<Edge> edgeList = AdjList[edge.To];
-				for (int i = 0; i < edgeList.Count;)
+				if (entry.Key != id) // ignore id's edge list
 				{
-					if (edgeList[i].To == id)
+					List<Edge> edgeList = entry.Value;
+					for (int i = 0; i < edgeList.Count; )
 					{
-						edgeList.RemoveAt(i);
-						EdgeCount--;
+						if (edgeList[i].To == id)
+						{
+							edgeList.RemoveAt(i);
+							EdgeCount--;
+						}
+						else i++;
 					}
-					else i++;
 				}
 			}
-			// Subtract inDegree[id] from EdgeCount and remove entry in AdjList.
-			// In other words remove edges coming from 'id' in AdjList.
+			// Remove id from AdjList and update edgeCount
 			EdgeCount -= AdjList[id].Count;
 			AdjList.Remove(id);
 			// Visualization

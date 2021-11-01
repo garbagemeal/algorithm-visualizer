@@ -90,7 +90,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 			Sleep(1000);
 			// Mark visted edges & particle
 			foreach (Edge edge in graph.AdjList[nodeId])
-				if (!visited.Contains(edge.To)) graph.MarkSpring(edge, Colors.Visited);
+				if (!visited.Contains(edge.To)) graph.MarkSpring(edge, Colors.Visited, Dir.Directed);
 			graph.MarkParticle(nodeId, Colors.Visited, Colors.VisitedBorder);
 			Sleep(1000);
 		}

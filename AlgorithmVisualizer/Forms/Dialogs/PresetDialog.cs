@@ -10,7 +10,7 @@ namespace AlgorithmVisualizer.Forms.Dialogs
 {
 	public partial class PresetDialog : Form
 	{
-		public string[] Serialization { get; set; } = null;
+		private int selectedPresetIdx = -1;
 		
 		private Preset[] presets;
 		// Ref to graph, used to access the graph when saving it as a preset.
@@ -77,12 +77,7 @@ namespace AlgorithmVisualizer.Forms.Dialogs
 		private void listView_MouseClick(object sender, MouseEventArgs e)
 		{
 			if (listView.SelectedItems.Count > 0)
-			{
-				int selectedItem = listView.SelectedItems[0].Index;
-				// Split serial that is possibly multiline into a string array by '\n'
-				// Empty lines included!
-				Serialization = presets[selectedItem].Serial.Split('\n');
-			}
+				selectedPresetIdx = listView.SelectedItems[0].Index;
 		}
 		private void btnSaveNewPreset_Click(object sender, EventArgs e)
 		{
@@ -126,13 +121,19 @@ namespace AlgorithmVisualizer.Forms.Dialogs
 
 		private void btnLoadPreset_Click(object sender, EventArgs e)
 		{
-			if (Serialization != null)
+			if (0 <= selectedPresetIdx && selectedPresetIdx < presets.Length)
 			{
-				graph.ClearGraph();
-				GraphSerializer.Deserialize(graph, Serialization);
-				Close();
+				// Split serial that is possibly multiline into a string array by '\n' (empty lines included)
+				string[] serialization = presets[selectedPresetIdx].Serial.Split('\n');
+				if (serialization != null)
+				{
+					graph.ClearGraph();
+					GraphSerializer.Deserialize(graph, serialization);
+					Close();
+				}
+				else SimpleDialog.ShowMessage("Error!", "Could not load preset!");
 			}
-			else SimpleDialog.ShowMessage("Load failed!", "Serial was not set.");
+			else SimpleDialog.ShowMessage("Error!", "Select a preset and then press load!");
 		}
 	}
 }
