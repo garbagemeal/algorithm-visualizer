@@ -5,6 +5,7 @@ using AlgorithmVisualizer.GraphTheory.Utils;
 using AlgorithmVisualizer.Tracers;
 using AlgorithmVisualizer.Utils;
 using static AlgorithmVisualizer.GraphTheory.FDGV.GraphVisualizer;
+using static AlgorithmVisualizer.Threading.PauseResumeSleep;
 
 namespace AlgorithmVisualizer.GraphTheory.Algorithms
 {
@@ -53,19 +54,19 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 			if (topSort == null) return false;
 
 			ShowTracers();
-			Sleep(1000);
+			Sleep(Delay.Medium);
 			for (int i = 0; i < graph.NodeCount; i++)
 			{
 				// Note: i is the index of curNodeId in topSort
 				int curNodeId = topSort[i];
 				graph.MarkParticle(curNodeId, Colors.Orange);
 				topSortTracer.Mark(i, Colors.Orange);
-				Sleep(1500);
+				Sleep(Delay.Long);
 				topSortTracer.Trace();
-				Sleep(1000);
+				Sleep(Delay.Medium);
 				VisitNeighbors(curNodeId);
 				graph.MarkParticle(curNodeId, Colors.Visited, Colors.VisitedBorder);
-				Sleep(1000);
+				Sleep(Delay.Medium);
 			}
 
 			for (int i = 0; i < distMap.Length; i++)
@@ -82,22 +83,22 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 		private void RelaxEdge(Edge edge, int at)
 		{
 			graph.MarkSpring(edge, Colors.Orange, Dir.Directed);
-			Sleep(1000);
+			Sleep(Delay.Medium);
 			// Compute new distance for edge.To
 			int newDist = distMap[at] + edge.Cost;
 			bool distanceImproved = newDist < distMap[edge.To];
 			graph.MarkSpring(edge, distanceImproved ? Colors.Red : Colors.Blue);
-			Sleep(1000);
+			Sleep(Delay.Medium);
 			if (distanceImproved)
 			{
 				distMap[edge.To] = newDist;
 				distMapTracer.Mark(edge.To, Colors.Red);
-				Sleep(1500);
+				Sleep(Delay.Long);
 				distMapTracer.Trace();
-				Sleep(1000);
+				Sleep(Delay.Medium);
 			}
 			graph.MarkSpring(edge, Colors.Visited, Dir.Directed);
-			Sleep(1000);
+			Sleep(Delay.Medium);
 		}
 
 

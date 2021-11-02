@@ -319,7 +319,7 @@ namespace AlgorithmVisualizer.Arrays
 				Console.WriteLine($"Searching for {searchVal} located at {searchValIdx} using {algoName}:");
 				// Mark search val
 				DrawValueAt(searchValIdx, Brushes.Red);
-				Sleep(1500);
+				Sleep(Delay.Long);
 				// Unmark search val
 				DrawValueAt(searchValIdx, Brushes.White);
 				int idx = -1;
@@ -342,7 +342,7 @@ namespace AlgorithmVisualizer.Arrays
 				if (idx != -1) Console.WriteLine($"Found value {searchVal} at {idx}");
 				else Console.WriteLine($"The value {searchVal} could not be found");
 				// Clear visuals
-				Sleep(2500);
+				Sleep(Delay.VeryLong);
 				DrawValues(0, N - 1);
 			}
 		}
@@ -424,7 +424,7 @@ namespace AlgorithmVisualizer.Arrays
 				i *= 2;
 			}
 			DrawValues(Min(i, N - 1) + 1, N - 1, Brushes.DimGray); // "Unmark" values not in search sapce
-			Sleep(2500);
+			Sleep(Delay.VeryLong);
 			// Use binary serach in the selected searching space
 			return BinarySearch(arr, i / 2, Min(i, N - 1), val);
 		}

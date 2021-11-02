@@ -4,6 +4,7 @@ using System.Drawing;
 using AlgorithmVisualizer.Tracers;
 using AlgorithmVisualizer.GraphTheory.Utils;
 using static AlgorithmVisualizer.GraphTheory.FDGV.GraphVisualizer;
+using static AlgorithmVisualizer.Threading.PauseResumeSleep;
 
 namespace AlgorithmVisualizer.GraphTheory.Algorithms
 {
@@ -47,25 +48,25 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 			// of the nodes neighbors
 			visited.Add(at);
 			graph.MarkParticle(at, Colors.Orange);
-			Sleep(1500);
+			Sleep(Delay.Long);
 			foreach (Edge edge in graph.AdjList[at])
 			{
 				if (!visited.Contains(edge.To))
 				{
 					graph.MarkSpring(edge, Colors.Orange, Dir.Directed);
-					Sleep(1000);
+					Sleep(Delay.Medium);
 					Solve(edge.To, visited, topOrderStk);
 					graph.MarkSpring(edge, Colors.Visited, Dir.Directed);
-					Sleep(1000);
+					Sleep(Delay.Medium);
 				}
 			}
 			topOrderStk.Push(at);
 			graph.MarkParticle(at, Colors.Red);
 			topOrderStkTracer.Mark(0, Colors.Red);
-			Sleep(1000);
+			Sleep(Delay.Medium);
 			graph.MarkParticle(at, Colors.Visited, Colors.VisitedBorder);
 			topOrderStkTracer.Trace();
-			Sleep(1000);
+			Sleep(Delay.Medium);
 		}
 	}
 }

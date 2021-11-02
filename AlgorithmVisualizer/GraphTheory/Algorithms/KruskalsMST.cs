@@ -6,6 +6,7 @@ using AlgorithmVisualizer.Tracers;
 using AlgorithmVisualizer.DataStructures;
 using AlgorithmVisualizer.DataStructures.Heap;
 using AlgorithmVisualizer.GraphTheory.Utils;
+using static AlgorithmVisualizer.Threading.PauseResumeSleep;
 
 namespace AlgorithmVisualizer.GraphTheory.Algorithms
 {
@@ -52,15 +53,15 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 			List<Edge> mstEdges = new List<Edge>();
 			int mstCost = 0;
 			heapTracer.Trace();
-			Sleep(1500);
+			Sleep(Delay.Long);
 			// While heap not empty and the disjoint set has more than 1 component
 			while (heap.Count > 0 && disjointSet.NumComponents > 1) // O(E)
 			{
 				heapTracer.Mark(0, Colors.Red);
 				Edge edge = heap.Dequeue(); // O(logE)
-				Sleep(1000);
+				Sleep(Delay.Medium);
 				heapTracer.Trace();
-				Sleep(1000);
+				Sleep(Delay.Medium);
 				// Avoid adding edges where both composing nodes already belong
 				// to the same group (would introduce a cycle to the MST!)
 				if (!disjointSet.Connected(edge.From, edge.To)) // α(n) - amortized constant time
@@ -72,7 +73,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 					disjointSet.Unify(edge.From, edge.To); // α(n) - amortized constant time
 					// Draw the edge
 					graph.MarkSpring(edge, Colors.Green);
-					Sleep(1000);
+					Sleep(Delay.Medium);
 				}
 			}
 			return (mstCost, mstEdges);

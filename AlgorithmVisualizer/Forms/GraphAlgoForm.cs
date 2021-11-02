@@ -15,6 +15,7 @@ using AlgorithmVisualizer.GraphTheory.Utils;
 using AlgorithmVisualizer.Utils;
 using static AlgorithmVisualizer.Forms.Dialogs.EdgeDialog;
 using static AlgorithmVisualizer.Forms.GraphAlgoSettings;
+using static AlgorithmVisualizer.Threading.PauseResumeSleep;
 
 namespace AlgorithmVisualizer.Forms
 {
@@ -156,10 +157,10 @@ namespace AlgorithmVisualizer.Forms
 			graph.MarkParticle(from, Colors.Green); // start node
 			if (includeTo)
 			{
-				if (from == to) graph.Sleep(500);
+				if (from == to) graph.Sleep(Delay.Short);
 				graph.MarkParticle(to, Colors.Red); // end node
 			}
-			graph.Sleep(1500);
+			graph.Sleep(Delay.Long);
 			// BUG: unsure why canvas paint trigger is required, doesn't
 			// 'bgwGraphLayoutViz' already trigger the same event?
 			RefreshCanvas();
@@ -168,7 +169,7 @@ namespace AlgorithmVisualizer.Forms
 		{
 			foreach (int id in new int[] { from, to })
 				if (id != -1) graph.ResetParticleColors(id);
-			graph.Sleep(1500);
+			graph.Sleep(Delay.Long);
 			// Again unsure why triggering is needed if bgwGraphLayoutViz should already do so?
 			RefreshCanvas();
 		}

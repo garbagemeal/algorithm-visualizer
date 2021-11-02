@@ -87,7 +87,7 @@ namespace AlgorithmVisualizer.Arrays
 			// Draw border around the visualized value (if entry width is greater then 5px)
 			if ((int)Math.Ceiling(entryWidth) >= 5)
 				g.DrawRectangle(Pens.Black, (int)Math.Ceiling(idx * entryWidth), maxVal - val, (int)Math.Ceiling(entryWidth) - 1, maxVal - 1);
-			Sleep(500);
+			Sleep(Delay.Short);
 		}
 		protected void DrawValues(int from, int to)
 		{
@@ -106,7 +106,7 @@ namespace AlgorithmVisualizer.Arrays
 				for (int i = from; i <= to; i++)
 					DrawValueAt(i, brush);
 				delayFactor = tmp;
-				Sleep(500);
+				Sleep(Delay.Short);
 			}
 		}
 	}

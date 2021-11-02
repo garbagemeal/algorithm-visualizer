@@ -7,6 +7,7 @@ using AlgorithmVisualizer.DataStructures.Heap;
 using AlgorithmVisualizer.GraphTheory.Utils;
 using static AlgorithmVisualizer.GraphTheory.FDGV.GraphVisualizer;
 using AlgorithmVisualizer.Utils;
+using static AlgorithmVisualizer.Threading.PauseResumeSleep;
 
 namespace AlgorithmVisualizer.GraphTheory.Algorithms
 {
@@ -55,15 +56,15 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 				int curNodeId = ipq.DequeueMinKeyIndex();
 				visited.Add(curNodeId);
 				graph.MarkParticle(curNodeId, Colors.Orange);
-				Sleep(1500);
+				Sleep(Delay.Long);
 				ipqTracer.Trace();
-				Sleep(1000);
+				Sleep(Delay.Medium);
 				if (curNodeId == to) endReached = true;
 				else
 				{
 					VisitNeighbors(curNodeId);
 					graph.MarkParticle(curNodeId, Colors.Visited, Colors.VisitedBorder);
-					Sleep(1000);
+					Sleep(Delay.Medium);
 				}
 			}
 		
@@ -76,11 +77,11 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 			foreach (Edge edge in graph.AdjList[curNodeId])
 			{
 				graph.MarkSpring(edge, Colors.Orange, Dir.Directed);
-				Sleep(1000);
+				Sleep(Delay.Medium);
 				RelaxEdge(edge, curNodeId);
-				Sleep(1000);
+				Sleep(Delay.Medium);
 				graph.MarkSpring(edge, Colors.Visited, Dir.Directed);
-				Sleep(1000);
+				Sleep(Delay.Medium);
 			}
 		}
 		private void RelaxEdge(Edge edge, int curNodeId)
@@ -95,14 +96,14 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 				distMapTracer.Mark(toId, Colors.Red);
 				prev[toId] = curNodeId;
 				distMap[toId] = newDist;
-				Sleep(1500);
+				Sleep(Delay.Long);
 				prevTracer.Trace();
 				distMapTracer.Trace();
 				// Insert toId into ipq if not present else decrease key
 				if (!ipq.Contains(toId)) ipq.InsertAt(toId, newDist);
 				else ipq.DecreaseKey(toId, newDist);
 				ipqTracer.Trace();
-				Sleep(1000);
+				Sleep(Delay.Medium);
 			}
 			else graph.MarkSpring(edge, Colors.Blue, Dir.Directed);
 		}
@@ -134,7 +135,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 					int at = path[i], prevAt = prev[at], delta = distMap[at] - distMap[prevAt];
 					graph.MarkSpring(new Edge(prevAt, at, delta), Colors.Green, Dir.Directed);
 				}
-				Sleep(700);
+				Sleep(Delay.Short);
 			}
 		}
 
@@ -154,7 +155,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 			AbstractArrayTracer<int>[] tracers = new AbstractArrayTracer<int>[] { idxTracer, distMapTracer, prevTracer };
 			ipqTracer.Trace();
 			foreach (AbstractArrayTracer<int> tracer in tracers) tracer.Trace();
-			Sleep(2000);
+			Sleep(Delay.VeryLong);
 		}
 	}
 }

@@ -2,6 +2,7 @@
 
 using AlgorithmVisualizer.GraphTheory.Utils;
 using static AlgorithmVisualizer.GraphTheory.FDGV.GraphVisualizer;
+using static AlgorithmVisualizer.Threading.PauseResumeSleep;
 
 namespace AlgorithmVisualizer.GraphTheory.Algorithms
 {
@@ -23,7 +24,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 			visited.Add(at);
 			// Mark node on visit
 			graph.MarkParticle(at, at == to ? Colors.Red : Colors.Orange);
-			Sleep(1500);
+			Sleep(Delay.Long);
 			if (at == to) return true;
 			foreach (Edge edge in graph.AdjList[at])
 			{
@@ -32,23 +33,23 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 				{
 					// Mark edge on visit
 					graph.MarkSpring(edge, Colors.Orange, Dir.Directed);
-					Sleep(1000);
+					Sleep(Delay.Medium);
 					if (Solve(edge.To)) // Current edge is in a path to 'to'
 					{
 						// Marking SP
 						graph.MarkSpring(edge, Colors.Green, Dir.Directed);
 						graph.MarkParticle(at, Colors.Green);
-						Sleep(1500);
+						Sleep(Delay.Long);
 						return true;
 					}
 					// Unmark edge after visit
 					graph.MarkSpring(edge, Colors.Visited, Dir.Directed);
-					Sleep(1000);
+					Sleep(Delay.Medium);
 				}
 			}
 			// Unmark node after vist
 			graph.MarkParticle(at, Colors.Visited, Colors.VisitedBorder);
-			Sleep(1000);
+			Sleep(Delay.Medium);
 			return false;
 		}
 	}

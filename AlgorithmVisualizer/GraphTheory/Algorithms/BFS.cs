@@ -4,6 +4,7 @@ using AlgorithmVisualizer.Tracers;
 using AlgorithmVisualizer.GraphTheory.Utils;
 using static AlgorithmVisualizer.GraphTheory.FDGV.GraphVisualizer;
 using System.Drawing;
+using static AlgorithmVisualizer.Threading.PauseResumeSleep;
 
 namespace AlgorithmVisualizer.GraphTheory.Algorithms
 {
@@ -30,21 +31,21 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 		public override bool Solve()
 		{
 			qTracer.Trace();
-			Sleep(1500);
+			Sleep(Delay.Long);
 			while (q.Count > 0)
 			{
 				qTracer.Mark(0, Colors.Red);
 				int at = q.Dequeue();
 				// Mark node on visit
 				graph.MarkParticle(at, at == to ? Colors.Red : Colors.Orange);
-				Sleep(1000);
+				Sleep(Delay.Medium);
 				qTracer.Trace();
-				Sleep(1000);
+				Sleep(Delay.Medium);
 				if (at == to) return true;
 				VisitNeighbors(at);
 				// Unmark node after visit
 				graph.MarkParticle(at, Colors.Visited, Colors.VisitedBorder);
-				Sleep(1000);
+				Sleep(Delay.Medium);
 			}
 			return false;
 		}
@@ -54,7 +55,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 			{
 				// Mark edge on visit
 				graph.MarkSpring(edge, Colors.Orange, Dir.Directed);
-				Sleep(1000);
+				Sleep(Delay.Medium);
 				// Avoid edges to visited nodes
 				if (!visited.Contains(edge.To))
 				{
@@ -64,7 +65,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 				}
 				// Unmark edge after visit
 				graph.MarkSpring(edge, Colors.Visited, Dir.Directed);
-				Sleep(1000);
+				Sleep(Delay.Medium);
 			}
 		}
 	}

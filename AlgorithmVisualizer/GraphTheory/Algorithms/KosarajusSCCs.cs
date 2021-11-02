@@ -5,6 +5,7 @@ using AlgorithmVisualizer.GraphTheory.Utils;
 using AlgorithmVisualizer.Tracers;
 using AlgorithmVisualizer.Utils;
 using static AlgorithmVisualizer.GraphTheory.FDGV.GraphVisualizer;
+using static AlgorithmVisualizer.Threading.PauseResumeSleep;
 
 namespace AlgorithmVisualizer.GraphTheory.Algorithms
 {
@@ -39,7 +40,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 		public override bool Solve()
 		{
 			ShowTracers();
-			Sleep(1000);
+			Sleep(Delay.Medium);
 			// Perform DFS on given graph, after visiting all neighbors of a node push it into into stk
 			for (int i = 0; i < graph.NodeCount; i++)
 				if (!visited.Contains(i)) DFS(graph.AdjList, i);
@@ -47,16 +48,16 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 			Dictionary<int, List<Edge>> Gt = graph.GetGTranspose();
 			visited.Clear();
 			// Clear visuals by the former DFS (finish times)
-			Sleep(2500);
+			Sleep(Delay.VeryLong);
 			graph.ClearVizState();
 			// For the visuals to match Gt need to reverse the springs
 			graph.ReverseSprings();
-			Sleep(2500);
+			Sleep(Delay.VeryLong);
 			// Perfrom DFS on Gt, after visiting all neighbors of a node assign it a SCC id
 			while (stk.Count > 0)
 			{
 				stkTracer.Mark(0, Colors.Red);
-				Sleep(1000);
+				Sleep(Delay.Medium);
 				int i = stk.Pop();
 				stkTracer.Trace();
 				if (!visited.Contains(i))
@@ -66,7 +67,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 					DFS(Gt, i);
 					SccCount++;
 				}
-				Sleep(1000);
+				Sleep(Delay.Medium);
 			}
 			//HideTracers();
 			return true;
@@ -75,7 +76,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 		{
 			visited.Add(at);
 			graph.MarkParticle(at, Colors.Orange);
-			Sleep(1500);
+			Sleep(Delay.Long);
 			// Visit neighbors of 'at'
 			foreach (Edge edge in G[at])
 			{
@@ -87,10 +88,10 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 					// actually changing the edge.
 					var drawingSpring = G == graph.AdjList ? edge : Edge.ReversedCopy(edge);
 					graph.MarkSpring(drawingSpring, Colors.Orange, Dir.Directed);
-					Sleep(1000);
+					Sleep(Delay.Medium);
 					DFS(G, edge.To);
 					graph.MarkSpring(drawingSpring, Colors.Visited, Dir.Directed);
-					Sleep(1000);
+					Sleep(Delay.Medium);
 				}
 			}
 			// After visiting all neighbors of 'at', depending on G:
@@ -107,14 +108,14 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 				TraceNode(at, sccIdsTracer);
 				graph.MarkParticle(at, nodeMarkColor);
 			}
-			Sleep(1000);
+			Sleep(Delay.Medium);
 		}
 		private void TraceNode(int id, AbstractArrayTracer<int> tracer)
 		{
 			tracer.Mark(id, nodeMarkColor);
-			Sleep(1000);
+			Sleep(Delay.Medium);
 			tracer.Trace();
-			Sleep(1000);
+			Sleep(Delay.Medium);
 		}
 
 		private void SetupTracers()

@@ -3,6 +3,7 @@ using System.Drawing;
 
 using AlgorithmVisualizer.GraphTheory.Utils;
 using static AlgorithmVisualizer.GraphTheory.FDGV.GraphVisualizer;
+using static AlgorithmVisualizer.Threading.PauseResumeSleep;
 
 namespace AlgorithmVisualizer.GraphTheory.Algorithms
 {
@@ -31,7 +32,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 				{
 					// Create new component using DFS
 					DFS(nodeId, randomColor);
-					Sleep(1500);
+					Sleep(Delay.Long);
 					componentCount++;
 					randomColor = Colors.GetRandom();
 				}
@@ -43,19 +44,19 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 			visited.Add(at);
 			components[at] = componentCount;
 			graph.MarkParticle(at, color);
-			Sleep(1500);
+			Sleep(Delay.Long);
 			foreach (Edge edge in graph.AdjList[at])
 			{
 				if (!visited.Contains(edge.To))
 				{
 					graph.MarkSpring(edge, color, Dir.Directed);
-					Sleep(1000);
+					Sleep(Delay.Medium);
 					DFS(edge.To, color);
 					graph.MarkSpring(edge, Colors.Visited, Dir.Directed);
-					Sleep(1000);
+					Sleep(Delay.Medium);
 				}
 			}
-			Sleep(1000);
+			Sleep(Delay.Medium);
 		}
 	}
 }

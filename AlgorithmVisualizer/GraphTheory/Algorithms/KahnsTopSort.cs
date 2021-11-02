@@ -5,6 +5,7 @@ using AlgorithmVisualizer.Tracers;
 using AlgorithmVisualizer.GraphTheory.Utils;
 using static AlgorithmVisualizer.GraphTheory.FDGV.GraphVisualizer;
 using AlgorithmVisualizer.Utils;
+using static AlgorithmVisualizer.Threading.PauseResumeSleep;
 
 namespace AlgorithmVisualizer.GraphTheory.Algorithms
 {
@@ -46,7 +47,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 			if (vizMode)
 			{
 				ShowTracers();
-				Sleep(1000);
+				Sleep(Delay.Medium);
 			}
 
 			int idx = 0;
@@ -60,13 +61,13 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 				if (vizMode)
 				{
 					graph.MarkParticle(curNode, Colors.Orange);
-					Sleep(1000);
+					Sleep(Delay.Medium);
 					qTracer.Trace();
-					Sleep(1000);
+					Sleep(Delay.Medium);
 					topOrderTracer.Mark(idx - 1, Colors.Orange);
-					Sleep(1000);
+					Sleep(Delay.Medium);
 					topOrderTracer.Trace();
-					Sleep(1000);
+					Sleep(Delay.Medium);
 				}
 
 				//O(Eadj) - Eadj is the out degree of curNode
@@ -75,7 +76,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 				if (vizMode)
 				{
 					graph.MarkParticle(curNode, Colors.Visited);
-					Sleep(1000);
+					Sleep(Delay.Medium);
 				}
 			}
 			// If TopOrder contains all nodes then the graph is a DAG, otherwise contains a directed cycle.
@@ -91,14 +92,14 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 				{
 					graph.MarkSpring(edge, Colors.Orange, Dir.Directed);
 					inDegTracer.Mark(to, Colors.Red);
-					Sleep(1000);
+					Sleep(Delay.Medium);
 				}
 				// decrease in-deg by 1
 				inDeg[to]--;
 				if (vizMode)
 				{
 					inDegTracer.Mark(to, Colors.Red);
-					Sleep(2000);
+					Sleep(Delay.VeryLong);
 				}
 				// If after decreasing To's inDeg by 1 it becane 0, enqueue into q
 				if (inDeg[to] == 0)
@@ -107,16 +108,16 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 					if (vizMode)
 					{
 						qTracer.Mark(-1, Colors.Red);
-						Sleep(1500);
+						Sleep(Delay.Long);
 						qTracer.Trace();
-						Sleep(1000);
+						Sleep(Delay.Medium);
 					}
 				}
 				if (vizMode)
 				{
 					inDegTracer.Trace();
 					graph.MarkSpring(edge, Colors.Visited, Dir.Directed);
-					Sleep(1000);
+					Sleep(Delay.Medium);
 				}
 			}
 		}

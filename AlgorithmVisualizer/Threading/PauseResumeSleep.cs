@@ -47,8 +47,19 @@ namespace AlgorithmVisualizer.Threading
 			}
 		}
 
-		public void Sleep(int millis = 0)
+		public enum Delay {
+
+			Tiny = 50,
+			VeryShort = 250,
+			Short = 500,
+			Medium = 1000,
+			Long = 1500,
+			VeryLong = 2500,
+			Huge = 5000
+		}
+		public void Sleep(Delay delay)
 		{
+			int millis = (int)delay;
 			// Sleep some time if millies > 0
 			if (!Paused && DelayFactor * millis > 0)
 				Thread.Sleep((int)Math.Round(DelayFactor * millis));

@@ -6,6 +6,7 @@ using AlgorithmVisualizer.Tracers;
 using AlgorithmVisualizer.DataStructures.Heap;
 using AlgorithmVisualizer.GraphTheory.Utils;
 using static AlgorithmVisualizer.GraphTheory.FDGV.GraphVisualizer;
+using static AlgorithmVisualizer.Threading.PauseResumeSleep;
 
 namespace AlgorithmVisualizer.GraphTheory.Algorithms
 {
@@ -56,7 +57,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 				heapTracer.Mark(0, Colors.Red);
 				Edge edge = heap.Dequeue();
 				graph.MarkSpring(edge, Colors.Red, Dir.Directed);
-				Sleep(1500);
+				Sleep(Delay.Long);
 				heapTracer.Trace();
 				// Avoid adding edges to already visited nodes
 				bool edgeVisited = visited.Contains(edge.To);
@@ -67,14 +68,14 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 					mstCost += edge.Cost;
 					EnqueueAdjEdges(edge.To, visited, heap);
 				}
-				Sleep(1000);
+				Sleep(Delay.Medium);
 			}
 			return edgeCount == expectedEdgeCount ? (mstCost, mstEdges) : (0, null);
 		}
 		private void EnqueueAdjEdges(int nodeId, HashSet<int> visited, BinaryMinHeap<Edge> heap)
 		{
 			visited.Add(nodeId);
-			Sleep(1000);
+			Sleep(Delay.Medium);
 			graph.MarkParticle(nodeId, Colors.Orange);
 			// Visit outgoing edges and enqueue edges not to visted nodes (also marks them)
 			foreach (Edge edge in graph.AdjList[nodeId])
@@ -84,15 +85,15 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 					graph.MarkSpring(edge, Colors.Orange, Dir.Directed);
 					heap.Enqueue(edge);
 					heapTracer.Trace();
-					Sleep(1000);
+					Sleep(Delay.Medium);
 				}
 			}
-			Sleep(1000);
+			Sleep(Delay.Medium);
 			// Mark visted edges & particle
 			foreach (Edge edge in graph.AdjList[nodeId])
 				if (!visited.Contains(edge.To)) graph.MarkSpring(edge, Colors.Visited, Dir.Directed);
 			graph.MarkParticle(nodeId, Colors.Visited, Colors.VisitedBorder);
-			Sleep(1000);
+			Sleep(Delay.Medium);
 		}
 	}
 }

@@ -1,5 +1,7 @@
 ﻿using System.Drawing;
 
+using static AlgorithmVisualizer.Threading.PauseResumeSleep;
+
 namespace AlgorithmVisualizer.GraphTheory.Algorithms
 {
 	abstract class GraphAlgorithm
@@ -22,6 +24,6 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 		}
 		
 		abstract public bool Solve();
-		protected void Sleep(int millis) => graph.Sleep(millis);
+		protected void Sleep(Delay delay) => graph.Sleep(delay);
 	}
 }

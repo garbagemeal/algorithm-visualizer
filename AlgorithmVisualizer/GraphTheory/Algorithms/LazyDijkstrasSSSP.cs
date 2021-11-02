@@ -7,6 +7,7 @@ using AlgorithmVisualizer.DataStructures.Heap;
 using AlgorithmVisualizer.GraphTheory.Utils;
 using static AlgorithmVisualizer.GraphTheory.FDGV.GraphVisualizer;
 using AlgorithmVisualizer.Utils;
+using static AlgorithmVisualizer.Threading.PauseResumeSleep;
 
 namespace AlgorithmVisualizer.GraphTheory.Algorithms
 {
@@ -53,15 +54,15 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 				int curNodeId = curNode.Id, curNodeMinDist = curNode.Data;
 				visited.Add(curNodeId);
 				graph.MarkParticle(curNodeId, Colors.Orange);
-				Sleep(1500);
+				Sleep(Delay.Long);
 				heapTracer.Trace();
-				Sleep(1000);
+				Sleep(Delay.Medium);
 				if (curNodeId == to) endReached = true;
 				else
 				{
 					VisitNeighbors(curNodeId, curNodeMinDist);
 					graph.MarkParticle(curNodeId, Colors.Visited, Colors.VisitedBorder);
-					Sleep(1000);
+					Sleep(Delay.Medium);
 				}
 			}
 
@@ -78,12 +79,12 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 				{
 					// Edge relaxation
 					graph.MarkSpring(edge, Colors.Orange);
-					Sleep(1000);
+					Sleep(Delay.Medium);
 					RelaxEdge(edge, curNodeId);
-					Sleep(1000);
+					Sleep(Delay.Medium);
 
 					graph.MarkSpring(edge, Colors.Visited);
-					Sleep(1000);
+					Sleep(Delay.Medium);
 				}
 			}
 		}
@@ -99,12 +100,12 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 				distMapTracer.Mark(toId, Colors.Red);
 				prev[toId] = curNodeId;
 				distMap[toId] = newDist;
-				Sleep(1500);
+				Sleep(Delay.Long);
 				prevTracer.Trace();
 				distMapTracer.Trace();
 				heap.Enqueue(new GNode(toId, newDist));
 				heapTracer.Trace();
-				Sleep(1000);
+				Sleep(Delay.Medium);
 			}
 			else graph.MarkSpring(edge, Colors.Blue);
 		}
@@ -137,7 +138,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 					int at = path[i], prevAt = prev[at], delta = distMap[at] - distMap[prevAt];
 					graph.MarkSpring(new Edge(prevAt, at, delta), Colors.Green, Dir.Directed);
 				}
-				Sleep(700);
+				Sleep(Delay.Short);
 			}
 		}
 
@@ -156,7 +157,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 			// Trace arrays
 			idxTracer.Trace(); prevTracer.Trace();
 			distMapTracer.Trace(); heapTracer.Trace();
-			Sleep(2000);
+			Sleep(Delay.VeryLong);
 		}
 	}
 }

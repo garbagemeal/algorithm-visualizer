@@ -59,7 +59,7 @@ namespace AlgorithmVisualizer.GraphTheory.MazeGeneration
 			int countVisited = 1;
 			// Visualize starting position, wait 1 second
 			DrawCellIgnoreConnection(maze[startRow, startCol], Brushes.White);
-			Sleep(1000);
+			Sleep(Delay.Medium);
 			// Perform DFS
 			DFS(path, visited, countVisited);
 		}
@@ -77,7 +77,7 @@ namespace AlgorithmVisualizer.GraphTheory.MazeGeneration
 				DrawCellIgnoreConnection(curCell, Brushes.Red);
 				// Try to pick an adjacent cell
 				Cell adjUnvisitedCell = PickAdjCell(curCell, visited);
-				Sleep(500);
+				Sleep(Delay.Short);
 				// if adjUnvisitedCell is null, there is no adjacent cell to visit
 				if (adjUnvisitedCell != null)
 				{

@@ -35,7 +35,7 @@ namespace AlgorithmVisualizer.GraphTheory.MazeGeneration
 			DrawCellIgnoreConnection(endingCell, Brushes.Red);
 			Console.WriteLine("Starting BFS at ({1}, {0}), ending at ({3}, {2}),",
 				startingCell.R, startingCell.C, endingCell.R, endingCell.C);
-			Sleep(1000);
+			Sleep(Delay.Medium);
 
 			// q for BFS, visited to avoid revisiting cells
 			Queue<Cell> q = new Queue<Cell>();
@@ -54,7 +54,7 @@ namespace AlgorithmVisualizer.GraphTheory.MazeGeneration
 
 			BFS(startingCell, endingCell, q, visited, prevDict, distDict);
 
-			Sleep(5000);
+			Sleep(Delay.Huge);
 			FindPath(startingCell, endingCell, visited, prevDict);
 		}
 		private void BFS(Cell startingCell, Cell endingCell, Queue<Cell> q,
@@ -94,7 +94,7 @@ namespace AlgorithmVisualizer.GraphTheory.MazeGeneration
 						}
 					}
 				}
-				Sleep(50);
+				Sleep(Delay.Tiny);
 			}
 		}
 		private void FindPath(Cell startingCell, Cell endingCell, HashSet<Cell> visited,
@@ -117,12 +117,12 @@ namespace AlgorithmVisualizer.GraphTheory.MazeGeneration
 				if (prevDict[at] != null)
 					for (int i = 0; i < 4; i++)
 						if (prevDict[at].adj[i] == at) dirToPrev = i;
-				Sleep(50);
+				Sleep(Delay.Tiny);
 			}
 
 			shortestPath.Reverse();
 
-			Sleep(1000);
+			Sleep(Delay.Medium);
 			// Removing all blue colored cells that are not in the shotest path in other words:
 			// Removing each cell that is in the visited HashSet but not in shortestPath List.
 			// Removing means coloring a cell in white

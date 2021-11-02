@@ -6,6 +6,7 @@ using AlgorithmVisualizer.GraphTheory.Utils;
 using AlgorithmVisualizer.Tracers;
 using AlgorithmVisualizer.Utils;
 using static AlgorithmVisualizer.GraphTheory.FDGV.GraphVisualizer;
+using static AlgorithmVisualizer.Threading.PauseResumeSleep;
 
 namespace AlgorithmVisualizer.GraphTheory.Algorithms
 {
@@ -17,16 +18,16 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 		// https://www.youtube.com/watch?v=ozsuci5pIso&list=PLUl4u3cNGP61Oq3tWYp6V_F-5jb5L2iHb&index=17&ab_channel=MITOpenCourseWare
 
 		private readonly int from;
-		private readonly int[] distMap;
+		private readonly double[] distMap;
 
-		private ArrayTracer<int> distMapTracer, idxTracer;
-		private AbstractArrayTracer<int>[] tracers;
+		private ArrayTracer<int> idxTracer;
+		private ArrayTracer<double> distMapTracer;
 
 		public BellmanFords(Graph graph, int _from) : base(graph)
 		{
 			from = _from;
-			distMap = new int[graph.NodeCount];
-			distMap.Fill(int.MaxValue);
+			distMap = new double[graph.NodeCount];
+			distMap.Fill(double.PositiveInfinity);
 			distMap[from] = 0;
 
 			SetupTracers();
@@ -35,36 +36,32 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 		public override bool Solve()
 		{
 			ShowTracers();
-			Sleep(1000);
+			Sleep(Delay.Medium);
 			// Find the SSSP for each vertex by relaxing each edge V-1 times.
 			for (int i = 1; i < graph.NodeCount; i++)
 			{
 				ShowMessageInLogPanel("Iteration " + i, new PointF(10, 80));
-				Sleep(2500);
+				Sleep(Delay.VeryLong);
 				RelaxAllEdges(RelaxMode.Default);
 				// Clear visuals for graph after each iteration
-				Sleep(1500);
+				Sleep(Delay.Long);
 				graph.ClearVizState();
-				Sleep(1500);
+				Sleep(Delay.Long);
 			}
 
 			ShowMessageInLogPanel("Detecting negative cycles", new PointF(10, 80));
 			RelaxAllEdges(RelaxMode.CycleDetection);
 
+			ShowMessageInLogPanel($"Done. \nNodes in a negative cycle and nodes reachable " +
+				$"by a negative cycle have a dist of {float.NegativeInfinity}", new PointF(10, 80));
+
 			/*
-			 * +INF  : Unreachable node
-			 * -INF  : Node in a negative a cycle
-			 * other : Reachable node, value expected to match the SP distance from 'from'
+			 * +INF(8)  : Unreachable node
+			 * -INF(-8) : Node in a negative a cycle
+			 * Other    : Reachable node, value expected to match the SP distance from 'from'
 			 */
 			for (int i = 0; i < graph.NodeCount; i++)
-			{
-				int dist = distMap[i];
-				string distAsStr =
-					dist == int.MaxValue ? "+INF" :
-					dist == int.MinValue ? "-INF" :
-					dist.ToString();
-				Console.WriteLine($"DistMap[{i}] = {distAsStr}");
-			}
+				Console.WriteLine($"DistMap[{i}] = {distMap[i]}");
 
 			return true;
 		}
@@ -74,7 +71,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 		{
 			// relax every edge coming from a reachable node
 			for (int at = 0; at < graph.NodeCount; at++)
-				if (distMap[at] != int.MaxValue) RelaxEdgeList(graph.AdjList[at], mode);
+				RelaxEdgeList(graph.AdjList[at], mode);
 		}
 		private void RelaxEdgeList(List<Edge> edgeList, RelaxMode mode)
 		{
@@ -85,36 +82,36 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 				// mode = RelaxMode.CycleDetection then a relaxation of an edge implies
 				// that the source node (edge.To) is part of a negative cycle, and so
 				// distMap[edge.To] is set to -INF.
-				int newCost = distMap[edge.From] + edge.Cost;
+				double newCost = distMap[edge.From] + edge.Cost;
 				if (newCost < distMap[edge.To])
 				{
-					distMap[edge.To] = mode == RelaxMode.Default ? newCost : int.MinValue;
+					distMap[edge.To] = mode == RelaxMode.Default ? newCost : double.NegativeInfinity;
 					graph.MarkSpring(edge, Colors.Red, Dir.Directed);
 					distMapTracer.Mark(edge.To, Colors.Red);
-					Sleep(1500);
+					Sleep(Delay.Long);
 					distMapTracer.Trace();
 				}
 				else // Relaxation failed
 				{
 					graph.MarkSpring(edge, Colors.Blue, Dir.Directed);
-					Sleep(1000);
+					Sleep(Delay.Medium);
 				}
 				graph.MarkSpring(edge, Colors.Visited, Dir.Directed);
-				Sleep(750);
+				Sleep(Delay.Medium);
 			}
 		}
 		private void SetupTracers()
 		{
 			int[] idxArr = new int[graph.NodeCount]; for (int i = 0; i < graph.NodeCount; i++) idxArr[i] = i;
 			idxTracer = new ArrayTracer<int>(idxArr, panelLogG, "idx: ", new PointF(0, 5), new SizeF(500, 30));
-			distMapTracer = new ArrayTracer<int>(distMap, panelLogG, "distMap: ", new PointF(0, 37), new SizeF(500, 30));
-			tracers = new AbstractArrayTracer<int>[] { idxTracer, distMapTracer };
+			distMapTracer = new ArrayTracer<double>(distMap, panelLogG, "distMap: ", new PointF(0, 37), new SizeF(500, 30));
 
 			idxTracer.TitleSize = distMapTracer.TitleSize;
 		}
 		private void ShowTracers()
 		{
-			foreach (var tracer in tracers) tracer.Trace();
+			idxTracer.Trace();
+			distMapTracer.Trace();
 		}
 
 		private SizeF? prevMsgSize = null;
@@ -127,7 +124,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 				using (var brush = new SolidBrush(Colors.UndrawLog))
 					panelLogG.FillRectangle(brush, rect);
 			}
-			Sleep(200);
+			Sleep(Delay.VeryShort);
 			using (var font = new Font("Arial", 12, FontStyle.Bold))
 			using (var brush = new SolidBrush(Colors.Red))
 			{
