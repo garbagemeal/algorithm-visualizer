@@ -13,6 +13,7 @@ using AlgorithmVisualizer.GraphTheory.Algorithms;
 using AlgorithmVisualizer.GraphTheory.FDGV;
 using AlgorithmVisualizer.GraphTheory.Utils;
 using AlgorithmVisualizer.Utils;
+using static AlgorithmVisualizer.Forms.Dialogs.EdgeDialog;
 using static AlgorithmVisualizer.Forms.GraphAlgoSettings;
 
 namespace AlgorithmVisualizer.Forms
@@ -380,48 +381,20 @@ namespace AlgorithmVisualizer.Forms
 		}
 		private void addEdgeToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			if (inGraphAlgoViz) return; // do nothing if currently visualizing somthing
-			using (var edgeDialog = new EdgeDialog(addingMode: true))
+			if (inGraphAlgoViz) return; // do nothing if currently visualizing an algo
+			using (var edgeDialog = new EdgeDialog(activeParticleId, graph, DialogMode.AddEdge))
 			{
 				edgeDialog.StartPosition = FormStartPosition.CenterParent;
-				if (edgeDialog.ShowDialog() == DialogResult.OK)
-				{
-					int from = activeParticleId, to = edgeDialog.To, cost = edgeDialog.Cost;
-					bool directedMode = edgeDialog.DirectedMode;
-					// Add directed or undirected edge and get op status
-					bool opStatus = directedMode ?
-						graph.AddDirectedEdge(from, to, cost) :
-						graph.AddUndirectedEdge(from, to, cost);
-					// Custumize and print msg
-					string msg = (directedMode ? "AddDirectedEdge" : "AddUndirectedEdge") +
-							  $": ({from}, {to}, {cost}). " +
-							  (opStatus ? "Success" : "Failed");
-					Console.WriteLine(msg);
-					activeParticleId = -1;
-				}
+				edgeDialog.ShowDialog();
 			}
 		}
 		private void removeEdgeToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			if (inGraphAlgoViz) return; // do nothing if currently visualizing somthing
-			using (var edgeDialog = new EdgeDialog(addingMode: false))
+			if (inGraphAlgoViz) return; // do nothing if currently visualizing an algo
+			using (var edgeDialog = new EdgeDialog(activeParticleId, graph, DialogMode.RemoveEdge))
 			{
 				edgeDialog.StartPosition = FormStartPosition.CenterParent;
-				if (edgeDialog.ShowDialog() == DialogResult.OK)
-				{
-					int from = activeParticleId, to = edgeDialog.To, cost = edgeDialog.Cost;
-					bool directedMode = edgeDialog.DirectedMode;
-					// Remove directed or undirected edge and get op status
-					bool opStatus = directedMode ?
-						graph.RemoveDirectedEdge(from, to, cost) :
-						graph.RemoveUndirectedEdge(from, to, cost);
-					// Custumize and print msg
-					string msg = (directedMode ? "RemoveDirectedEdge" : "RemoveUndirectedEdge") +
-							  $": ({from}, {to}, {cost}). " +
-							  (opStatus ? "Success" : "Failed");
-					Console.WriteLine(msg);
-					activeParticleId = -1;
-				}
+				edgeDialog.ShowDialog();
 			}
 		}
 
@@ -466,13 +439,13 @@ namespace AlgorithmVisualizer.Forms
 				// clicked on particle particle
 				if (clickedParticle != null)
 				{
-					// show vertexContextStrip (remove vertex/add edge for current particle)
+					// show vertexContextStrip (remove vertex/add edge for current particle, ...)
 					activeParticleId = clickedParticle.Id;
 					vertexContextStrip.Show(Cursor.Position);
 				}
 				else
 				{
-					// show canvasContextStrip (add vertex)
+					// show canvasContextStrip (add vertex, toggle physics, ...)
 					canvasRightClickPos = new Vector(x, y);
 					canvasContextStrip.Show(Cursor.Position);
 				}

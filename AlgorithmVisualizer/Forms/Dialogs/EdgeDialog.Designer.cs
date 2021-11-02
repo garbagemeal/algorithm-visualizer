@@ -36,13 +36,15 @@ namespace AlgorithmVisualizer.Forms.Dialogs
 			this.textBoxCost = new System.Windows.Forms.TextBox();
 			this.textBoxTo = new System.Windows.Forms.TextBox();
 			this.radioBtnUndirected = new System.Windows.Forms.RadioButton();
+			this.lblFrom = new System.Windows.Forms.Label();
+			this.textBoxFrom = new System.Windows.Forms.TextBox();
 			this.SuspendLayout();
 			// 
 			// radioBtnDirected
 			// 
 			this.radioBtnDirected.AutoSize = true;
 			this.radioBtnDirected.Checked = true;
-			this.radioBtnDirected.Location = new System.Drawing.Point(9, 61);
+			this.radioBtnDirected.Location = new System.Drawing.Point(9, 84);
 			this.radioBtnDirected.Name = "radioBtnDirected";
 			this.radioBtnDirected.Size = new System.Drawing.Size(65, 17);
 			this.radioBtnDirected.TabIndex = 12;
@@ -56,7 +58,7 @@ namespace AlgorithmVisualizer.Forms.Dialogs
 			this.btnOK.DialogResult = System.Windows.Forms.DialogResult.OK;
 			this.btnOK.FlatAppearance.BorderSize = 0;
 			this.btnOK.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.btnOK.Location = new System.Drawing.Point(42, 87);
+			this.btnOK.Location = new System.Drawing.Point(42, 110);
 			this.btnOK.Name = "btnOK";
 			this.btnOK.Size = new System.Drawing.Size(75, 23);
 			this.btnOK.TabIndex = 11;
@@ -67,7 +69,7 @@ namespace AlgorithmVisualizer.Forms.Dialogs
 			// lblCost
 			// 
 			this.lblCost.AutoSize = true;
-			this.lblCost.Location = new System.Drawing.Point(6, 38);
+			this.lblCost.Location = new System.Drawing.Point(6, 61);
 			this.lblCost.Name = "lblCost";
 			this.lblCost.Size = new System.Drawing.Size(28, 13);
 			this.lblCost.TabIndex = 10;
@@ -76,7 +78,7 @@ namespace AlgorithmVisualizer.Forms.Dialogs
 			// lblTo
 			// 
 			this.lblTo.AutoSize = true;
-			this.lblTo.Location = new System.Drawing.Point(6, 12);
+			this.lblTo.Location = new System.Drawing.Point(6, 35);
 			this.lblTo.Name = "lblTo";
 			this.lblTo.Size = new System.Drawing.Size(20, 13);
 			this.lblTo.TabIndex = 9;
@@ -84,14 +86,14 @@ namespace AlgorithmVisualizer.Forms.Dialogs
 			// 
 			// textBoxCost
 			// 
-			this.textBoxCost.Location = new System.Drawing.Point(49, 35);
+			this.textBoxCost.Location = new System.Drawing.Point(49, 58);
 			this.textBoxCost.Name = "textBoxCost";
 			this.textBoxCost.Size = new System.Drawing.Size(100, 20);
 			this.textBoxCost.TabIndex = 8;
 			// 
 			// textBoxTo
 			// 
-			this.textBoxTo.Location = new System.Drawing.Point(49, 9);
+			this.textBoxTo.Location = new System.Drawing.Point(49, 32);
 			this.textBoxTo.Name = "textBoxTo";
 			this.textBoxTo.Size = new System.Drawing.Size(100, 20);
 			this.textBoxTo.TabIndex = 7;
@@ -99,19 +101,38 @@ namespace AlgorithmVisualizer.Forms.Dialogs
 			// radioBtnUndirected
 			// 
 			this.radioBtnUndirected.AutoSize = true;
-			this.radioBtnUndirected.Location = new System.Drawing.Point(72, 61);
+			this.radioBtnUndirected.Location = new System.Drawing.Point(72, 84);
 			this.radioBtnUndirected.Name = "radioBtnUndirected";
 			this.radioBtnUndirected.Size = new System.Drawing.Size(77, 17);
 			this.radioBtnUndirected.TabIndex = 16;
 			this.radioBtnUndirected.Text = "Undirected";
 			this.radioBtnUndirected.UseVisualStyleBackColor = true;
 			// 
+			// lblFrom
+			// 
+			this.lblFrom.AutoSize = true;
+			this.lblFrom.Location = new System.Drawing.Point(6, 10);
+			this.lblFrom.Name = "lblFrom";
+			this.lblFrom.Size = new System.Drawing.Size(30, 13);
+			this.lblFrom.TabIndex = 18;
+			this.lblFrom.Text = "From";
+			// 
+			// txtBoxFrom
+			// 
+			this.textBoxFrom.Enabled = false;
+			this.textBoxFrom.Location = new System.Drawing.Point(49, 7);
+			this.textBoxFrom.Name = "txtBoxFrom";
+			this.textBoxFrom.Size = new System.Drawing.Size(100, 20);
+			this.textBoxFrom.TabIndex = 17;
+			// 
 			// EdgeDialog
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(70)))), ((int)(((byte)(70)))), ((int)(((byte)(70)))));
-			this.ClientSize = new System.Drawing.Size(160, 117);
+			this.ClientSize = new System.Drawing.Size(160, 141);
+			this.Controls.Add(this.lblFrom);
+			this.Controls.Add(this.textBoxFrom);
 			this.Controls.Add(this.radioBtnUndirected);
 			this.Controls.Add(this.radioBtnDirected);
 			this.Controls.Add(this.btnOK);
@@ -138,5 +159,7 @@ namespace AlgorithmVisualizer.Forms.Dialogs
 		private System.Windows.Forms.TextBox textBoxCost;
 		private System.Windows.Forms.TextBox textBoxTo;
 		private System.Windows.Forms.RadioButton radioBtnUndirected;
+		private System.Windows.Forms.Label lblFrom;
+		private System.Windows.Forms.TextBox textBoxFrom;
 	}
 }
