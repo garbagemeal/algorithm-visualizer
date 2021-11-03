@@ -22,7 +22,7 @@ namespace AlgorithmVisualizer.GraphTheory
 		} 
 		// Comapre only edge costs
 		public int CompareTo(object obj) => Cost - (obj as Edge).Cost;
-		public override string ToString() => string.Format($"({From}, {To}, {Cost})");
+		public override string ToString() => $"({From}, {To}, {Cost})";
 		// Returns a new edge where the from/to id's are swapped
 		public static Edge ReversedCopy(Edge edge) => new Edge(edge.To, edge.From, edge.Cost);
 	}

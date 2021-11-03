@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Threading;
 using System.Windows.Forms;
@@ -262,6 +263,9 @@ namespace AlgorithmVisualizer.Forms
 		#region Event handlers
 		private void btnStart_Click(object sender, EventArgs e)
 		{
+			supressClearStateMsg = true;
+			btnClearState_Click(sender, e);
+			supressClearStateMsg = false;
 			VisualizeGraphAlgo();
 		}
 		private void btnPauseResume_Click(object sender, EventArgs e)
@@ -285,12 +289,17 @@ namespace AlgorithmVisualizer.Forms
 		{
 			if (!graph.IsEmpty() && SimpleDialog.OKCancel("Clear the graph",
 				"You are about to remove all vertices and edges\n press OK to proceed."))
+			{
 				graph.ClearGraph();
+				panelLogG.Clear(Colors.UndrawLog);
+			}
 		}
+		private bool supressClearStateMsg = false;
 		private void btnClearState_Click(object sender, EventArgs e)
 		{
-			if (!graph.IsEmpty() && SimpleDialog.OKCancel("Clear state", "Clear " +
-				"particle/spring colors, spring \"Reversed\" state and the logging panel?"))
+			// If graph is not empty and the confirmation msg is suppressed or confirmed(dialog result is OK)
+			if (!graph.IsEmpty() && (supressClearStateMsg || SimpleDialog.OKCancel("Clear state", "Clear " +
+				"particle/spring colors, spring \"Reversed\" state and the logging panel?")))
 			{
 				graph.ClearVizState();
 				panelLogG.Clear(Colors.UndrawLog);
@@ -452,7 +461,6 @@ namespace AlgorithmVisualizer.Forms
 				}
 			}
 		}
-
 		private void canvas_MouseLeave(object sender, EventArgs e)
 		{
 			canvasMouseHoverPos = null;

@@ -49,7 +49,7 @@ namespace AlgorithmVisualizer.Utils
 			set { Normalize(); X *= value; Y *= value; }
 		}
 		
-		public override string ToString() => string.Format("({0}, {1})", X, Y);
+		public override string ToString() => $"({X}, {Y})";
 
 		public static bool IsValid(Vector v)
 		{

@@ -25,7 +25,7 @@ namespace AlgorithmVisualizer.DataStructures.AVLTree
 
 		public override string ToString()
 		{
-			return string.Format("Data: {0}, Height: {1}, BF: {2}", data.ToString(), height, balanceFactor);
+			return $"Data: {data}, Height: {height}, BF: {balanceFactor}";
 		}
 	}
 }

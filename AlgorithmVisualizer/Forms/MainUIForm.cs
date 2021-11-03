@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AlgorithmVisualizer.GraphTheory.Utils;
+using System;
 using System.Windows.Forms;
 
 namespace AlgorithmVisualizer.Forms
@@ -36,6 +37,7 @@ namespace AlgorithmVisualizer.Forms
 			panelChildForm.Tag = childForm; // Asociate form with the container panel
 			childForm.BringToFront();
 			childForm.Show();
+			panelLog.CreateGraphics().Clear(Colors.UndrawLog); // if case ther eare left overs in logging panel
 		}
 		// Open child form
 		private void btnArrayAlgos_Click(object sender, EventArgs e) => OpenChildForm(new ArrayAlgoForm(panelLog));

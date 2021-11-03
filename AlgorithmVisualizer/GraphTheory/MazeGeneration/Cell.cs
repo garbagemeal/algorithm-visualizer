@@ -29,11 +29,11 @@
 		}
 		public override string ToString()
 		{
-			return string.Format("N: {0}, E: {1}, S: {2}, W: {3}, Coords: ({4}, {5})", HasSide(0), HasSide(1), HasSide(2), HasSide(3), R, C);
+			return $"N: {HasSide(0)}, E: {HasSide(1)}, S: {HasSide(2)}, W: {HasSide(3)}, Coords: ({R}, {C})";
 		}
 		public string GetCoordsAsString()
 		{
-			return string.Format("({0}, {1})", r, c);
+			return $"({r}, {c})";
 		}
 	}
 }

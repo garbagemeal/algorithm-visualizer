@@ -29,6 +29,7 @@ namespace AlgorithmVisualizer.Forms.Dialogs
 		/// </summary>
 		private void InitializeComponent()
 		{
+			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FDGVConfigForm));
 			this.lblG = new System.Windows.Forms.Label();
 			this.hScrollBarG = new System.Windows.Forms.HScrollBar();
 			this.hScrollBarMaxParticleSpeed = new System.Windows.Forms.HScrollBar();
@@ -46,6 +47,8 @@ namespace AlgorithmVisualizer.Forms.Dialogs
 			this.panel1 = new System.Windows.Forms.Panel();
 			this.btnResetAll = new System.Windows.Forms.Button();
 			this.panel2 = new System.Windows.Forms.Panel();
+			this.lblKeyBinds = new System.Windows.Forms.Label();
+			this.richTextBox = new System.Windows.Forms.RichTextBox();
 			this.panel1.SuspendLayout();
 			this.panel2.SuspendLayout();
 			this.SuspendLayout();
@@ -210,6 +213,8 @@ namespace AlgorithmVisualizer.Forms.Dialogs
 			// 
 			// panel2
 			// 
+			this.panel2.Controls.Add(this.lblKeyBinds);
+			this.panel2.Controls.Add(this.richTextBox);
 			this.panel2.Controls.Add(this.lblG);
 			this.panel2.Controls.Add(this.hScrollBarRestLen);
 			this.panel2.Controls.Add(this.hScrollBarG);
@@ -227,22 +232,46 @@ namespace AlgorithmVisualizer.Forms.Dialogs
 			this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.panel2.Location = new System.Drawing.Point(0, 44);
 			this.panel2.Name = "panel2";
-			this.panel2.Size = new System.Drawing.Size(317, 184);
+			this.panel2.Size = new System.Drawing.Size(317, 318);
 			this.panel2.TabIndex = 7;
+			// 
+			// lblKeyBinds
+			// 
+			this.lblKeyBinds.AutoSize = true;
+			this.lblKeyBinds.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.lblKeyBinds.ForeColor = System.Drawing.Color.Red;
+			this.lblKeyBinds.Location = new System.Drawing.Point(107, 179);
+			this.lblKeyBinds.Name = "lblKeyBinds";
+			this.lblKeyBinds.Size = new System.Drawing.Size(91, 20);
+			this.lblKeyBinds.TabIndex = 7;
+			this.lblKeyBinds.Text = "Key binds:";
+			// 
+			// richTextBox
+			// 
+			this.richTextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(54)))), ((int)(((byte)(54)))), ((int)(((byte)(54)))));
+			this.richTextBox.CausesValidation = false;
+			this.richTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.richTextBox.ForeColor = System.Drawing.Color.White;
+			this.richTextBox.Location = new System.Drawing.Point(12, 204);
+			this.richTextBox.Name = "richTextBox";
+			this.richTextBox.ReadOnly = true;
+			this.richTextBox.Size = new System.Drawing.Size(293, 102);
+			this.richTextBox.TabIndex = 6;
+			this.richTextBox.Text = resources.GetString("richTextBox.Text");
 			// 
 			// FDGVConfigForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(34)))), ((int)(((byte)(34)))), ((int)(((byte)(34)))));
-			this.ClientSize = new System.Drawing.Size(317, 228);
+			this.ClientSize = new System.Drawing.Size(317, 362);
 			this.Controls.Add(this.panel2);
 			this.Controls.Add(this.panel1);
 			this.ForeColor = System.Drawing.Color.White;
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
 			this.MaximizeBox = false;
 			this.Name = "FDGVConfigForm";
-			this.Text = "GraphConfiguratorForm";
+			this.Text = "Configure graph viz & Keybinds";
 			this.panel1.ResumeLayout(false);
 			this.panel2.ResumeLayout(false);
 			this.panel2.PerformLayout();
@@ -268,5 +297,7 @@ namespace AlgorithmVisualizer.Forms.Dialogs
 		private System.Windows.Forms.Panel panel1;
 		private System.Windows.Forms.Panel panel2;
 		private System.Windows.Forms.Button btnResetAll;
+		private System.Windows.Forms.RichTextBox richTextBox;
+		private System.Windows.Forms.Label lblKeyBinds;
 	}
 }

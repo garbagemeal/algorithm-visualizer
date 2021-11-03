@@ -117,4 +117,12 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="richTextBox.Text" xml:space="preserve">
+    <value>A - Add vertex on hover position within canvas
+R - Remove hovered vertex
+P - Toggle physics for graph viz
+CTRL + P - Toggle center pull for graph viz
+C - A shortcut for the "Clear state" button
+CTRL + C - A shortcut for the "Reset" button</value>
+  </data>
 </root>
