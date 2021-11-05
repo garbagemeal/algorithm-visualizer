@@ -51,7 +51,7 @@
     <Compile Include="DataStructures\AVLTree\AVLTree.cs" />
     <Compile Include="DataStructures\BinaryTree\BinarySearchTree.cs" />
     <Compile Include="DataStructures\AVLTree\AVLNode.cs" />
-    <Compile Include="DataStructures\BinaryTree\TreeTester.cs" />
+    <Compile Include="DataStructures\BinaryTree\BinaryTreeTests.cs" />
     <Compile Include="DataStructures\BinaryTree\TreeUtils.cs" />
     <Compile Include="DataStructures\BinaryTree\BinNode.cs" />
     <Compile Include="DataStructures\BinaryTree\TreeConsolePrinter.cs" />

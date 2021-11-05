@@ -36,6 +36,7 @@ namespace AlgorithmVisualizer.Forms
 			this.panel1 = new System.Windows.Forms.Panel();
 			this.panelLog = new System.Windows.Forms.Panel();
 			this.panelChildForm = new System.Windows.Forms.Panel();
+			this.btnTreeAlgos = new System.Windows.Forms.Button();
 			this.panelSidemenu.SuspendLayout();
 			this.SuspendLayout();
 			// 
@@ -43,6 +44,7 @@ namespace AlgorithmVisualizer.Forms
 			// 
 			this.panelSidemenu.AutoScroll = true;
 			this.panelSidemenu.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(11)))), ((int)(((byte)(7)))), ((int)(((byte)(17)))));
+			this.panelSidemenu.Controls.Add(this.btnTreeAlgos);
 			this.panelSidemenu.Controls.Add(this.btnGraphAlgos);
 			this.panelSidemenu.Controls.Add(this.btnMazeGenerator);
 			this.panelSidemenu.Controls.Add(this.btnArrayAlgos);
@@ -133,6 +135,23 @@ namespace AlgorithmVisualizer.Forms
 			this.panelChildForm.Size = new System.Drawing.Size(1064, 542);
 			this.panelChildForm.TabIndex = 2;
 			// 
+			// btnTreeAlgos
+			// 
+			this.btnTreeAlgos.Dock = System.Windows.Forms.DockStyle.Top;
+			this.btnTreeAlgos.FlatAppearance.BorderSize = 0;
+			this.btnTreeAlgos.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.btnTreeAlgos.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.btnTreeAlgos.ForeColor = System.Drawing.Color.White;
+			this.btnTreeAlgos.Location = new System.Drawing.Point(0, 223);
+			this.btnTreeAlgos.Name = "btnTreeAlgos";
+			this.btnTreeAlgos.Padding = new System.Windows.Forms.Padding(10, 0, 0, 0);
+			this.btnTreeAlgos.Size = new System.Drawing.Size(200, 41);
+			this.btnTreeAlgos.TabIndex = 4;
+			this.btnTreeAlgos.Text = "Tree algorithms";
+			this.btnTreeAlgos.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			this.btnTreeAlgos.UseVisualStyleBackColor = true;
+			this.btnTreeAlgos.Click += new System.EventHandler(this.btnTreeAlgos_Click);
+			// 
 			// MainUIForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -158,5 +177,6 @@ namespace AlgorithmVisualizer.Forms
 		private System.Windows.Forms.Panel panelLog;
 		private System.Windows.Forms.Panel panelChildForm;
 		private System.Windows.Forms.Button btnGraphAlgos;
+		private System.Windows.Forms.Button btnTreeAlgos;
 	}
 }

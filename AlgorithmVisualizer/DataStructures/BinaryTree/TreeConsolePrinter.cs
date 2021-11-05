@@ -5,29 +5,27 @@ namespace AlgorithmVisualizer.DataStructures.BinaryTree
 {
 	public class TreeConsolePrinter<T> where T : IComparable
 	{
-		// Binary tree printer (old, supports only 2 digit values)
-		public static void PintTree2D(BinNode<T> root)
+		// Binary tree printer (old, supports values with up to 2 digits)
+		public static void Print(BinNode<T> root)
 		{
-			Queue<BinNode<T>> q1 = new Queue<BinNode<T>>();
-			Queue<BinNode<T>> q2 = new Queue<BinNode<T>>();
-			bool qFlag = true;
+			Queue<BinNode<T>> q1 = new Queue<BinNode<T>>(), q2 = new Queue<BinNode<T>>();
 			q1.Enqueue(root);
 
-			int offset = 0;
-			for (int i = 0; i < TreeUtils<T>.Height(root); i++)
-				offset = offset * 2 + 2;
+			int offset = 0, height = TreeUtils<T>.Height(root);
+			for (int i = 0; i < height; i++) offset = offset * 2 + 2;
 
-			for (int level = 0; level <= TreeUtils<T>.Height(root); level++)
+			for (int level = 0; level <= height; level++)
 			{
-				if (qFlag) Helper(q1, q2, offset);
-				else Helper(q2, q1, offset);
+				PrintHelper(q1, q2, offset);
+				Swap(ref q1, ref q2);
 				offset = (offset - 2) / 2;
-				qFlag = !qFlag;
 			}
 		}
-		// Helper function for 2d binary tree print
-		private static void Helper(Queue<BinNode<T>> q1, Queue<BinNode<T>> q2, int offset)
+		private static void PrintHelper(Queue<BinNode<T>> q1, Queue<BinNode<T>> q2, int offset)
 		{
+			// 'q1' holds the current level, 'q2' will hold the next level.
+			// Print the nodes found in the 'q1' and the lines connecting from those nodes
+			// to the nodes in the next level.
 			string lines = "";
 			int OFFSET = offset + 1;
 			while (q1.Count > 0)
@@ -37,7 +35,6 @@ namespace AlgorithmVisualizer.DataStructures.BinaryTree
 				lines += GetChars(' ', OFFSET / 2 + 1);
 				if (curNode != null)
 				{
-					//				System.out.printf("%2s", curNode.data);
 					Console.Write(Fill0(curNode.Data.ToString(), 2));
 					q2.Enqueue(curNode.Left);
 					q2.Enqueue(curNode.Right);
@@ -58,6 +55,7 @@ namespace AlgorithmVisualizer.DataStructures.BinaryTree
 				else
 				{
 					printSpaces(2);
+					// null enqueued to print spaces under missing nodes
 					q2.Enqueue(null);
 					q2.Enqueue(null);
 					lines += GetChars(' ', OFFSET + 2);
@@ -68,36 +66,39 @@ namespace AlgorithmVisualizer.DataStructures.BinaryTree
 			Console.Write("| offset: {0}, OFFSET: {1} \n", offset, OFFSET);
 			if (offset > 0) Console.WriteLine(lines + "|");
 		}
+
 		private static void printSpaces(int n)
 		{
-			for (int i = 0; i < n; i++)
-				Console.Write(" ");
+			for (int i = 0; i < n; i++) Console.Write(" ");
 		}
 		private static string GetSpaces(int n)
 		{
 			string str = "";
-			for (int i = 0; i < n; i++)
-				str += " ";
+			for (int i = 0; i < n; i++) str += " ";
 			return str;
 		}
 		private static string GetChars(char c, int n)
 		{
-			if (n == 0)
-				return "";
+			if (n == 0) return "";
 			return c + GetChars(c, n - 1);
 		}
 		private static void PrintChars(char c, int n)
 		{
-			if (n == 0)
-				return;
+			if (n == 0) return;
 			Console.Write(c);
 			PrintChars(c, n - 1);
 		}
 		private static string Fill0(string str, int n)
 		{
-			while (str.Length < n)
-				str = "0" + str;
+			while (str.Length < n) str = "0" + str;
 			return str;
+		}
+
+		private static void Swap(ref Queue<BinNode<T>> q1, ref Queue<BinNode<T>> q2)
+		{
+			Queue<BinNode<T>> tmp = q1;
+			q1 = q2;
+			q2 = tmp;
 		}
 	}
 }

@@ -2,35 +2,35 @@
 using System.Diagnostics;
 using System.Drawing;
 using System.Threading;
-
+using System.Windows.Forms;
 
 namespace AlgorithmVisualizer.DataStructures.BinaryTree
 {
-	public class TreeVisualizer<T> where T : IComparable
+	public static class TreeVisualizer<T> where T : IComparable
 	{
+		// Work in progress...
+
 		private static Graphics g;
-		private const int NODE_RADIUS = 20, TOP_OFFSET = 5;
+		private const int nodeRad = 30, topOffset = 5, fontSize = 10;
 		private static int panelHeight, panelWidth;
 
-		private const int delayTime = 200;
+		private static readonly Color nodeColor = Color.Green, txtColor = Color.Black, edgeColor = Color.White;
 
-		public TreeVisualizer(Graphics _g, int _panelHeight, int _panelWidth)
+		private const int delayTime = 50;
+
+		public static void DrawTree(BinNode<T> root, Graphics _g, Panel panel)
 		{
 			g = _g;
-			panelHeight = _panelHeight;
-			panelWidth = _panelWidth;
-		}
+			panelHeight = panel.Height;
+			panelWidth = panel.Width;
 
-		public static void DrawTree(BinNode<T> root)
-		{
-			// log(n) time assumed for the Math.Pow(2, x) is assumed
-			// O(2n + log(n)) = O(n) time, assuming all drawing methods take O(1) time.
-			int treeHeight = TreeHeight(root);
+			int treeHeight = TreeUtils<T>.Height(root);
 			int sideOffset = (int)Math.Pow(2, treeHeight - 1);
 			Debug.WriteLine("treeHeight: {0}, Initial offset: {1}, Panel width: {2}", treeHeight, sideOffset, panelWidth);
-			TreePrinterHelper(root, panelWidth / 2 - NODE_RADIUS / 2, TOP_OFFSET, sideOffset);
+
+			DrawTree(root, panelWidth / 2 - nodeRad / 2, topOffset, sideOffset);
 		}
-		private static void TreePrinterHelper(BinNode<T> root, int x, int y, int sideOffset)
+		private static void DrawTree(BinNode<T> root, int x, int y, int sideOffset)
 		{
 			// Nodes are printed in post-order, edges are printed in pre-order
 			// Note: edges printed before nodes for the nodes to be ontop
@@ -39,42 +39,39 @@ namespace AlgorithmVisualizer.DataStructures.BinaryTree
 				if (root.Left != null)
 				{
 					if (delayTime > 0) Thread.Sleep(delayTime);
-					PrintEdge(x, y, -sideOffset);
-					TreePrinterHelper(root.Left, x - sideOffset * NODE_RADIUS, y + NODE_RADIUS, sideOffset / 2);
+					DrawEdge(x, y, -sideOffset);
+					DrawTree(root.Left, x - sideOffset * nodeRad, y + nodeRad, sideOffset / 2);
 				}
 				if (root.Right != null)
 				{
 					if (delayTime > 0) Thread.Sleep(delayTime);
-					PrintEdge(x, y, sideOffset);
-					TreePrinterHelper(root.Right, x + sideOffset * NODE_RADIUS, y + NODE_RADIUS, sideOffset / 2);
+					DrawEdge(x, y, sideOffset);
+					DrawTree(root.Right, x + sideOffset * nodeRad, y + nodeRad, sideOffset / 2);
 				}
 				if (delayTime > 0) Thread.Sleep(delayTime);
-				PrintNode(root.Data, x, y);
+				DrawNode(root.Data, x, y);
 			}
 		}
 
-		private static void PrintNode(T data, int x, int y)
+		private static void DrawNode(T data, int x, int y)
 		{
-			Rectangle rect = new Rectangle(x, y, NODE_RADIUS, NODE_RADIUS);
-			g.FillEllipse(Brushes.Green, rect);
+			var rect = new Rectangle(x, y, nodeRad, nodeRad);
+			using (var nodeBrush = new SolidBrush(nodeColor)) g.FillEllipse(Brushes.Green, rect);
 
-			// Print the value inside the ellipse centered
-			StringFormat sf = new StringFormat();
-			sf.LineAlignment = StringAlignment.Center;
-			sf.Alignment = StringAlignment.Center;
-			g.DrawString(data.ToString(), new Font("Arial", 10), Brushes.Black, rect, sf);
+			using (var txtBrush = new SolidBrush(txtColor))
+			using (var font = new Font("Arial", fontSize))
+			using (var sf = new StringFormat())
+			{
+				sf.LineAlignment = StringAlignment.Center;
+				sf.Alignment = StringAlignment.Center;
+				g.DrawString(data.ToString(), font, txtBrush, rect, sf);
+			}
 		}
-		private static void PrintEdge(int x, int y, int sideOffset)
+		private static void DrawEdge(int x, int y, int sideOffset)
 		{
-			Point pt1 = new Point(x + NODE_RADIUS / 2, y + NODE_RADIUS / 2);
-			Point pt2 = new Point(x + NODE_RADIUS / 2 + sideOffset * NODE_RADIUS, y + NODE_RADIUS / 2 + NODE_RADIUS);
-			g.DrawLine(Pens.Black, pt1, pt2);
-		}
-
-		private static int TreeHeight(BinNode<T> root)
-		{
-			if (root == null) return -1;
-			return 1 + Math.Max(TreeHeight(root.Left), TreeHeight(root.Right));
+			var pt1 = new Point(x + nodeRad / 2, y + nodeRad / 2);
+			var pt2 = new Point(x + nodeRad / 2 + sideOffset * nodeRad, y + nodeRad / 2 + nodeRad);
+			using (var edgePen = new Pen(edgeColor)) g.DrawLine(edgePen, pt1, pt2);
 		}
 	}
 }

@@ -2,6 +2,7 @@
 using System.Windows.Forms;
 
 using AlgorithmVisualizer.Forms;
+using AlgorithmVisualizer.DataStructures.BinaryTree;
 
 namespace AlgorithmVisualizer
 {
@@ -13,15 +14,14 @@ namespace AlgorithmVisualizer
 		[STAThread]
 		static void Main()
 		{
-			// Run the main UI form
-			Application.Run(new MainUIForm());
+			Application.Run(new MainUIForm()); // Run the main UI form
 
-			//RunTests();
+			// RunTests();
 		}
 		static void RunTests()
 		{
 			// Testing & Debugging
-			// TreeTester.RunTests(); // Test BST and TreeUtils
+			BinaryTreeTests.RunTests(); // Test BST and TreeUtils
 		}
 	}
 }

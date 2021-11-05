@@ -4,22 +4,13 @@ namespace AlgorithmVisualizer.DataStructures.BinaryTree
 {
 	public class BinNode<T> where T : IComparable
 	{
-		protected T data;
-		protected BinNode<T> left, right;
+		// A class to represent a generic binary node. T must be a comparable type.
+		public T Data { get; set; }
+		public BinNode<T> Left { get; set; }
+		public BinNode<T> Right { get; set; }
 
-		public BinNode(T _data)
-		{
-			data = _data;
-		}
+		public BinNode(T data) => Data = data;
 
-		// Getters/Setters:
-		public T Data { get { return data; } set { data = value; } }
-		public BinNode<T> Left { get { return left; } set { left = value; } }
-		public BinNode<T> Right { get { return right; } set { right = value; } }
-
-		public override string ToString()
-		{
-			return data.ToString();
-		}
+		public override string ToString() => Data.ToString();
 	}
 }

@@ -37,12 +37,13 @@ namespace AlgorithmVisualizer.Forms
 			panelChildForm.Tag = childForm; // Asociate form with the container panel
 			childForm.BringToFront();
 			childForm.Show();
-			panelLog.CreateGraphics().Clear(Colors.UndrawLog); // if case ther eare left overs in logging panel
+			panelLog.CreateGraphics().Clear(Colors.UndrawLog); // if case there are left overs in logging panel
 		}
 		// Open child form
 		private void btnArrayAlgos_Click(object sender, EventArgs e) => OpenChildForm(new ArrayAlgoForm(panelLog));
 		private void btnMazeGenerator_Click(object sender, EventArgs e) => OpenChildForm(new MazeGenForm(this));
 		private void btnGraphAlgos_Click(object sender, EventArgs e) => OpenChildForm(new GraphAlgoForm(this));
+		private void btnTreeAlgos_Click(object sender, EventArgs e) => OpenChildForm(new TreeAlgoForm(this));
 		#endregion
 
 		#region panelLog resize
@@ -72,6 +73,8 @@ namespace AlgorithmVisualizer.Forms
 		// Thread safe main menu bttons toggle func
 		public void ToggleMainMenuBtns() => ToggleMainMenuBtns(this);
 		private delegate void ToggleMainMenuBtnsCallback(Control control);
+
+
 		private void ToggleMainMenuBtns(Control control)
 		{
 			if (control.InvokeRequired)

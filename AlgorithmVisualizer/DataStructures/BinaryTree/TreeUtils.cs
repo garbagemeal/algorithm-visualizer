@@ -4,20 +4,17 @@ using System.Collections.Generic;
 
 namespace AlgorithmVisualizer.DataStructures.BinaryTree
 {
-
-	/* IMPORTANT 
-	 * Tree construction methods (pre/post/level + in) can be further optimized!
-	 * Consider using Dictionaries instead of arrays for O(1) value lookups!
-	 */
-
-
-	public class TreeUtils<T> where T : IComparable
+	public static class TreeUtils<T> where T : IComparable
 	{
-		// Depth first traversals (Recursive):
+		// Note to self: use a dict to improve runtime of tree construction methods
+
+		#region DFS
+		// Depth first searches (pre/in/level)
+		// Recursive
 		public static void PrintPreOrderRec(BinNode<T> node)
 		{
 			if (node == null) return;
-			Console.Write(node.Data + " ");
+			PrintNode(node);
 			PrintPreOrderRec(node.Left);
 			PrintPreOrderRec(node.Right);
 		}
@@ -25,7 +22,7 @@ namespace AlgorithmVisualizer.DataStructures.BinaryTree
 		{
 			if (node == null) return;
 			PrintInOrderRec(node.Left);
-			Console.Write(node.Data + " ");
+			PrintNode(node);
 			PrintInOrderRec(node.Right);
 		}
 		public static void PrintPostOrderRec(BinNode<T> node)
@@ -33,25 +30,20 @@ namespace AlgorithmVisualizer.DataStructures.BinaryTree
 			if (node == null) return;
 			PrintPostOrderRec(node.Left);
 			PrintPostOrderRec(node.Right);
-			Console.Write(node.Data + " ");
+			PrintNode(node);
 		}
 		
-		// Depth first traversals (Iterative using a stack):
+		// Iterative using a stack replacing the recusion call stack
 		public static void PrintPreOrderItr(BinNode<T> node)
 		{
-			// Stack to simulate the recusion call stack, initally holds root node
 			Stack<BinNode<T>> stk = new Stack<BinNode<T>>();
 			stk.Push(node);
-			// As long as the stack is not empty
 			while(stk.Count > 0)
 			{
-				// pop from stk
 				BinNode<T> curNode = stk.Pop();
-				// popped value is not null
 				if(curNode != null)
 				{
-					// print the value, push right and then left into the stack if not null
-					Console.Write(curNode.Data + " ");
+					PrintNode(curNode);
 					if (curNode.Right != null) stk.Push(curNode.Right);
 					if (curNode.Left != null) stk.Push(curNode.Left);
 				}
@@ -59,22 +51,20 @@ namespace AlgorithmVisualizer.DataStructures.BinaryTree
 		}
 		public static void PrintInOrderItr(BinNode<T> node)
 		{
-			// Stack to simulate the recusion call stack, curNode to hold a node
-			BinNode<T> curNode = node;
 			Stack<BinNode<T>> stk = new Stack<BinNode<T>>();
-			// As long as the stack is not empty or currenley held node is not null
+			BinNode<T> curNode = node;
 			while (stk.Count > 0 || curNode != null)
 			{
-				// Dive left as long as curNode is not null
-				while(curNode != null)
+				// Find leftmost node for tree rooted at curNode
+				while (curNode != null)
 				{
 					stk.Push(curNode);
 					curNode = curNode.Left;
 				}
-				// curNode must be null at this point, stk's top holds the leftmost node of the current sub-tree, print it
+				// curNode is null, pop from stk to get the leftmost node and print it
 				curNode = stk.Pop();
-				Console.Write(curNode.Data + " ");
-				// Visit curNode's right sub-tree (may not exist)
+				PrintNode(curNode);
+				// Visit the right sub-tree of the leftmost node
 				curNode = curNode.Right;
 			}
 		}
@@ -84,24 +74,22 @@ namespace AlgorithmVisualizer.DataStructures.BinaryTree
 			Stack<BinNode<T>> stk = new Stack<BinNode<T>>();
 			while(stk.Count > 0 || curNode != null)
 			{
-				// if curNode is not null, push it into stk and visit left sub-tree
 				if(curNode != null)
 				{
+					// Push node into stk and visit left sub-tree
 					stk.Push(curNode);
 					curNode = curNode.Left;
 				}
-				// curNode is null
-				else
+				else // curNode is null
 				{
 					curNode = stk.Peek();
-					// If there exists no right sub-tree or it's root has been visited (prevNode holds it)
+					// If there exists no right sub-tree or it's root has been visited
 					if (curNode.Right == null || curNode.Right == prevNode)
 					{
-						Console.Write(curNode.Data + " "); // Print the node
+						PrintNode(curNode);
 						stk.Pop(); // Backtrack
-						// mark prevNode as the currentley visisted node, and curNode as null
-						prevNode = curNode;
-						curNode = null;
+						prevNode = curNode; // Mark sub-tree rooted at 'curNode' as visited
+						curNode = null; // Move onto next node on stk
 					}
 					// Visit right subtree
 					else curNode = curNode.Right;
@@ -109,44 +97,44 @@ namespace AlgorithmVisualizer.DataStructures.BinaryTree
 			}
 		}
 
-		// Depth first traversals (Iterative using no stack):
+		// Iterative using no stack
 		private static BinNode<T> FindInOrderPredecessor(BinNode<T> node)
 		{
-			// Move onto curNode's left sub-tree, assumes curNode has a left sub-tree!
-			// Note that the predecessor is the maximal value of curNode's left sub-tree.
+			/* Finds and returns the in order predecessor for the given node.
+			 * Assumes curNode has a left sub-tree.
+			 * The in order predecessor of a node is the rightmost node appearing in the
+			 * given node's left sub-tree, and is also the maximal value for a BST. */
+
 			BinNode<T> curNode = node.Left;
-			// As long as the next node is not not (empty sub-tree) or the root node, dive right
+			// Dive right while curNode's right sub-tree is not null or links back to node
 			while (curNode.Right != null && curNode.Right != node) curNode = curNode.Right;
-			// return resulting predecessor
+			// return the in order predecessor
 			return curNode;
 		}
 		public static void PrintPreOrderItrMorris(BinNode<T> node)
 		{
 			BinNode<T> curNode = node;
-			// As long as curNode is not null
 			while (curNode != null)
 			{
-				// If curNode has no left sub-tree
 				if (curNode.Left == null)
 				{
-					Console.Write(curNode.Data + " "); // Print the node
-					curNode = curNode.Right; // Move into the right sub-tree
+					PrintNode(curNode);
+					curNode = curNode.Right;
 				}
 				else
 				{
-					// Find curNode's in order predecessor, that is the max value in the left sub-tree
-					// Note that curNode has a left sub-tree (non null), and that the in order predecessor may point back to curNode!
 					BinNode<T> predecessor = FindInOrderPredecessor(curNode);
-					if(predecessor.Right == null) // predecessor's right is null (not linked to curNode)
+					if (predecessor.Right == null) // Predecessor's right does not link back to curNode
 					{
-						Console.Write(curNode.Data + " "); // Print the node
-						predecessor.Right = curNode; // Link predecessors right to curNode
-						curNode = curNode.Left; // Established a way to go back to curNode, move into curNode's left sub-tree
+						PrintNode(curNode);
+						// Link predecessor to curNode (a way to come back from the predecessor to curNode)
+						predecessor.Right = curNode;
+						curNode = curNode.Left;
 					}
-					else // predecessor's right is not null (is linked to curNode)
+					else // Predecessor's right links back to curNode
 					{
 						predecessor.Right = null; // Unlink predecessor from curNode
-						curNode = curNode.Right; // Move into the right sub-tree
+						curNode = curNode.Right;
 					}
 				}
 			}
@@ -154,39 +142,37 @@ namespace AlgorithmVisualizer.DataStructures.BinaryTree
 		public static void PrintInOrderItrMorris(BinNode<T> node)
 		{
 			BinNode<T> curNode = node;
-			// As long as curNode is not null
 			while (curNode != null)
 			{
-				// If curNode has no left sub-tree
 				if (curNode.Left == null)
 				{
-					Console.Write(curNode.Data + " "); // Print the node
-					curNode = curNode.Right; // Move into the right sub-tree
+					PrintNode(curNode);
+					curNode = curNode.Right;
 				}
 				else
 				{
-					// Find curNode's in order predecessor, that is the max value in the left sub-tree
-					// Note that curNode has a left sub-tree (non null), and that the in order predecessor may point back to curNode!
 					BinNode<T> predecessor = FindInOrderPredecessor(curNode);
-					if (predecessor.Right == null) // predecessor's right is null (not linked to curNode)
+					if (predecessor.Right == null) // Predecessor's right does not link back to curNode
 					{
-						predecessor.Right = curNode; // link predecessor's right to curNode	  
-						curNode = curNode.Left; // Established a way to go back to curNode, move into curNode's left sub-tree
+						// Link predecessor to curNode (a way to come back from the predecessor to curNode)
+						predecessor.Right = curNode;
+						curNode = curNode.Left;
 					}
-					else // predecessor's right is not null (is linked to curNode)
+					else // Predecessor's right links back to curNode
 					{
-						Console.Write(curNode.Data + " "); // Print the node
+						PrintNode(curNode);
 						predecessor.Right = null; // Unlink predecessor from curNode
-						curNode = curNode.Right; // Move into the right sub-tree
+						curNode = curNode.Right;
 					}
 				}
 			}
 		}
+		#endregion
 
-		// Breadth first traversals:
+		#region BFS
+		// Breadth first searches (level order)
 		public static void PrintLevelOrder(BinNode<T> node)
 		{
-			// Queue used to traverse the tree in a level order fashion, initially holds root node
 			Queue<BinNode<T>> q = new Queue<BinNode<T>>();
 			q.Enqueue(node);
 			while (q.Count > 0)
@@ -194,62 +180,48 @@ namespace AlgorithmVisualizer.DataStructures.BinaryTree
 				BinNode<T> curNode = q.Dequeue();
 				if (curNode != null)
 				{
-					Console.Write(curNode.Data + " "); // print the node
-					// Add left & right if they are not null
-					if (curNode.Left != null)
-						q.Enqueue(curNode.Left);
-					if (curNode.Right != null)
-						q.Enqueue(curNode.Right);
+					PrintNode(curNode);
+					if (curNode.Left != null) q.Enqueue(curNode.Left);
+					if (curNode.Right != null) q.Enqueue(curNode.Right);
 				}
 			}
 		}
 		public static void PrintReverseLevelOrder(BinNode<T> node)
 		{
-			// Queue used to traverse the tree in a level order fashion, initially holds root node
 			Queue<BinNode<T>> q = new Queue<BinNode<T>>();
-			// The stack is used to reverse the order of traversal
 			Stack<BinNode<T>> stk = new Stack<BinNode<T>>();
 			q.Enqueue(node);
-			// As long as the queue is not empty
+			// Traverse the tree from top to bot, right to left and push values into stk.
 			while (q.Count > 0)
 			{
 				BinNode<T> curNode = q.Dequeue();
 				if (curNode != null)
 				{
-					// Push curNode into the stack
 					stk.Push(curNode);
-					// Add right & left if they are not null
-					// Note that the visiting order is reversed compared to a level order!
 					if (curNode.Right != null) q.Enqueue(curNode.Right);
 					if (curNode.Left != null) q.Enqueue(curNode.Left);
 				}
 			}
-			// The former traversal using the queue forms a zig-zag from top to bot, right to left.
-			// If we reverse the traversal we get a zig-zag from bot to top, left to right, exactly what we needed.
-			while(stk.Count > 0) Console.Write(stk.Pop() + " "); // print the node
+			// By poping & printing values from stk the printing order is bot to top, left to right
+			while (stk.Count > 0) PrintNode(stk.Pop());
 		}
 		public static void PrintLevelByLevelOrder(BinNode<T> node)
 		{
-			// Queue used to traverse the tree in a level order fashion, initially holds root node
-			// Additionally the queue will hold null nodes to indicate level advancement,
-			// In other words null nodes are level delimiters
+			// Print each level of the tree in a seperate line
+			// null values are used as delimiters between levels of the tree
 			Queue<BinNode<T>> q = new Queue<BinNode<T>>();
 			q.Enqueue(node);
-			q.Enqueue(null); // Add the first delimiter
+			q.Enqueue(null);
 			while (q.Count > 0)
 			{
 				BinNode<T> curNode = q.Dequeue();
 				if (curNode != null)
 				{
-					Console.Write(curNode.Data + " "); // print the node
-					// Add left & right if they are not null
-					// Please note that in this solution adding null nodes is not only inefficient,
-					// but will also lead to an infinite loop!
+					PrintNode(curNode);
 					if (curNode.Left != null) q.Enqueue(curNode.Left);
 					if (curNode.Right != null) q.Enqueue(curNode.Right);
 				}
-				// curNode holds the null delimiter, level finished
-				// If the queue is not empty, there are still unfinished levels.
+				// Reached a null delimiter, add a line break if not the last level (q non empty)
 				else if (q.Count > 0)
 				{
 					Console.WriteLine();
@@ -257,54 +229,52 @@ namespace AlgorithmVisualizer.DataStructures.BinaryTree
 				}
 			}
 		}
+		#endregion
 
-		// Generic
+		#region Other
+		private static void PrintNode(BinNode<T> node) => Console.Write(node.Data + " ");
+		
 		public static int Size(BinNode<T> node)
 		{
-			// If tree is empty (null) return 0
 			if (node == null) return 0;
-			// Return 1 + sizes of left/right sub-trees
 			return 1 + Size(node.Left) + Size(node.Right);
 		}
+
 		public static int Height(BinNode<T> node)
 		{
-			// The height of an empty sub-tree is -1
 			if (node == null) return -1;
-			// Return 1 + the Maximal height between left and right sub-trees
 			return 1 + Math.Max(Height(node.Left), Height(node.Right));
 		}
+		
 		public static void Invert(BinNode<T> node)
 		{
 			if (node == null) return;
-			// Swap left/right sub-tree pointers
 			BinNode<T> tmp = node.Left;
 			node.Left = node.Right;
 			node.Right = tmp;
-			// Repeat for left/right sub-trees
 			Invert(node.Left);
 			Invert(node.Right);
 		}
+		
 		public static void InvertItr(BinNode<T> node)
 		{
 			Stack<BinNode<T>> stk = new Stack<BinNode<T>>();
 			stk.Push(node);
 			while(stk.Count > 0)
 			{
-				BinNode<T> cur = stk.Pop();
-				if (cur != null)
+				BinNode<T> curNode = stk.Pop();
+				if (curNode != null)
 				{
-					// Swap left and right children
-					var tmp = cur.Left;
-					cur.Left = cur.Right;
-					cur.Right = tmp;
-					// Adding children into stk
-					foreach (var child in new BinNode<T>[] { cur.Left, cur.Right })
-						stk.Push(child);
+					BinNode<T> tmp = curNode.Left;
+					curNode.Left = curNode.Right;
+					curNode.Right = tmp;
+					stk.Push(curNode.Left);
+					stk.Push(curNode.Right);
 				}
 			}
 		}
 
-		// Tree generators
+		// Tree construction from 2 given traversals
 		private static int preStart;
 		public static BinNode<T> TreeFromInAndPreOrderTrav(T[] inOrder, T[] preOrder)
 		{
@@ -376,13 +346,14 @@ namespace AlgorithmVisualizer.DataStructures.BinaryTree
 			return node;
 		}
 		
-		// Tree generator helper - find element's index in given bounds of given array
 		private static int FindIdx(T[] arr, int start, int end, T val)
 		{
+			// Returns the index of 'val' in 'arr' if present, else -1.
 			if (start > end) return -1;
 			for (int i = start; i <= end; i++)
 				if (arr[i].Equals(val)) return i;
 			return -1;
 		}
+		#endregion
 	}
 }

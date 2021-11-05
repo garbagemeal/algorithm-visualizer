@@ -8,12 +8,8 @@ namespace AlgorithmVisualizer.DataStructures.AVLTree
 	{
 		// AVL Tree - a self balancing binary search tree
 
-		public AVLTree() : base()
-		{
-		}
-		public AVLTree(AVLNode<T> root) : base(root)
-		{
-		}
+		public AVLTree() : base() { }
+		public AVLTree(AVLNode<T> root) : base(root) { }
 		/* Rotation examples:
 		 * ==================
 		 * Right rotation:
@@ -55,18 +51,11 @@ namespace AlgorithmVisualizer.DataStructures.AVLTree
 
 		public override bool Add(T val)
 		{
-			if (val == null) return false;
-			root = Add(root, val);
-			return true;
+			throw new NotImplementedException();
 		}
-		//protected override BinNode<T> Add(BinNode<T> node, T val)
-		//{
-		//	if (node == null) return new BinNode<T>(val);
-		//	if (node.Data.CompareTo(val) > 0) Add(node.Left, val);
-		//}
 		public override bool Remove(T val)
 		{
-			return true;
+			throw new NotImplementedException();
 		}
 	}
 }

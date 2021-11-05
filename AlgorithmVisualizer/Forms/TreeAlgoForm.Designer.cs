@@ -30,6 +30,9 @@ namespace AlgorithmVisualizer.Forms
 		private void InitializeComponent()
 		{
 			this.panelControls = new System.Windows.Forms.Panel();
+			this.btnRemoveNode = new System.Windows.Forms.Button();
+			this.btnAddNode = new System.Windows.Forms.Button();
+			this.txtBoxNodeValue = new System.Windows.Forms.TextBox();
 			this.algoComboBox = new System.Windows.Forms.ComboBox();
 			this.lblAlgoComboBox = new System.Windows.Forms.Label();
 			this.lblSpeedBar = new System.Windows.Forms.Label();
@@ -44,6 +47,9 @@ namespace AlgorithmVisualizer.Forms
 			// panelControls
 			// 
 			this.panelControls.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(57)))), ((int)(((byte)(57)))), ((int)(((byte)(57)))));
+			this.panelControls.Controls.Add(this.btnRemoveNode);
+			this.panelControls.Controls.Add(this.btnAddNode);
+			this.panelControls.Controls.Add(this.txtBoxNodeValue);
 			this.panelControls.Controls.Add(this.algoComboBox);
 			this.panelControls.Controls.Add(this.lblAlgoComboBox);
 			this.panelControls.Controls.Add(this.lblSpeedBar);
@@ -56,6 +62,43 @@ namespace AlgorithmVisualizer.Forms
 			this.panelControls.Name = "panelControls";
 			this.panelControls.Size = new System.Drawing.Size(1008, 57);
 			this.panelControls.TabIndex = 18;
+			// 
+			// btnRemoveNode
+			// 
+			this.btnRemoveNode.BackColor = System.Drawing.Color.Gray;
+			this.btnRemoveNode.FlatAppearance.BorderSize = 0;
+			this.btnRemoveNode.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.btnRemoveNode.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.btnRemoveNode.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(232)))), ((int)(((byte)(232)))), ((int)(((byte)(232)))));
+			this.btnRemoveNode.Location = new System.Drawing.Point(836, 16);
+			this.btnRemoveNode.Name = "btnRemoveNode";
+			this.btnRemoveNode.Size = new System.Drawing.Size(74, 23);
+			this.btnRemoveNode.TabIndex = 15;
+			this.btnRemoveNode.Text = "Remove";
+			this.btnRemoveNode.UseVisualStyleBackColor = false;
+			this.btnRemoveNode.Click += new System.EventHandler(this.btnRemoveNode_Click);
+			// 
+			// btnAddNode
+			// 
+			this.btnAddNode.BackColor = System.Drawing.Color.Gray;
+			this.btnAddNode.FlatAppearance.BorderSize = 0;
+			this.btnAddNode.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.btnAddNode.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.btnAddNode.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(232)))), ((int)(((byte)(232)))), ((int)(((byte)(232)))));
+			this.btnAddNode.Location = new System.Drawing.Point(773, 16);
+			this.btnAddNode.Name = "btnAddNode";
+			this.btnAddNode.Size = new System.Drawing.Size(60, 23);
+			this.btnAddNode.TabIndex = 15;
+			this.btnAddNode.Text = "Add";
+			this.btnAddNode.UseVisualStyleBackColor = false;
+			this.btnAddNode.Click += new System.EventHandler(this.btnAddNode_Click);
+			// 
+			// txtBoxNodeValue
+			// 
+			this.txtBoxNodeValue.Location = new System.Drawing.Point(913, 17);
+			this.txtBoxNodeValue.Name = "txtBoxNodeValue";
+			this.txtBoxNodeValue.Size = new System.Drawing.Size(78, 20);
+			this.txtBoxNodeValue.TabIndex = 14;
 			// 
 			// algoComboBox
 			// 
@@ -81,7 +124,7 @@ namespace AlgorithmVisualizer.Forms
 			// 
 			this.lblSpeedBar.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.lblSpeedBar.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(232)))), ((int)(((byte)(232)))), ((int)(((byte)(232)))));
-			this.lblSpeedBar.Location = new System.Drawing.Point(588, 17);
+			this.lblSpeedBar.Location = new System.Drawing.Point(461, 17);
 			this.lblSpeedBar.Name = "lblSpeedBar";
 			this.lblSpeedBar.Size = new System.Drawing.Size(50, 20);
 			this.lblSpeedBar.TabIndex = 13;
@@ -95,12 +138,13 @@ namespace AlgorithmVisualizer.Forms
 			this.btnReset.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.btnReset.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.btnReset.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(232)))), ((int)(((byte)(232)))), ((int)(((byte)(232)))));
-			this.btnReset.Location = new System.Drawing.Point(350, 14);
+			this.btnReset.Location = new System.Drawing.Point(332, 16);
 			this.btnReset.Name = "btnReset";
-			this.btnReset.Size = new System.Drawing.Size(75, 23);
+			this.btnReset.Size = new System.Drawing.Size(60, 23);
 			this.btnReset.TabIndex = 3;
 			this.btnReset.Text = "Reset";
 			this.btnReset.UseVisualStyleBackColor = false;
+			this.btnReset.Click += new System.EventHandler(this.btnReset_Click);
 			// 
 			// btnStart
 			// 
@@ -109,21 +153,23 @@ namespace AlgorithmVisualizer.Forms
 			this.btnStart.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.btnStart.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.btnStart.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(232)))), ((int)(((byte)(232)))), ((int)(((byte)(232)))));
-			this.btnStart.Location = new System.Drawing.Point(269, 14);
+			this.btnStart.Location = new System.Drawing.Point(269, 16);
 			this.btnStart.Name = "btnStart";
-			this.btnStart.Size = new System.Drawing.Size(75, 23);
+			this.btnStart.Size = new System.Drawing.Size(60, 23);
 			this.btnStart.TabIndex = 5;
 			this.btnStart.Text = "Start";
 			this.btnStart.UseVisualStyleBackColor = false;
+			this.btnStart.Click += new System.EventHandler(this.btnStart_Click);
 			// 
 			// speedBar
 			// 
 			this.speedBar.LargeChange = 1;
-			this.speedBar.Location = new System.Drawing.Point(641, 15);
+			this.speedBar.Location = new System.Drawing.Point(514, 15);
 			this.speedBar.Name = "speedBar";
 			this.speedBar.Size = new System.Drawing.Size(151, 23);
 			this.speedBar.TabIndex = 11;
 			this.speedBar.Value = 50;
+			this.speedBar.Scroll += new System.Windows.Forms.ScrollEventHandler(this.speedBar_Scroll);
 			// 
 			// btnPauseResume
 			// 
@@ -133,12 +179,13 @@ namespace AlgorithmVisualizer.Forms
 			this.btnPauseResume.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.btnPauseResume.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.btnPauseResume.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(232)))), ((int)(((byte)(232)))), ((int)(((byte)(232)))));
-			this.btnPauseResume.Location = new System.Drawing.Point(431, 14);
+			this.btnPauseResume.Location = new System.Drawing.Point(395, 16);
 			this.btnPauseResume.Name = "btnPauseResume";
-			this.btnPauseResume.Size = new System.Drawing.Size(75, 23);
+			this.btnPauseResume.Size = new System.Drawing.Size(60, 23);
 			this.btnPauseResume.TabIndex = 6;
 			this.btnPauseResume.Text = "Pause";
 			this.btnPauseResume.UseVisualStyleBackColor = false;
+			this.btnPauseResume.Click += new System.EventHandler(this.btnPauseResume_Click);
 			// 
 			// panelMain
 			// 
@@ -148,6 +195,7 @@ namespace AlgorithmVisualizer.Forms
 			this.panelMain.Name = "panelMain";
 			this.panelMain.Size = new System.Drawing.Size(1008, 504);
 			this.panelMain.TabIndex = 19;
+			this.panelMain.Paint += new System.Windows.Forms.PaintEventHandler(this.panelMain_Paint);
 			// 
 			// TreeAlgoForm
 			// 
@@ -156,6 +204,7 @@ namespace AlgorithmVisualizer.Forms
 			this.ClientSize = new System.Drawing.Size(1008, 561);
 			this.Controls.Add(this.panelMain);
 			this.Controls.Add(this.panelControls);
+			this.ForeColor = System.Drawing.Color.White;
 			this.Name = "TreeAlgoForm";
 			this.Text = "TreeAlgoForm";
 			this.panelControls.ResumeLayout(false);
@@ -175,5 +224,8 @@ namespace AlgorithmVisualizer.Forms
 		private System.Windows.Forms.HScrollBar speedBar;
 		private System.Windows.Forms.Button btnPauseResume;
 		private System.Windows.Forms.Panel panelMain;
+		private System.Windows.Forms.Button btnRemoveNode;
+		private System.Windows.Forms.Button btnAddNode;
+		private System.Windows.Forms.TextBox txtBoxNodeValue;
 	}
 }
