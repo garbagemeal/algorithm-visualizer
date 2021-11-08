@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Windows.Forms;
 using System.Xml;
 
@@ -16,22 +17,36 @@ namespace AlgorithmVisualizer.Forms.Dialogs.AlgoDetails
 
 		private string GetDetails()
 		{
-			XmlDocument doc = new XmlDocument();
-			doc.Load(xmlFilePath);
-			string str = "";
-			foreach (XmlNode node in doc.DocumentElement.ChildNodes)
+			try
 			{
-				if (!node.Name.Equals("sourceCode"))
-					str += $"{node.Name}: {node.InnerText}\n";
+				XmlDocument doc = new XmlDocument();
+				doc.Load(xmlFilePath);
+				string str = "";
+				foreach (XmlNode node in doc.DocumentElement.ChildNodes)
+				{
+					if (!node.Name.Equals("sourceCode"))
+						str += $"{node.Name}: {node.InnerText}\n";
+				}
+				return str;
 			}
-			return str;
+			catch (Exception ex)
+			{
+				return "Failed to get details, error message:\n\n" + ex.Message.ToString();
+			}
 		}
 		private string GetSourceCode()
 		{
-			XmlDocument doc = new XmlDocument();
-			doc.Load(xmlFilePath);
-			XmlNode node = doc.DocumentElement.SelectSingleNode("/algorithm/sourceCode");
-			return $"Srouce code:\n{node.InnerText}";
+			try
+			{
+				XmlDocument doc = new XmlDocument();
+				doc.Load(xmlFilePath);
+				XmlNode node = doc.DocumentElement.SelectSingleNode("/algorithm/sourceCode");
+				return $"Srouce code:\n{node.InnerText}";
+			}
+			catch (Exception ex)
+			{
+				return "Failed to get source code, error message:\n\n" + ex.Message.ToString();
+			}
 		}
 
 		private void btnExplanation_Click(object sender, EventArgs e)

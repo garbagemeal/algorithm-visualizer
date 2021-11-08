@@ -16,6 +16,6 @@ namespace AlgorithmVisualizer.GraphTheory
 		public override bool Equals(object obj) => obj is GNode && Id == ((GNode)obj).Id;
 		// Comapre only data
 		public int CompareTo(object obj) => Data - ((GNode)obj).Data;
-		public override string ToString() => $"id: {Id}, val: {Data}";
+		public override string ToString() => $"id: {Id}\nval: {Data}";
 	}
 }

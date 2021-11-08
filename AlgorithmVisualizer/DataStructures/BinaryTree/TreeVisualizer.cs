@@ -1,34 +1,30 @@
-﻿using System;
-using System.Diagnostics;
+﻿using AlgorithmVisualizer.DataStructures.AVLTree;
+using System;
 using System.Drawing;
-using System.Threading;
 using System.Windows.Forms;
 
 namespace AlgorithmVisualizer.DataStructures.BinaryTree
 {
 	public static class TreeVisualizer<T> where T : IComparable
 	{
-		// Work in progress...
-
 		private static Graphics g;
-		private const int nodeRad = 30, topOffset = 5, fontSize = 10;
-		private static int panelHeight, panelWidth;
+		private static int canvasHeight, canvasWidth;
 
-		private static readonly Color nodeColor = Color.Green, txtColor = Color.Black, edgeColor = Color.White;
+		private const int nodeSize = 30, fontSize = 10, topOffset = 15;
+		private const string fontName = "Arial";
+		private static readonly Color nodeColor = Color.Green, nodeBorderColor = Color.DimGray,
+			nodeTxtColor = Color.Black, edgeColor = Color.White;
 
-		private const int delayTime = 50;
-
-		public static void DrawTree(BinNode<T> root, Graphics _g, Panel panel)
+		public static void DrawTree(BinNode<T> root, Graphics _g, PictureBox canvas)
 		{
 			g = _g;
-			panelHeight = panel.Height;
-			panelWidth = panel.Width;
+			canvasHeight = canvas.Height;
+			canvasWidth = canvas.Width;
 
 			int treeHeight = TreeUtils<T>.Height(root);
 			int sideOffset = (int)Math.Pow(2, treeHeight - 1);
-			Debug.WriteLine("treeHeight: {0}, Initial offset: {1}, Panel width: {2}", treeHeight, sideOffset, panelWidth);
 
-			DrawTree(root, panelWidth / 2 - nodeRad / 2, topOffset, sideOffset);
+			DrawTree(root, canvasWidth / 2 - nodeSize / 2, topOffset, sideOffset);
 		}
 		private static void DrawTree(BinNode<T> root, int x, int y, int sideOffset)
 		{
@@ -38,40 +34,68 @@ namespace AlgorithmVisualizer.DataStructures.BinaryTree
 			{
 				if (root.Left != null)
 				{
-					if (delayTime > 0) Thread.Sleep(delayTime);
 					DrawEdge(x, y, -sideOffset);
-					DrawTree(root.Left, x - sideOffset * nodeRad, y + nodeRad, sideOffset / 2);
+					DrawTree(root.Left, x - sideOffset * nodeSize, y + nodeSize, sideOffset / 2);
 				}
 				if (root.Right != null)
 				{
-					if (delayTime > 0) Thread.Sleep(delayTime);
 					DrawEdge(x, y, sideOffset);
-					DrawTree(root.Right, x + sideOffset * nodeRad, y + nodeRad, sideOffset / 2);
+					DrawTree(root.Right, x + sideOffset * nodeSize, y + nodeSize, sideOffset / 2);
 				}
-				if (delayTime > 0) Thread.Sleep(delayTime);
-				DrawNode(root.Data, x, y);
+				DrawNode(root, x, y);
 			}
 		}
 
-		private static void DrawNode(T data, int x, int y)
+		private static void DrawNode(BinNode<T> node, int x, int y)
 		{
-			var rect = new Rectangle(x, y, nodeRad, nodeRad);
-			using (var nodeBrush = new SolidBrush(nodeColor)) g.FillEllipse(Brushes.Green, rect);
+			ApplyDisplacement(ref x, ref y);
 
-			using (var txtBrush = new SolidBrush(txtColor))
-			using (var font = new Font("Arial", fontSize))
+			var rect = new Rectangle(x, y, nodeSize, nodeSize);
+
+			using (var brush = new SolidBrush(nodeColor)) g.FillEllipse(brush, rect);
+			using (var pen = new Pen(nodeBorderColor)) g.DrawEllipse(pen, rect);
+
+			using (var brush = new SolidBrush(nodeTxtColor))
+			using (var font = new Font(fontName, fontSize))
 			using (var sf = new StringFormat())
 			{
-				sf.LineAlignment = StringAlignment.Center;
-				sf.Alignment = StringAlignment.Center;
-				g.DrawString(data.ToString(), font, txtBrush, rect, sf);
+				sf.LineAlignment = sf.Alignment = StringAlignment.Center;
+				g.DrawString(node.Data.ToString(), font, brush, rect, sf);
+				if (node is AVLNode<T>)
+				{
+					// Draw balance factor over node
+					var BFRect = new Rectangle(x, y - 10, nodeSize, 10);
+					g.DrawString(((AVLNode<T>)node).BalanceFactor.ToString(), font, Brushes.Red, BFRect, sf);
+				}
 			}
 		}
 		private static void DrawEdge(int x, int y, int sideOffset)
 		{
-			var pt1 = new Point(x + nodeRad / 2, y + nodeRad / 2);
-			var pt2 = new Point(x + nodeRad / 2 + sideOffset * nodeRad, y + nodeRad / 2 + nodeRad);
-			using (var edgePen = new Pen(edgeColor)) g.DrawLine(edgePen, pt1, pt2);
+			ApplyDisplacement(ref x, ref y);
+
+			var pt1 = new Point(x + nodeSize / 2, y + nodeSize / 2);
+			var pt2 = new Point(x + nodeSize / 2 + sideOffset * nodeSize, y + nodeSize / 2 + nodeSize);
+			using (var pen = new Pen(edgeColor)) g.DrawLine(pen, pt1, pt2);
+		}
+
+		// Amount of displacement in x, y (supporing moving the drawing)
+		private static Point displacement = Point.Empty;
+		public static void ResetDisplacement()
+		{
+			// Reset the displacement point to (0, 0)
+			displacement = Point.Empty;
+		}
+		public static void Displace(Point delta)
+		{
+			// Add displacement into the displacement point
+			displacement.X += delta.X;
+			displacement.Y += delta.Y;
+		}
+		private static void ApplyDisplacement(ref int x, ref int y)
+		{
+			// Apply the displacement for given x, y int vars
+			x += displacement.X;
+			y += displacement.Y;
 		}
 	}
 }

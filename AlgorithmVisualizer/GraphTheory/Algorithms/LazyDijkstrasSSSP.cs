@@ -47,7 +47,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 			bool endReached = false;
 			heap.Enqueue(new GNode(from, 0));
 			SetupAndShowTracers();
-			while (heap.Count > 0)
+			while (heap.Count > 0 && !endReached)
 			{
 				heapTracer.Mark(0, Colors.Red);
 				GNode curNode = heap.Dequeue();
@@ -78,12 +78,12 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 				foreach (Edge edge in graph.AdjList[curNodeId])
 				{
 					// Edge relaxation
-					graph.MarkSpring(edge, Colors.Orange);
+					graph.MarkSpring(edge, Colors.Orange, Dir.Directed);
 					Sleep(Delay.Medium);
 					RelaxEdge(edge, curNodeId);
 					Sleep(Delay.Medium);
 
-					graph.MarkSpring(edge, Colors.Visited);
+					graph.MarkSpring(edge, Colors.Visited, Dir.Directed);
 					Sleep(Delay.Medium);
 				}
 			}
@@ -95,7 +95,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 			// Can't imporove distance by revisiting a node
 			if (!visited.Contains(toId) && newDist < distMap[toId])
 			{
-				graph.MarkSpring(edge, Colors.Red);
+				graph.MarkSpring(edge, Colors.Red, Dir.Directed);
 				prevTracer.Mark(toId, Colors.Red);
 				distMapTracer.Mark(toId, Colors.Red);
 				prev[toId] = curNodeId;
@@ -107,7 +107,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 				heapTracer.Trace();
 				Sleep(Delay.Medium);
 			}
-			else graph.MarkSpring(edge, Colors.Blue);
+			else graph.MarkSpring(edge, Colors.Blue, Dir.Directed);
 		}
 
 		private List<int> ReconstructPath()

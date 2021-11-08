@@ -20,7 +20,7 @@ namespace AlgorithmVisualizer.DataStructures.BinaryTree
 			return Contains(cmpVal > 0 ? node.Left : node.Right, val);
 		}
 
-		public virtual bool Add(T val)
+		public bool Add(T val)
 		{
 			// Adds the given value into the BST assuming it is absent.
 			// Returns true if the value was absent and added to the tree, false otherwise
@@ -37,7 +37,7 @@ namespace AlgorithmVisualizer.DataStructures.BinaryTree
 			return node;
 		}
 
-		public virtual bool Remove(T val)
+		public bool Remove(T val)
 		{
 			// Removes the given value from the BST assuming it is present.
 			// Returns true if the value was present and removed from the tree, false otherwise
@@ -70,15 +70,15 @@ namespace AlgorithmVisualizer.DataStructures.BinaryTree
 			}
 			return node;
 		}
-		
-		private BinNode<T> GetMin(BinNode<T> node)
+
+		protected BinNode<T> GetMin(BinNode<T> node)
 		{
 			// Returns the min value in the BST rooted at the given node assuming node != null
 			while (node.Left != null)
 				node = node.Left;
 			return node;
 		}
-		private BinNode<T> GetMax(BinNode<T> node)
+		protected BinNode<T> GetMax(BinNode<T> node)
 		{
 			// Returns the max value in the BST rooted at the given node assuming node != null
 			while (node.Right != null)

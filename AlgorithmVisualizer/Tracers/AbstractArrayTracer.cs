@@ -69,8 +69,7 @@ namespace AlgorithmVisualizer.Tracers
 			using (var font = new Font(fontName, fontSize))
 			using (var sf = new StringFormat())
 			{
-				sf.LineAlignment = StringAlignment.Center;
-				sf.Alignment = StringAlignment.Center;
+				sf.LineAlignment = sf.Alignment = StringAlignment.Center;
 				sf.Trimming = StringTrimming.EllipsisCharacter;
 				sf.FormatFlags = StringFormatFlags.NoWrap;
 				// Draw rect for entry
@@ -94,8 +93,7 @@ namespace AlgorithmVisualizer.Tracers
 			using (var font = new Font(fontName, fontSize))
 			using (var sf = new StringFormat())
 			{
-				sf.LineAlignment = StringAlignment.Center;
-				sf.Alignment = StringAlignment.Center;
+				sf.LineAlignment = sf.Alignment = StringAlignment.Center;
 				sf.Trimming = StringTrimming.EllipsisCharacter;
 				sf.FormatFlags = StringFormatFlags.NoWrap;
 				var rect = new RectangleF(startPoint, new SizeF(TitleSize.Width, size.Height));

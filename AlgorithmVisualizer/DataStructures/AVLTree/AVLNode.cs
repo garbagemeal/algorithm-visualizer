@@ -6,12 +6,10 @@ namespace AlgorithmVisualizer.DataStructures.AVLTree
 {
 	public class AVLNode<T> : BinNode<T> where T : IComparable
 	{
-		public AVLNode<T> Parent { get; set; }
 		public int Height { get; set; }
 		public int BalanceFactor { get; set; }
 
 		public AVLNode(T data) : base(data) { }
-		public AVLNode(T data, AVLNode<T> parent) : base(data) => Parent = parent;
 
 		public override string ToString() => $"Data: {Data}, Height: {Height}, BF: {BalanceFactor}";
 	}

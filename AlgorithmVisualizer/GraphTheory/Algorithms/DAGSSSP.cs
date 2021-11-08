@@ -87,7 +87,7 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 			// Compute new distance for edge.To
 			int newDist = distMap[at] + edge.Cost;
 			bool distanceImproved = newDist < distMap[edge.To];
-			graph.MarkSpring(edge, distanceImproved ? Colors.Red : Colors.Blue);
+			graph.MarkSpring(edge, distanceImproved ? Colors.Red : Colors.Blue, Dir.Directed);
 			Sleep(Delay.Medium);
 			if (distanceImproved)
 			{

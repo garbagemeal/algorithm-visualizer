@@ -10,7 +10,17 @@ using AlgorithmVisualizer.Utils;
 
 namespace AlgorithmVisualizer.GraphTheory
 {
-	// Directed adjacency list representation of a graph.
+	/* A directed graph represented by an adjacency list.
+	 * 
+	 * Doesn't support multigraphs, i.e, has the following limitations:
+	 * Edges of the form (u, u, x) MAY NOT exist. (self loop)
+	 * Edges of the form (u, v, x1), (u, v, x2) MAY NOT coexist, even if x1 = x2. (parallel edges)
+	 *
+	 * The above limitations are imposed because the graph visualizer doesn't support visualizing such edges .
+	 * 
+	 * Note:
+	 * Edges of the form (u, v, x1), (v, u, x2) MAY co-exist IFF x1 = x2, denoting a single directed edge. */
+
 	public class Graph : GraphVisualizer
 	{
 		// The adjacencey list

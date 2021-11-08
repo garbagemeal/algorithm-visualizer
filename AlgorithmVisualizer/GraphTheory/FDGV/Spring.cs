@@ -90,8 +90,7 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 			using (var sf = new StringFormat())
 			using (var txtBrush = new SolidBrush(brush.Color == Colors.Undraw ? Colors.Undraw : TextColor))
 			{
-				sf.LineAlignment = StringAlignment.Center;
-				sf.Alignment = StringAlignment.Center;
+				sf.LineAlignment = sf.Alignment = StringAlignment.Center;
 				g.DrawString(Cost.ToString(), font, txtBrush, springCenter.X, springCenter.Y, sf);
 			}
 		}

@@ -11,21 +11,10 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 {
 	public class GraphVisualizer : PauseResumeSleep
 	{
-		/* Implementation of a force directed graph visualizing algorithm.
+		/* Implementation of a force directed graph visualizing (FDGV) algorithm.
+		 * Visuals are NOT supported for ALL edge types, see the beginning of 'Graph.cs' 
+		 * file for more details on unsupported edge types. */
 
-		* Multi-graph are unsupported, meaning that parallel edges may not exist.
-		* i.e, the edges (0, 1, 5), (0, 1, 7) are parallel edges because both have the
-		* same starting and ending nodes, only 1 of the above edges can exist at any
-		* given moment in this graph.
-		* Note that this property ensures that the graph's edges are unique!
-		* 
-		* Because of the limitation of not being a multi-graph, and in order to also
-		* support "undirected" edges, If there exists and edge (u, v, x),
-		* the edge (v, u, y) may exist IFF x = y
-		* 
-		* The pair of edges (u, v, x), (v, u, x) may be considered as a single undirected
-		* edge in some of the algorithms implementations. */
-		
 		// Mapping node ids to the GNode objects of instance Particle
 		protected Dictionary<int, GNode> nodeLookup = new Dictionary<int, GNode>();
 
@@ -161,8 +150,6 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 		#region Visuals
 		public void DrawGraph(Graphics g)
 		{
-			//var particlesCP = ThreadingUtils<Particle>.ThreadSafeCopy(particles);
-			//var springsCP = ThreadingUtils<Spring>.ThreadSafeCopy(springs);
 			sem.WaitOne();
 			foreach (var spring in springs) spring.Draw(g);
 			foreach (var particle in particles) particle.Draw(g, canvas.Height, canvas.Width);
@@ -170,8 +157,6 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 		}
 		public void ApplyForcesAndUpdatePositions()
 		{
-			//var particlesCP = ThreadingUtils<Particle>.ThreadSafeCopy(particles);
-			//var springsCP = ThreadingUtils<Spring>.ThreadSafeCopy(springs);
 			sem.WaitOne();
 			foreach (var particle in particles)
 			{

@@ -29,6 +29,7 @@ namespace AlgorithmVisualizer.Forms
 		/// </summary>
 		private void InitializeComponent()
 		{
+			this.components = new System.ComponentModel.Container();
 			this.panelControls = new System.Windows.Forms.Panel();
 			this.btnRemoveNode = new System.Windows.Forms.Button();
 			this.btnAddNode = new System.Windows.Forms.Button();
@@ -40,8 +41,12 @@ namespace AlgorithmVisualizer.Forms
 			this.btnStart = new System.Windows.Forms.Button();
 			this.speedBar = new System.Windows.Forms.HScrollBar();
 			this.btnPauseResume = new System.Windows.Forms.Button();
-			this.panelMain = new System.Windows.Forms.Panel();
+			this.canvas = new System.Windows.Forms.PictureBox();
+			this.canvasContextStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
+			this.resetDisplacementToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.panelControls.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.canvas)).BeginInit();
+			this.canvasContextStrip.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// panelControls
@@ -104,10 +109,14 @@ namespace AlgorithmVisualizer.Forms
 			// 
 			this.algoComboBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.algoComboBox.FormattingEnabled = true;
+			this.algoComboBox.Items.AddRange(new object[] {
+            "Binary search tree",
+            "AVL tree"});
 			this.algoComboBox.Location = new System.Drawing.Point(79, 15);
 			this.algoComboBox.Name = "algoComboBox";
 			this.algoComboBox.Size = new System.Drawing.Size(184, 24);
 			this.algoComboBox.TabIndex = 2;
+			this.algoComboBox.SelectedIndexChanged += new System.EventHandler(this.algoComboBox_SelectedIndexChanged);
 			// 
 			// lblAlgoComboBox
 			// 
@@ -116,15 +125,15 @@ namespace AlgorithmVisualizer.Forms
 			this.lblAlgoComboBox.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(232)))), ((int)(((byte)(232)))), ((int)(((byte)(232)))));
 			this.lblAlgoComboBox.Location = new System.Drawing.Point(9, 19);
 			this.lblAlgoComboBox.Name = "lblAlgoComboBox";
-			this.lblAlgoComboBox.Size = new System.Drawing.Size(67, 17);
+			this.lblAlgoComboBox.Size = new System.Drawing.Size(69, 17);
 			this.lblAlgoComboBox.TabIndex = 1;
-			this.lblAlgoComboBox.Text = "Algorithm";
+			this.lblAlgoComboBox.Text = "Tree type";
 			// 
 			// lblSpeedBar
 			// 
 			this.lblSpeedBar.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.lblSpeedBar.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(232)))), ((int)(((byte)(232)))), ((int)(((byte)(232)))));
-			this.lblSpeedBar.Location = new System.Drawing.Point(461, 17);
+			this.lblSpeedBar.Location = new System.Drawing.Point(558, 17);
 			this.lblSpeedBar.Name = "lblSpeedBar";
 			this.lblSpeedBar.Size = new System.Drawing.Size(50, 20);
 			this.lblSpeedBar.TabIndex = 13;
@@ -164,7 +173,7 @@ namespace AlgorithmVisualizer.Forms
 			// speedBar
 			// 
 			this.speedBar.LargeChange = 1;
-			this.speedBar.Location = new System.Drawing.Point(514, 15);
+			this.speedBar.Location = new System.Drawing.Point(611, 15);
 			this.speedBar.Name = "speedBar";
 			this.speedBar.Size = new System.Drawing.Size(151, 23);
 			this.speedBar.TabIndex = 11;
@@ -187,28 +196,50 @@ namespace AlgorithmVisualizer.Forms
 			this.btnPauseResume.UseVisualStyleBackColor = false;
 			this.btnPauseResume.Click += new System.EventHandler(this.btnPauseResume_Click);
 			// 
-			// panelMain
+			// canvas
 			// 
-			this.panelMain.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(34)))), ((int)(((byte)(34)))), ((int)(((byte)(34)))));
-			this.panelMain.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.panelMain.Location = new System.Drawing.Point(0, 57);
-			this.panelMain.Name = "panelMain";
-			this.panelMain.Size = new System.Drawing.Size(1008, 504);
-			this.panelMain.TabIndex = 19;
-			this.panelMain.Paint += new System.Windows.Forms.PaintEventHandler(this.panelMain_Paint);
+			this.canvas.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(34)))), ((int)(((byte)(34)))), ((int)(((byte)(34)))));
+			this.canvas.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.canvas.Location = new System.Drawing.Point(0, 57);
+			this.canvas.Name = "canvas";
+			this.canvas.Size = new System.Drawing.Size(1008, 504);
+			this.canvas.TabIndex = 0;
+			this.canvas.TabStop = false;
+			this.canvas.Paint += new System.Windows.Forms.PaintEventHandler(this.canvas_Paint);
+			this.canvas.MouseDown += new System.Windows.Forms.MouseEventHandler(this.canvas_MouseDown);
+			this.canvas.MouseMove += new System.Windows.Forms.MouseEventHandler(this.canvas_MouseMove);
+			this.canvas.MouseUp += new System.Windows.Forms.MouseEventHandler(this.canvas_MouseUp);
+			this.canvas.Resize += new System.EventHandler(this.canvas_Resize);
+			// 
+			// canvasContextStrip
+			// 
+			this.canvasContextStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.resetDisplacementToolStripMenuItem});
+			this.canvasContextStrip.Name = "canvasContextStrip";
+			this.canvasContextStrip.Size = new System.Drawing.Size(177, 26);
+			// 
+			// resetDisplacementToolStripMenuItem
+			// 
+			this.resetDisplacementToolStripMenuItem.Name = "resetDisplacementToolStripMenuItem";
+			this.resetDisplacementToolStripMenuItem.Size = new System.Drawing.Size(176, 22);
+			this.resetDisplacementToolStripMenuItem.Text = "Reset displacement";
+			this.resetDisplacementToolStripMenuItem.Click += new System.EventHandler(this.resetDisplacementToolStripMenuItem_Click);
 			// 
 			// TreeAlgoForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(34)))), ((int)(((byte)(34)))), ((int)(((byte)(34)))));
 			this.ClientSize = new System.Drawing.Size(1008, 561);
-			this.Controls.Add(this.panelMain);
+			this.Controls.Add(this.canvas);
 			this.Controls.Add(this.panelControls);
 			this.ForeColor = System.Drawing.Color.White;
 			this.Name = "TreeAlgoForm";
 			this.Text = "TreeAlgoForm";
 			this.panelControls.ResumeLayout(false);
 			this.panelControls.PerformLayout();
+			((System.ComponentModel.ISupportInitialize)(this.canvas)).EndInit();
+			this.canvasContextStrip.ResumeLayout(false);
 			this.ResumeLayout(false);
 
 		}
@@ -223,9 +254,11 @@ namespace AlgorithmVisualizer.Forms
 		private System.Windows.Forms.Button btnStart;
 		private System.Windows.Forms.HScrollBar speedBar;
 		private System.Windows.Forms.Button btnPauseResume;
-		private System.Windows.Forms.Panel panelMain;
 		private System.Windows.Forms.Button btnRemoveNode;
 		private System.Windows.Forms.Button btnAddNode;
 		private System.Windows.Forms.TextBox txtBoxNodeValue;
+		private System.Windows.Forms.PictureBox canvas;
+		private System.Windows.Forms.ContextMenuStrip canvasContextStrip;
+		private System.Windows.Forms.ToolStripMenuItem resetDisplacementToolStripMenuItem;
 	}
 }
