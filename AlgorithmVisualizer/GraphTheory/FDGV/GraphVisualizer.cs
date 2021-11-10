@@ -28,15 +28,11 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 		public Graphics GLog { get; set; }
 
 		// Center of point of canvas; used to pull particles to the center
-		private Vector centerPos;
+		public Vector CenterPos { get; private set; }
+		// Find and update the center pos of the canvas
+		public void UpdateCenterPos() => CenterPos = new Vector(canvas.Width / 2, canvas.Height / 2);
 		// by default center pull is active, can be disabled.
 		public bool CenterPull { get; set; } = true;
-		// Find center pos of the canvas
-		private Vector findCenterPos() => new Vector(canvas.Width / 2, canvas.Height / 2);
-
-		// When updating height/width of the canvas the center pos is also updated!
-		public int CanvasHeight { set { canvas.Height = value; centerPos = findCenterPos(); } }
-		public int CanvasWidth { set { canvas.Width = value; centerPos = findCenterPos(); } }
 
 		// Note that the condition: PARTICLE_SIZE <= PARTICLE_SPAWN_OFFSET must hold
 		// for the prticles not to spawn outside of the canvas (not clip ourside of it)
@@ -50,7 +46,7 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 			sem = new Semaphore(1, 1);
 
 			canvas = _canvas;
-			centerPos = findCenterPos();
+			UpdateCenterPos();
 			GLog = gLog;
 			particles = new List<Particle>();
 			springs = new List<Spring>();
@@ -160,7 +156,7 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 			sem.WaitOne();
 			foreach (var particle in particles)
 			{
-				if (CenterPull) particle.PullToCenter(centerPos);
+				if (CenterPull) particle.PullToCenter(CenterPos);
 				particle.ApplyRepulsiveForces(particles);
 			}
 			foreach (var spring in springs) spring.ExertForcesOnParticles();

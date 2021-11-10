@@ -78,8 +78,7 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 
 		public void Draw(Graphics g, int canvasHeight, int canvasWidth)
 		{
-			// Required for the particle move event by drag in order to prohibit
-			// moving particles outside of the canvas
+			// Required in case forces are disabled and window is resized
 			BoundWithinCanvas(canvasHeight, canvasWidth);
 			using (var innerBrush = new SolidBrush(InnerColor)) Draw(g, innerBrush);
 		}
@@ -158,9 +157,9 @@ namespace AlgorithmVisualizer.GraphTheory.FDGV
 			}
 		}
 
-		private void BoundWithinCanvas(int canvasHeight, int canvasWidth)
+		public void BoundWithinCanvas(int canvasHeight, int canvasWidth)
 		{
-			// Offset pos by radius from all 4 directions of the canvas
+			// Ensure 'Pos' is offset by radius from all 4 directions of the canvas
 			float radius = Size / 2;
 			Pos = new Vector(Math.Max(radius, Math.Min(canvasWidth - radius, pos.X)),
 							 Math.Max(radius, Math.Min(canvasHeight - radius, pos.Y)));

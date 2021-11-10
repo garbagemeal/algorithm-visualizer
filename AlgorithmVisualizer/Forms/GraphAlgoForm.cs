@@ -2,7 +2,6 @@
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Threading;
 using System.Windows.Forms;
@@ -47,7 +46,8 @@ namespace AlgorithmVisualizer.Forms
 		private Vector canvasRightClickPos, canvasMouseHoverPos;
 		private Particle movingParticle;
 		private int activeParticleId = -1;
-		private bool inGraphAlgoViz = false, forcesEnabled = true, formIsMinimized = false, formClosePending = false;
+		private bool inGraphAlgoViz = false, forcesEnabled = true, formClosePending = false;
+		private bool formIsMinimized() => parentForm.WindowState == FormWindowState.Minimized;
 
 		public GraphAlgoForm(MainUIForm _parentForm)
 		{
@@ -64,15 +64,16 @@ namespace AlgorithmVisualizer.Forms
 			graph = new Graph(canvas, panelLogG);
 
 			StartGraphViz();
+			FPSTimer.Start();
 		}
 
 		#region Visualizing a graph (force directed graph drawing)
 		private BackgroundWorker bgwGraphViz;
 
-		void StartGraphViz()
+		private void StartGraphViz()
 		{
 			// Assign work to bgw (a function) and run async (supports cancelation)
-			if (bgwGraphViz != null) bgwGraphAlgoViz.Dispose();
+			if (bgwGraphViz != null) bgwGraphViz.Dispose();
 			bgwGraphViz = new BackgroundWorker { WorkerSupportsCancellation = true };
 			bgwGraphViz.DoWork += new DoWorkEventHandler(bgw_GraphViz);
 			bgwGraphViz.RunWorkerCompleted += new RunWorkerCompletedEventHandler(bgw_GraphVizRunWorkerCompleted);
@@ -82,11 +83,11 @@ namespace AlgorithmVisualizer.Forms
 		{
 			while (!formClosePending)
 			{
-				if (!formIsMinimized && !graph.IsEmpty())
+				if (!formIsMinimized() && !graph.IsEmpty())
 				{
 					if (forcesEnabled) graph.ApplyForcesAndUpdatePositions();
-					else Thread.Sleep(1);
 					RefreshCanvas();
+					Thread.Sleep(1); // BUG - Delay needed to avoid form resize issues.
 				}
 			}
 		}
@@ -94,8 +95,13 @@ namespace AlgorithmVisualizer.Forms
 		{
 			// Occurs when the background operation has completed, canceled or has raised an exception.
 			// Required to avoid crashing as a result of graph viz still running when this
-			// form is closed, i.e when loading another form such as "ArrayAlgoForm.cs".
-			if (formClosePending) Close();
+			// form is closed, i.e when loading another form.
+			if (formClosePending)
+			{
+				FPSTimer.Stop();
+				parentForm.Text = $"Algorithm visualizer";
+				Close();
+			}
 			formClosePending = false;
 		}
 
@@ -129,7 +135,7 @@ namespace AlgorithmVisualizer.Forms
 			else SimpleDialog.ShowMessage("Graph is empty!", "Algorithm did not run \n" +
 				"Hint: Click \"Presets\" to load a preset or rightclick in canvas create a vertex");
 		}
-		public bool GetStartAndEndNodes(ref int from, ref int to)
+		private bool GetStartAndEndNodes(ref int from, ref int to)
 		{
 			// Ensure node ids are sequential
 			graph.FixNodeIdNumbering();
@@ -153,7 +159,7 @@ namespace AlgorithmVisualizer.Forms
 			}
 			return false; // invalid input given
 		}
-		void MarkNodes(int from, int to, bool includeTo)
+		private void MarkNodes(int from, int to, bool includeTo)
 		{
 			graph.MarkParticle(from, Colors.Green); // start node
 			if (includeTo)
@@ -162,17 +168,12 @@ namespace AlgorithmVisualizer.Forms
 				graph.MarkParticle(to, Colors.Red); // end node
 			}
 			graph.Sleep(Delay.Long);
-			// BUG: unsure why canvas paint trigger is required, doesn't
-			// 'bgwGraphLayoutViz' already trigger the same event?
-			RefreshCanvas();
 		}
-		void UnmarkNodes(int from, int to)
+		private void UnmarkNodes(int from, int to)
 		{
 			foreach (int id in new int[] { from, to })
 				if (id != -1) graph.ResetParticleColors(id);
 			graph.Sleep(Delay.Long);
-			// Again unsure why triggering is needed if bgwGraphLayoutViz should already do so?
-			RefreshCanvas();
 		}
 		private void RunAlgo(int from, int to)
 		{
@@ -244,10 +245,11 @@ namespace AlgorithmVisualizer.Forms
 			parentForm.ToggleMainMenuBtns();
 			parentForm.inGraphAlgoViz = inGraphAlgoViz = false;
 		}
-		// Safely access control.Enabled, i.e: btnStart.Enabled
 		private delegate void SetControlEnabledCallback(Control control, bool enabled);
 		private void SetControlEnabled(Control control, bool enabled)
 		{
+			// Thread safe control.Enabled setting
+
 			// InvokeRequired required compares the thread ID of the
 			// calling thread to the thread ID of the creating thread.
 			// If these threads are different, it returns true.
@@ -291,6 +293,7 @@ namespace AlgorithmVisualizer.Forms
 				"You are about to remove all vertices and edges\n press OK to proceed."))
 			{
 				graph.ClearGraph();
+				canvas.Refresh();
 				panelLogG.Clear(Colors.UndrawLog);
 			}
 		}
@@ -412,6 +415,7 @@ namespace AlgorithmVisualizer.Forms
 		{
 			e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
 			graph.DrawGraph(e.Graphics);
+			frameCount++;
 		}
 		private void canvas_MouseDown(object sender, MouseEventArgs e)
 		{
@@ -429,7 +433,12 @@ namespace AlgorithmVisualizer.Forms
 		private void canvas_MouseMove(object sender, MouseEventArgs e)
 		{
 			canvasMouseHoverPos = new Vector(e.X, e.Y);
-			if (movingParticle != null) movingParticle.Pos = canvasMouseHoverPos;
+			if (movingParticle != null)
+			{
+				movingParticle.Pos = canvasMouseHoverPos;
+				// Needed in case trying to move a particle outside of the canvas
+				movingParticle.BoundWithinCanvas(canvas.Height, canvas.Width);
+			}
 		}
 		private void canvas_MouseUp(object sender, MouseEventArgs e)
 		{
@@ -468,16 +477,8 @@ namespace AlgorithmVisualizer.Forms
 
 		private void GraphAlgoForm_Resize(object sender, EventArgs e)
 		{
-			// Can occour when the form is minimized
-			if (Width > 0)
-			{
-				// Update canvas height/width for stoed in graph
-				graph.CanvasHeight = canvas.Height;
-				graph.CanvasWidth = canvas.Width;
-			}
-			// Detect when the form is minimized to stop visualizing the graph. Note that
-			// the parent form is the one minimized and not this form.
-			if (ParentForm != null) formIsMinimized = ParentForm.WindowState == FormWindowState.Minimized;
+			// Update the center pos for the graph visualizer
+			if (!formIsMinimized()) graph.UpdateCenterPos();
 		}
 		private void GraphAlgoForm_FormClosing(object sender, FormClosingEventArgs e)
 		{
@@ -491,7 +492,6 @@ namespace AlgorithmVisualizer.Forms
 				Enabled = false; // or this.Hide()
 			}
 		}
-		private static Random rnd = new Random();
 		private void GraphAlgoForm_KeyDown(object sender, KeyEventArgs e)
 		{
 			// If not during a graph algo viz
@@ -528,10 +528,23 @@ namespace AlgorithmVisualizer.Forms
 		protected override void OnShown(EventArgs e)
 		{
 			// Used to make key binds work, otherwise need to foucs on the form, i.e,
-			// press a button, and only then can keybinds will work
+			// press a button, and only then will keybinds work
 			Focus();
 		}
-		#endregion
 
+		private DateTime lastFPSCheckTime = DateTime.Now;
+		private int frameCount = 0;
+		private void FPSTimer_Tick(object sender, EventArgs e)
+		{
+			// Update parent from's title to show the FPS estimate
+			double deltaTime = (DateTime.Now - lastFPSCheckTime).TotalSeconds;
+			double FPS = frameCount / deltaTime;
+
+			parentForm.Text = string.Format("Algorithm visualizer \t\t FPS - {0:0.00}", FPS);
+
+			lastFPSCheckTime = DateTime.Now;
+			frameCount = 0;
+		}
+		#endregion
 	}
 }

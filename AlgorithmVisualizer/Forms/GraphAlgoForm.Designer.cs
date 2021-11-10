@@ -54,6 +54,7 @@ namespace AlgorithmVisualizer.Forms
 			this.togglePhysicsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.toggleCenterPullToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.canvas = new System.Windows.Forms.PictureBox();
+			this.FPSTimer = new System.Windows.Forms.Timer(this.components);
 			this.vertexContextStrip.SuspendLayout();
 			this.panelControls.SuspendLayout();
 			this.canvasContextStrip.SuspendLayout();
@@ -329,6 +330,11 @@ namespace AlgorithmVisualizer.Forms
 			this.canvas.MouseMove += new System.Windows.Forms.MouseEventHandler(this.canvas_MouseMove);
 			this.canvas.MouseUp += new System.Windows.Forms.MouseEventHandler(this.canvas_MouseUp);
 			// 
+			// FPSTimer
+			// 
+			this.FPSTimer.Interval = 500;
+			this.FPSTimer.Tick += new System.EventHandler(this.FPSTimer_Tick);
+			// 
 			// GraphAlgoForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -378,5 +384,6 @@ namespace AlgorithmVisualizer.Forms
 		private System.Windows.Forms.PictureBox canvas;
 		private System.Windows.Forms.ToolStripMenuItem toggleCenterPullToolStripMenuItem;
 		private System.Windows.Forms.Button btnPreferences;
+		private System.Windows.Forms.Timer FPSTimer;
 	}
 }
