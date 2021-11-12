@@ -36,18 +36,18 @@ namespace AlgorithmVisualizer.GraphTheory.Algorithms
 					Sleep(Delay.Medium);
 					if (Solve(edge.To)) // Current edge is in a path to 'to'
 					{
-						// Marking SP
+						// Mark edge, note that DFS does not guarantee the SP!
 						graph.MarkSpring(edge, Colors.Green, Dir.Directed);
 						graph.MarkParticle(at, Colors.Green);
 						Sleep(Delay.Long);
 						return true;
 					}
-					// Unmark edge after visit
+					// Unmark edge after visit if not in path to 'to'
 					graph.MarkSpring(edge, Colors.Visited, Dir.Directed);
 					Sleep(Delay.Medium);
 				}
 			}
-			// Unmark node after vist
+			// Unmark node after visit
 			graph.MarkParticle(at, Colors.Visited, Colors.VisitedBorder);
 			Sleep(Delay.Medium);
 			return false;
