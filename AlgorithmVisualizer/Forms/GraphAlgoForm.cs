@@ -391,6 +391,7 @@ namespace AlgorithmVisualizer.Forms
 					activeParticleId, remStatus ? "Success" : "Failure");
 				activeParticleId = -1;
 			}
+			canvas.Refresh(); // May be needed in case graph becomes empty
 		}
 		private void addEdgeToolStripMenuItem_Click(object sender, EventArgs e)
 		{
@@ -506,8 +507,12 @@ namespace AlgorithmVisualizer.Forms
 					// Try getting the hovered particle using the postion of the mouse
 					var hoverParticle = graph.GetParticle(canvasMouseHoverPos.X, canvasMouseHoverPos.Y);
 					// Try removing the particle if non null, if failed to remove show a message
-					if (hoverParticle != null && !graph.RemoveNode(hoverParticle.Id))
-						SimpleDialog.ShowMessage("", "Failed to remove node with id " + hoverParticle.Id);
+					if (hoverParticle != null)
+					{
+						bool remStatus = graph.RemoveNode(hoverParticle.Id);
+						if (!remStatus) SimpleDialog.ShowMessage("", "Failed to remove node with id " + hoverParticle.Id);
+						else canvas.Refresh(); // May be needed in case graph becomes empty
+					}
 				}
 				else if (e.KeyCode == Keys.C)
 				{
