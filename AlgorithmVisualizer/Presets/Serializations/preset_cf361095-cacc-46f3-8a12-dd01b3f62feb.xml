@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Preset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" id="cf361095-cacc-46f3-8a12-dd01b3f62feb">
+  <name>K5 - Undirected connected</name>
+  <serial>0: (1,13), (2,7), (3,8), (4,13), 
+1: (0,13), (2,3), (3,5), (4,14), 
+2: (0,7), (1,3), (3,4), (4,7), 
+3: (0,8), (1,5), (2,4), (4,3), 
+4: (0,13), (1,14), (2,7), (3,3), 
+</serial>
+  <imgDir>\8.png</imgDir>
+<timestamp>202112082147542904</timestamp>
+</Preset>

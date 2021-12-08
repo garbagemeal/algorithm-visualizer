@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Preset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" id="1592a5d4-e33a-4568-9655-9b6603d68959">
+  <name>Ternary tree</name>
+  <serial>0: (1,10), (2,13), 
+1: (3,9), (4,9), (5,2), 
+2: (6,7), (7,4), 
+3: (8,9), (9,5), 
+4: 
+5: 
+6: (10,4), (11,8), (12,3), 
+7: 
+8: 
+9: 
+10: 
+11: 
+12: 
+</serial>
+  <imgDir>\7.png</imgDir>
+<timestamp>202112082147542128</timestamp>
+</Preset>

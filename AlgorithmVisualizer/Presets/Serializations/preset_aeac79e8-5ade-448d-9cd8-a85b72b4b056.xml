@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Preset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" id="aeac79e8-5ade-448d-9cd8-a85b72b4b056">
+  <name>Undirected connected</name>
+  <serial>0: (1,2), (5,2), (6,13), 
+1: (0,2), (2,11), (6,2), 
+2: (1,11), (3,3), (6,10), 
+3: (2,3), (4,7), (6,6), 
+4: (3,7), (5,2), (6,6), 
+5: (4,2), (0,2), (6,14), 
+6: (0,13), (1,2), (2,10), (3,6), (4,6), (5,14), 
+</serial>
+  <imgDir>\2.png</imgDir>
+<timestamp>202112082147538251</timestamp>
+</Preset>

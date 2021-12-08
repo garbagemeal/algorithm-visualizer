@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Preset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" id="d1e17f13-ba71-45c7-ad42-15c91de5b8b3">
+  <name>DAG</name>
+  <serial>0: (4,11), (6,5), 
+1: (2,3), 
+2: (3,12), (4,4), 
+3: 
+4: (5,5), (7,1), 
+5: 
+6: (4,6), 
+7: 
+</serial>
+  <imgDir>\5.png</imgDir>
+<timestamp>202112082147540571</timestamp>
+</Preset>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Preset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" id="d8cc3359-453f-4b85-aaca-eaab23aca6b8">
+  <name>SCC tests</name>
+  <serial>0: (1,1), 
+1: (2,1), 
+2: (0,1), 
+3: (4,1), (2,1), 
+4: (5,1), 
+5: (3,1), 
+</serial>
+  <imgDir />
+<timestamp>202112082147550714</timestamp>
+</Preset>

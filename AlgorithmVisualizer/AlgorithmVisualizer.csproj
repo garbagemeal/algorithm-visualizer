@@ -33,7 +33,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="MySql.Data, Version=8.0.23.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -47,6 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Presets\Preset.cs" />
     <Compile Include="Tracers\ArrayTracer.cs" />
     <Compile Include="DataStructures\AVLTree\AVLTree.cs" />
     <Compile Include="DataStructures\BinaryTree\BinarySearchTree.cs" />
@@ -59,7 +59,6 @@
     <Compile Include="DataStructures\DisjointSet.cs" />
     <Compile Include="DataStructures\Heap\BinaryMinHeap.cs" />
     <Compile Include="DataStructures\Heap\MinIndexedDHeap.cs" />
-    <Compile Include="DBHandler\DBConnection.cs" />
     <Compile Include="Forms\Dialogs\AlgoDetails\DetailsDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -97,7 +96,6 @@
     <Compile Include="Forms\Dialogs\NewPresetDialog.Designer.cs">
       <DependentUpon>NewPresetDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\Dialogs\Preset.cs" />
     <Compile Include="Forms\Dialogs\PresetDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -225,6 +223,9 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Presets\Imgs\" />
+    <Folder Include="Presets\Serializations\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

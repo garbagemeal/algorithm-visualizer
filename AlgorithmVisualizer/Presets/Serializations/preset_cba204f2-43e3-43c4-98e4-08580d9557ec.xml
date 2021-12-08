@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Preset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" id="cba204f2-43e3-43c4-98e4-08580d9557ec">
+  <name>Undirected disconnected</name>
+  <serial>0: (1,4), 
+1: (0,4), (2,2), 
+2: (1,2), 
+3: (4,8), 
+4: (3,8), (5,6), 
+5: (4,6), (6,7), 
+6: (5,7), 
+7: (8,6), 
+8: (7,6), 
+9: (10,9), (11,3), (12,5), 
+10: (9,9), 
+11: (9,3), 
+12: (9,5), 
+</serial>
+  <imgDir>\3.png</imgDir>
+<timestamp>202112082147539011</timestamp>
+</Preset>

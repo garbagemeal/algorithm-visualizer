@@ -1,7 +1,6 @@
 ﻿using System;
 
-using AlgorithmVisualizer.DBHandler;
-using AlgorithmVisualizer.Forms.Dialogs;
+using AlgorithmVisualizer.Presets;
 
 namespace AlgorithmVisualizer.GraphTheory.Utils
 {
@@ -40,16 +39,8 @@ namespace AlgorithmVisualizer.GraphTheory.Utils
 				foreach (Edge edge in graph.AdjList[i]) row += $"({edge.To},{edge.Cost}), ";
 				serialization += row + "\n";
 			}
-			// Save preset in DB
-			DBConnection db = DBConnection.GetInstance();
-			if (db.Connect())
-			{
-				// Connect to DB and store new preset with given name and disconnect
-				var newPreset = new Preset(name, serialization);
-				if (!db.AddPreset(newPreset))
-					Console.WriteLine($"Failed to add preset '{name}'");
-				db.Disconnect();
-			}
+			// Save the preset as an XML doc
+			new Preset { id = Guid.NewGuid().ToString(), name = name, serial = serialization }.Save();
 		}
 		public static void Deserialize(Graph graph, string[] serialization)
 		{
