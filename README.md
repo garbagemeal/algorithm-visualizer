@@ -13,14 +13,13 @@ Binary tree and BST, Depth/Breadth first traversals, Construction using given tr
 ### Graph theory:
 BFS, DFS, Connected components using DFS or a disjoint set, Prim's and Kruskal's MST, DFS based maze generator, Top sort DFS, Kahn's top sort, SSSP for DAG, Dijkstra's SSSP, Kosaraju's and Tarjan's strongly connected components, Bellman Ford's SSSP.
 
-# Setup
+# Setup (Microsoft Visual Studio)
 
-- Clone the repository
-- Make sure to install Microsoft Visual Studio and include .NET Framework in the installer:
+- Clone the repository.
+- Install Microsoft Visual Studio and include .NET Framework in the installer:
 ![vs installer dot net framework option](images/setup/vs-installer-dot-net-framework-option.PNG)
-- Navigate to the root dir, run AlgorithmVisualizer.sln using Microsoft Visual Studio.
-- Optionally in order to make use of presets, import the MySQL DB export given in 'misc\SQL Files'.
-- Run
+- Open the project, for example: run AlgorithmVisualizer.sln using Microsoft Visual Studio.
+- Run.
 
 # Screens
 
